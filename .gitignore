@@ -1,6 +1,7 @@
+### IntelliJ IDEA ###
 .idea
-
 *.iml
 
-#docker
+### Authorization Server ###
 docker/.env
+postgres/data
