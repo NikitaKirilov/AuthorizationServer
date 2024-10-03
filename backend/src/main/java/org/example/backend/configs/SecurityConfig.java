@@ -16,7 +16,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] permitAll = new String[]{
+    private static final String[] PERMIT_ALL = new String[]{
             "/login/**",
             "/oauth2/**"
     };
@@ -25,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(
                         authorize -> {
-                            authorize.requestMatchers(permitAll).permitAll();
+                            authorize.requestMatchers(PERMIT_ALL).permitAll();
                             authorize.anyRequest().authenticated();
                         }
                 )
