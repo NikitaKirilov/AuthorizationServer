@@ -14,3 +14,9 @@ services:
       - ../postgres/scripts:/docker-entrypoint-initdb.d
       - ../postgres/data:/var/lib/postgresql/data
     restart: always
+    networks:
+        - authorization_server
+
+networks:
+  authorization_server:
+    driver: bridge
