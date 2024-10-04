@@ -59,7 +59,7 @@ public class OAuth2Config {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("InMemoryClient")
-                .clientSecret("{noop}Secret")
+                .clientSecret("$2a$12$XlZDNqLtKqECgETgoN2Uge/XjwelQGmyD72BD3y3yiG/yd18BBOr.") // Secret
                 .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AUTHORIZATION_CODE)
                 .redirectUri("https://oauth.pstmn.io/v1/callback")
