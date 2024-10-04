@@ -15,7 +15,7 @@ import java.util.List;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 import static java.util.Collections.emptyList;
 
-@Entity(name = "scope")
+@Entity
 @NoArgsConstructor
 @Getter
 @Setter
