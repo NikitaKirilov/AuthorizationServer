@@ -29,7 +29,9 @@ import static org.example.backend.utils.JwtUtils.generateRsaKey;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 import static org.springframework.http.MediaType.TEXT_HTML;
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE;
+import static org.springframework.security.oauth2.core.AuthorizationGrantType.REFRESH_TOKEN;
 import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
+import static org.springframework.security.oauth2.core.oidc.OidcScopes.EMAIL;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.OPENID;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
 
@@ -60,12 +62,18 @@ public class OAuth2Config {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("InMemoryClient")
                 .clientSecret("$2a$12$XlZDNqLtKqECgETgoN2Uge/XjwelQGmyD72BD3y3yiG/yd18BBOr.") // Secret
-                .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AUTHORIZATION_CODE)
                 .redirectUri("https://oauth.pstmn.io/v1/callback")
                 .postLogoutRedirectUri("http://127.0.0.1:8080/")
-                .scope(OPENID)
-                .scope(PROFILE)
+                .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+                .authorizationGrantTypes(authorizationGrantTypes -> {
+                    authorizationGrantTypes.add(AUTHORIZATION_CODE);
+                    authorizationGrantTypes.add(REFRESH_TOKEN);
+                })
+                .scopes(scopes -> {
+                    scopes.add(OPENID);
+                    scopes.add(PROFILE);
+                    scopes.add(EMAIL);
+                })
                 .build();
 
         return new InMemoryRegisteredClientRepository(oidcClient);
