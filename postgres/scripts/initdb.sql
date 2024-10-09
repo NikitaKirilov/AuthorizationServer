@@ -1,11 +1,13 @@
-create table user_role
+create table scope
 (
     id   serial primary key,
     name varchar(255) not null unique
 );
 
-insert into user_role(name)
+insert into scope(name)
 VALUES ('USER');
+
+
 
 create table app_user
 (
@@ -14,7 +16,7 @@ create table app_user
     email          varchar(255) not null unique,
     email_verified boolean   default false,
 
-    password       varchar(255) not null,
+    password       varchar(255),
 
     name           varchar(255) not null,
     family_name    varchar(255) not null,
@@ -29,6 +31,8 @@ VALUES ('test@test.com',
         'test',
         'test');
 
+
+
 create table app_user_scope
 (
     user_id  int not null,
@@ -38,3 +42,23 @@ create table app_user_scope
 
 insert into app_user_scope(user_id, scope_id)
 VALUES (1, 1);
+
+
+
+create table oauth2_registered_client
+(
+    id                            varchar(100)                            NOT NULL,
+    client_id                     varchar(100)                            NOT NULL,
+    client_id_issued_at           timestamp     DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    client_secret                 varchar(200)  DEFAULT NULL,
+    client_secret_expires_at      timestamp     DEFAULT NULL,
+    client_name                   varchar(200)                            NOT NULL,
+    client_authentication_methods varchar(1000)                           NOT NULL,
+    authorization_grant_types     varchar(1000)                           NOT NULL,
+    redirect_uris                 varchar(1000) DEFAULT NULL,
+    post_logout_redirect_uris     varchar(1000) DEFAULT NULL,
+    scopes                        varchar(1000)                           NOT NULL,
+    client_settings               varchar(2000)                           NOT NULL,
+    token_settings                varchar(2000)                           NOT NULL,
+    primary key (id)
+);
