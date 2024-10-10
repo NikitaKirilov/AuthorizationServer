@@ -47,18 +47,38 @@ VALUES (1, 1);
 
 create table oauth2_registered_client
 (
-    id                            varchar(100)                            NOT NULL,
-    client_id                     varchar(100)                            NOT NULL,
-    client_id_issued_at           timestamp     DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    client_secret                 varchar(200)  DEFAULT NULL,
-    client_secret_expires_at      timestamp     DEFAULT NULL,
-    client_name                   varchar(200)                            NOT NULL,
-    client_authentication_methods varchar(1000)                           NOT NULL,
-    authorization_grant_types     varchar(1000)                           NOT NULL,
-    redirect_uris                 varchar(1000) DEFAULT NULL,
-    post_logout_redirect_uris     varchar(1000) DEFAULT NULL,
-    scopes                        varchar(1000)                           NOT NULL,
-    client_settings               varchar(2000)                           NOT NULL,
-    token_settings                varchar(2000)                           NOT NULL,
+    id                            varchar(100)                            not null,
+    client_id                     varchar(100)                            not null,
+    client_id_issued_at           timestamp     default current_timestamp not null,
+    client_secret                 varchar(200)  default null,
+    client_secret_expires_at      timestamp     default null,
+    client_name                   varchar(200)                            not null,
+    client_authentication_methods varchar(1000)                           not null,
+    authorization_grant_types     varchar(1000)                           not null,
+    redirect_uris                 varchar(1000) default null,
+    post_logout_redirect_uris     varchar(1000) default null,
+    scopes                        varchar(1000)                           not null,
+    client_settings               varchar(2000)                           not null,
+    token_settings                varchar(2000)                           not null,
     primary key (id)
 );
+
+
+
+create table oauth2_client_registration
+(
+    registration_id              varchar(100)        not null,
+    client_id                    varchar(100) unique not null,
+    client_secret                varchar(200) unique not null,
+    client_authentication_method varchar(100)        not null,
+    authorization_grant_type     varchar(100)        not null,
+    redirect_uri                 varchar(500)        not null,
+    scopes                       varchar(1000)       not null,
+    authorization_uri            varchar(200)        not null,
+    token_uri                    varchar(500)        not null,
+    user_info_uri                varchar(500)        not null,
+    jwk_set_uri                  varchar(500)        not null,
+    primary key (registration_id)
+);
+
+-- TODO: split tables to different files
