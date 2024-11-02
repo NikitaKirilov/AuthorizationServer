@@ -1,56 +1,74 @@
 package org.example.backend.configs;
 
-import org.example.backend.models.UserDetailsImpl;
+import lombok.RequiredArgsConstructor;
+import org.example.backend.exceptions.AuthException;
+import org.example.backend.models.CustomOAuth2User;
+import org.example.backend.models.CustomUserDetails;
+import org.example.backend.models.entities.User;
+import org.example.backend.services.UserService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
+import static java.lang.Boolean.TRUE;
+import static org.example.backend.models.TokenClaimNames.RESOURCE_ACCESS;
+import static org.example.backend.utils.JwtUtils.getResourceAccessClaim;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL_VERIFIED;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.FAMILY_NAME;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GIVEN_NAME;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.UPDATED_AT;
 import static org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimNames.SUB;
 
 @Component
+@RequiredArgsConstructor
 public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
+    private final UserService userService;
+
     private static final String AUTHENTICATION_PRINCIPAL_KEY = "org.springframework.security.core.Authentication.PRINCIPAL";
-
-    public static final String NAME = "name";
-    public static final String FAMILY_NAME = "family_name";
-    public static final String UPDATED_AT = "updated_at";
-
-    public static final String EMAIL = "email";
-    public static final String EMAIL_VERIFIED = "email_verified";
-
-    public static final String ROLES = "roles";
 
     @Override
     public void customize(JwtEncodingContext context) {
         Authentication authentication = context.get(AUTHENTICATION_PRINCIPAL_KEY);
-        if (authentication != null &&
-                authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
+        User user = getUserFromAuthentication(authentication);
 
-            if (context.getAuthorizedScopes().contains(PROFILE)) {
-                context.getClaims()
-                        .claim(NAME, userDetails.getName())
-                        .claim(FAMILY_NAME, userDetails.getFamilyName())
-                        .claim(UPDATED_AT, userDetails.getUpdatedAt());
-            }
+        JwtClaimsSet.Builder claimsBuilder = context.getClaims();
 
-            if (context.getAuthorizedScopes().contains(OidcScopes.EMAIL)) {
-                context.getClaims()
-                        .claim(EMAIL, userDetails.getEmail())
-                        .claim(EMAIL_VERIFIED, userDetails.isEmailVerified());
-            }
-
-            List<String> roles = userDetails.getAuthorities().stream()
-                    .map(SimpleGrantedAuthority::getAuthority).toList();
-
-            context.getClaims().claim(ROLES, roles);
-            context.getClaims().claim(SUB, userDetails.getId());
+        if (context.getAuthorizedScopes().contains(PROFILE)) {
+            claimsBuilder.claims(consumer -> {
+                consumer.computeIfAbsent(NAME, val -> user.getName());
+                consumer.computeIfAbsent(GIVEN_NAME, val -> user.getGivenName());
+                consumer.computeIfAbsent(FAMILY_NAME, val -> user.getFamilyName());
+                consumer.put(UPDATED_AT, user.getUpdatedAt());
+            });
         }
+
+        if (context.getAuthorizedScopes().contains(EMAIL)) {
+            claimsBuilder.claim(EMAIL, user.getEmail());
+            claimsBuilder.claim(EMAIL_VERIFIED, TRUE.equals(user.isEmailVerified()));
+        }
+
+        claimsBuilder.claim(SUB, user.getId());
+        claimsBuilder.claim(RESOURCE_ACCESS, getResourceAccessClaim(user.getScopes()));
+    }
+
+    private User getUserFromAuthentication(Authentication authentication) {
+        if (authentication != null &&
+                authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+
+            return userService.getById(userDetails.getId());
+        } else if (authentication != null &&
+                authentication.getPrincipal() instanceof CustomOAuth2User oAuth2User) {
+
+            String userId = oAuth2User.getId();
+            return userService.getById(userId);
+        }
+
+        throw new AuthException("Unsupported authentication principal: " + authentication);
     }
 }

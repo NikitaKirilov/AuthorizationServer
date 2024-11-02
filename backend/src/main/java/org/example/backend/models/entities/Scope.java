@@ -13,7 +13,6 @@ import lombok.Setter;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
-import static java.util.Collections.emptyList;
 
 @Entity
 @NoArgsConstructor
@@ -25,6 +24,8 @@ public class Scope {
     @GeneratedValue(strategy = SEQUENCE)
     private long id;
 
+    private String resourceName;
+
     private String name;
 
     @ManyToMany
@@ -33,13 +34,9 @@ public class Scope {
             joinColumns = @JoinColumn(name = "scope_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users = emptyList();
+    private List<User> users;
 
     public Scope(String name) {
         this.name = name;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users.addAll(users);
     }
 }
