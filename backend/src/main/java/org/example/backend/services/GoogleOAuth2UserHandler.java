@@ -1,7 +1,5 @@
 package org.example.backend.services;
 
-import lombok.RequiredArgsConstructor;
-import org.example.backend.models.CustomOAuth2User;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.enums.OAuth2ProviderType;
@@ -10,11 +8,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
 import static org.example.backend.models.enums.OAuth2ProviderType.GOOGLE;
+import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL_VERIFIED;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.FAMILY_NAME;
@@ -22,17 +20,14 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.G
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
 
 @Service
-@RequiredArgsConstructor
 public class GoogleOAuth2UserHandler implements OAuth2UserHandler {
 
-    private final UserService userService;
-
     @Override
-    public CustomOAuth2User handleUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
+    public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
         boolean emailVerified = TRUE.equals(idpUser.getAttribute(EMAIL_VERIFIED));
-        Timestamp timestampNow = Timestamp.from(Instant.now());
+        Timestamp timestampNow = getCurrentTimestamp();
 
-        User user = User.builder()
+        return User.builder()
                 .id(UUID.randomUUID().toString())
                 .idpRegistration(idpRegistration)
                 .email(idpUser.getAttribute(EMAIL))
@@ -44,8 +39,6 @@ public class GoogleOAuth2UserHandler implements OAuth2UserHandler {
                 .createdAt(timestampNow)
                 .updatedAt(timestampNow)
                 .build();
-
-        return new CustomOAuth2User(idpUser.getAttributes(), userService.saveUserOnIdpLogin(user));
     }
 
     @Override

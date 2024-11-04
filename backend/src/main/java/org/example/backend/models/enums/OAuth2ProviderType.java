@@ -1,7 +1,6 @@
 package org.example.backend.models.enums;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.example.backend.models.TokenClaimNames.ID;
@@ -66,7 +65,11 @@ public enum OAuth2ProviderType {
     YANDEX {
         @Override
         public ClientRegistration.Builder getBuilder(String registrationId) {
-            return null;
+            return getBuilder(registrationId, CLIENT_SECRET_BASIC)
+                    .authorizationUri("https://oauth.yandex.ru/authorize")
+                    .tokenUri("https://oauth.yandex.ru/token")
+                    .userInfoUri("https://login.yandex.ru/info")
+                    .userNameAttributeName(ID);
         }
     },
 

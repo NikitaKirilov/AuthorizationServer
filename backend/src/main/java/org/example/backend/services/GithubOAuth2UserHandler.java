@@ -2,7 +2,6 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
-import org.example.backend.models.CustomOAuth2User;
 import org.example.backend.models.GithubEmailResponse;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.models.entities.User;
@@ -16,13 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 import static org.example.backend.models.OAuth2UserAttributes.LOGIN;
 import static org.example.backend.models.enums.OAuth2ProviderType.GITHUB;
 import static org.example.backend.utils.RequestUtils.createOAuth2EmailRequest;
+import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GIVEN_NAME;
 
 @Service
@@ -35,16 +34,15 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
     private static final String GITHUB_EMAIL_URI = "https://api.github.com/user/emails";
 
     private final RestOperations restOperations;
-    private final UserService userService;
 
     @Override
-    public CustomOAuth2User handleUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
+    public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
         GithubEmailResponse githubEmailResponse = fetchEmail(request);
         String email = githubEmailResponse.getEmail();
         boolean emailVerified = githubEmailResponse.isVerified();
-        Timestamp timestampNow = Timestamp.from(Instant.now());
+        Timestamp timestampNow = getCurrentTimestamp();
 
-        User user = User.builder()
+        return User.builder()
                 .id(UUID.randomUUID().toString())
                 .idpRegistration(idpRegistration)
                 .email(email)
@@ -55,8 +53,6 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
                 .createdAt(timestampNow)
                 .updatedAt(timestampNow)
                 .build();
-
-        return new CustomOAuth2User(idpUser.getAttributes(), userService.saveUserOnIdpLogin(user));
     }
 
     @Override

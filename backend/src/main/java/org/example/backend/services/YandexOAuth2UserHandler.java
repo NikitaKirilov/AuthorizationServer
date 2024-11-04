@@ -11,15 +11,15 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
+import static org.example.backend.models.OAuth2UserAttributes.DEFAULT_EMAIL;
 import static org.example.backend.models.OAuth2UserAttributes.FIRST_NAME;
 import static org.example.backend.models.OAuth2UserAttributes.LAST_NAME;
-import static org.example.backend.models.enums.OAuth2ProviderType.MAILRU;
+import static org.example.backend.models.OAuth2UserAttributes.LOGIN;
+import static org.example.backend.models.enums.OAuth2ProviderType.YANDEX;
 import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
 
 @Service
-public class MailruOAuth2UserHandler implements OAuth2UserHandler {
+public class YandexOAuth2UserHandler implements OAuth2UserHandler {
 
     @Override
     public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
@@ -28,9 +28,9 @@ public class MailruOAuth2UserHandler implements OAuth2UserHandler {
         return User.builder()
                 .id(UUID.randomUUID().toString())
                 .idpRegistration(idpRegistration)
-                .email(idpUser.getAttribute(EMAIL))
+                .email(idpUser.getAttribute(DEFAULT_EMAIL))
                 .emailVerified(TRUE)
-                .name(idpUser.getAttribute(NAME))
+                .name(idpUser.getAttribute(LOGIN))
                 .givenName(idpUser.getAttribute(FIRST_NAME))
                 .familyName(idpUser.getAttribute(LAST_NAME))
                 .lastLogin(timestampNow)
@@ -41,6 +41,6 @@ public class MailruOAuth2UserHandler implements OAuth2UserHandler {
 
     @Override
     public OAuth2ProviderType getHandlerType() {
-        return MAILRU;
+        return YANDEX;
     }
 }

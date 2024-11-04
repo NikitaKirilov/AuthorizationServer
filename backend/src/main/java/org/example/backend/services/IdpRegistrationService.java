@@ -12,11 +12,11 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +48,8 @@ public class IdpRegistrationService {
 
         IdpRegistration idpRegistration = idpRegistrationDto.toEntity();
         idpRegistration.setId(UUID.randomUUID().toString());
-        idpRegistration.setCreatedAt(Timestamp.from(Instant.now()));
-        idpRegistration.setUpdatedAt(Timestamp.from(Instant.now()));
+        idpRegistration.setCreatedAt(getCurrentTimestamp());
+        idpRegistration.setUpdatedAt(getCurrentTimestamp());
 
         return idpRegistrationRepository.save(idpRegistration);
     }
@@ -69,7 +69,7 @@ public class IdpRegistrationService {
         existingIdpRegistration.setClientId(updatedIdpRegistration.getClientId());
         existingIdpRegistration.setClientSecret(existingIdpRegistration.getClientSecret());
         existingIdpRegistration.setImageUri(existingIdpRegistration.getImageUri());
-        existingIdpRegistration.setUpdatedAt(Timestamp.from(Instant.now()));
+        existingIdpRegistration.setUpdatedAt(getCurrentTimestamp());
 
         return idpRegistrationRepository.save(existingIdpRegistration);
     }
