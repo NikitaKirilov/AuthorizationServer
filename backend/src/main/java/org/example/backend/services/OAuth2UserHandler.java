@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 public interface OAuth2UserHandler {
 
-    User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration);
+    User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration);
 
     OAuth2ProviderType getHandlerType();
 }

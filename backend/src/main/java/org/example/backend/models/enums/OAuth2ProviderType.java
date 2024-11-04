@@ -4,6 +4,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.example.backend.models.TokenClaimNames.ID;
+import static org.springframework.security.oauth2.core.AuthenticationMethod.HEADER;
 import static org.springframework.security.oauth2.core.AuthenticationMethod.QUERY;
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE;
 import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
@@ -82,6 +83,19 @@ public enum OAuth2ProviderType {
                     .tokenUri("https://oauth.mail.ru/token")
                     .userInfoUri("https://oauth.mail.ru/userinfo")
                     .userInfoAuthenticationMethod(QUERY)
+                    .userNameAttributeName(ID);
+        }
+    },
+
+    DISCORD {
+        @Override
+        public ClientRegistration.Builder getBuilder(String registrationId) {
+            return getBuilder(registrationId, CLIENT_SECRET_BASIC)
+                    .scope("identify", EMAIL)
+                    .authorizationUri("https://discord.com/oauth2/authorize")
+                    .tokenUri("https://discord.com/api/oauth2/token")
+                    .userInfoUri("https://discordapp.com/api/users/@me")
+                    .userInfoAuthenticationMethod(HEADER)
                     .userNameAttributeName(ID);
         }
     };

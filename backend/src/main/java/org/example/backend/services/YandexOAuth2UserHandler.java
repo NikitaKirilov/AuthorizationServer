@@ -22,17 +22,17 @@ import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 public class YandexOAuth2UserHandler implements OAuth2UserHandler {
 
     @Override
-    public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
+    public User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration) {
         Timestamp timestampNow = getCurrentTimestamp();
 
         return User.builder()
                 .id(UUID.randomUUID().toString())
                 .idpRegistration(idpRegistration)
-                .email(idpUser.getAttribute(DEFAULT_EMAIL))
+                .email(oAuth2User.getAttribute(DEFAULT_EMAIL))
                 .emailVerified(TRUE)
-                .name(idpUser.getAttribute(LOGIN))
-                .givenName(idpUser.getAttribute(FIRST_NAME))
-                .familyName(idpUser.getAttribute(LAST_NAME))
+                .name(oAuth2User.getAttribute(LOGIN))
+                .givenName(oAuth2User.getAttribute(FIRST_NAME))
+                .familyName(oAuth2User.getAttribute(LAST_NAME))
                 .lastLogin(timestampNow)
                 .createdAt(timestampNow)
                 .updatedAt(timestampNow)

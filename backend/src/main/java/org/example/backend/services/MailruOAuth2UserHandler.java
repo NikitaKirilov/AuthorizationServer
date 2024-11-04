@@ -22,17 +22,17 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.N
 public class MailruOAuth2UserHandler implements OAuth2UserHandler {
 
     @Override
-    public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
+    public User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration) {
         Timestamp timestampNow = getCurrentTimestamp();
 
         return User.builder()
                 .id(UUID.randomUUID().toString())
                 .idpRegistration(idpRegistration)
-                .email(idpUser.getAttribute(EMAIL))
+                .email(oAuth2User.getAttribute(EMAIL))
                 .emailVerified(TRUE)
-                .name(idpUser.getAttribute(NAME))
-                .givenName(idpUser.getAttribute(FIRST_NAME))
-                .familyName(idpUser.getAttribute(LAST_NAME))
+                .name(oAuth2User.getAttribute(NAME))
+                .givenName(oAuth2User.getAttribute(FIRST_NAME))
+                .familyName(oAuth2User.getAttribute(LAST_NAME))
                 .lastLogin(timestampNow)
                 .createdAt(timestampNow)
                 .updatedAt(timestampNow)

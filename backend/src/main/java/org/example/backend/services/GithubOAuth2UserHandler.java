@@ -36,7 +36,7 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
     private final RestOperations restOperations;
 
     @Override
-    public User getUser(OAuth2UserRequest request, OAuth2User idpUser, IdpRegistration idpRegistration) {
+    public User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration) {
         GithubEmailResponse githubEmailResponse = fetchEmail(request);
         String email = githubEmailResponse.getEmail();
         boolean emailVerified = githubEmailResponse.isVerified();
@@ -47,8 +47,8 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
                 .idpRegistration(idpRegistration)
                 .email(email)
                 .emailVerified(emailVerified)
-                .name(idpUser.getAttribute(LOGIN))
-                .givenName(idpUser.getAttribute(GIVEN_NAME))
+                .name(oAuth2User.getAttribute(LOGIN))
+                .givenName(oAuth2User.getAttribute(GIVEN_NAME))
                 .lastLogin(timestampNow)
                 .createdAt(timestampNow)
                 .updatedAt(timestampNow)
