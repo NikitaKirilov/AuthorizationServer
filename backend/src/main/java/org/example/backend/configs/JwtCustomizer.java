@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
-import static java.lang.Boolean.TRUE;
 import static org.example.backend.models.TokenClaimNames.RESOURCE_ACCESS;
 import static org.example.backend.utils.JwtUtils.getResourceAccessClaim;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
@@ -50,7 +49,7 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
 
         if (context.getAuthorizedScopes().contains(EMAIL)) {
             claimsBuilder.claim(EMAIL, user.getEmail());
-            claimsBuilder.claim(EMAIL_VERIFIED, TRUE.equals(user.isEmailVerified()));
+            claimsBuilder.claim(EMAIL_VERIFIED, user.isEmailVerified());
         }
 
         claimsBuilder.claim(SUB, user.getId());
@@ -61,12 +60,12 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
         if (authentication != null &&
                 authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
 
-            return userService.getById(userDetails.getId());
+            return userService.getById(userDetails.getId()); //TODO remove query to db
         } else if (authentication != null &&
                 authentication.getPrincipal() instanceof CustomOAuth2User oAuth2User) {
 
             String userId = oAuth2User.getId();
-            return userService.getById(userId);
+            return userService.getById(userId); //TODO: remove query to db
         }
 
         throw new AuthException("Unsupported authentication principal: " + authentication);

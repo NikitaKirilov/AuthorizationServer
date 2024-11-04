@@ -18,7 +18,6 @@ import org.springframework.web.client.RestOperations;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.example.backend.models.OAuth2UserAttributes.LOGIN;
@@ -43,18 +42,7 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
         GithubEmailResponse githubEmailResponse = fetchEmail(request);
         String email = githubEmailResponse.getEmail();
         boolean emailVerified = githubEmailResponse.isVerified();
-
-        Timestamp currentTimestamp = Timestamp.from(Instant.now());
-        Optional<User> existingUser = userService.getOptionalByEmail(email);
-
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-
-            user.setIdpRegistration(idpRegistration);
-            user.setLastLogin(currentTimestamp);
-
-            return new CustomOAuth2User(idpUser.getAttributes(), userService.save(user));
-        }
+        Timestamp timestampNow = Timestamp.from(Instant.now());
 
         User user = User.builder()
                 .id(UUID.randomUUID().toString())
@@ -63,12 +51,12 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
                 .emailVerified(emailVerified)
                 .name(idpUser.getAttribute(LOGIN))
                 .givenName(idpUser.getAttribute(GIVEN_NAME))
-                .lastLogin(currentTimestamp)
-                .createdAt(currentTimestamp)
-                .updatedAt(currentTimestamp)
+                .lastLogin(timestampNow)
+                .createdAt(timestampNow)
+                .updatedAt(timestampNow)
                 .build();
 
-        return new CustomOAuth2User(idpUser.getAttributes(), userService.save(user));
+        return new CustomOAuth2User(idpUser.getAttributes(), userService.saveUserOnIdpLogin(user));
     }
 
     @Override

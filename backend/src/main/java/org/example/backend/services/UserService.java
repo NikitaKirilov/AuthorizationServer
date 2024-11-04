@@ -1,10 +1,12 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 @Service
@@ -27,5 +29,20 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public User saveUserOnIdpLogin(User user) {
+        String email = user.getEmail();
+        IdpRegistration idpRegistration = user.getIdpRegistration();
+        Timestamp lastLogin = user.getLastLogin();
+
+        user = getOptionalByEmail(email)
+                .map(existingUser -> {
+                    existingUser.setIdpRegistration(idpRegistration);
+                    existingUser.setLastLogin(lastLogin);
+                    return existingUser;
+                }).orElse(user);
+
+        return save(user);
     }
 }

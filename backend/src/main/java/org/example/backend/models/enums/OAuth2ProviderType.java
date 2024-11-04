@@ -1,12 +1,15 @@
 package org.example.backend.models.enums;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.example.backend.models.TokenClaimNames.ID;
+import static org.springframework.security.oauth2.core.AuthenticationMethod.QUERY;
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE;
 import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_POST;
+import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.NONE;
 import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.EMAIL;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
@@ -54,7 +57,7 @@ public enum OAuth2ProviderType {
     OKTA {
         @Override
         public ClientRegistration.Builder getBuilder(String registrationId) {
-            return getBuilder(registrationId, CLIENT_SECRET_BASIC)
+            return getBuilder(registrationId, NONE)
                     .scope(PROFILE, EMAIL)
                     .userNameAttributeName(SUB);
         }
@@ -64,6 +67,19 @@ public enum OAuth2ProviderType {
         @Override
         public ClientRegistration.Builder getBuilder(String registrationId) {
             return null;
+        }
+    },
+
+    MAILRU {
+        @Override
+        public ClientRegistration.Builder getBuilder(String registrationId) {
+            return getBuilder(registrationId, CLIENT_SECRET_BASIC)
+                    .scope("userinfo")
+                    .authorizationUri("https://oauth.mail.ru/login")
+                    .tokenUri("https://oauth.mail.ru/token")
+                    .userInfoUri("https://oauth.mail.ru/userinfo")
+                    .userInfoAuthenticationMethod(QUERY)
+                    .userNameAttributeName(ID);
         }
     };
 
