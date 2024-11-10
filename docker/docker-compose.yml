@@ -17,6 +17,20 @@ services:
     networks:
         - authorization_server
 
+  redis:
+    image: redis:7.0
+    container_name: AuthorizationServer-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ../redis/data:/data
+    restart: always
+    networks:
+      - authorization_server
+
+
 networks:
   authorization_server:
     driver: bridge

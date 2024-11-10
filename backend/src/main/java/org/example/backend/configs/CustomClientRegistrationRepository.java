@@ -1,6 +1,7 @@
 package org.example.backend.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.exceptions.idpregistrations.IdpRegistrationNotFoundException;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.models.enums.OAuth2ProviderType;
 import org.example.backend.services.IdpRegistrationService;
@@ -21,7 +22,7 @@ public class CustomClientRegistrationRepository implements ClientRegistrationRep
         Optional<IdpRegistration> optional = idpRegistrationService.getOptionalByRegistrationId(registrationId);
 
         if (optional.isEmpty()) {
-            return null; //TODO: create OAuth2AuthorizationRequestFailureHandler
+            throw new IdpRegistrationNotFoundException(registrationId);
         }
 
         IdpRegistration idpRegistration = optional.get();

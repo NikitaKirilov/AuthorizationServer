@@ -3,23 +3,19 @@ package org.example.backend.configs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final SessionAuthenticationFilter sessionAuthenticationFilter;
-    private final SessionRegistry sessionRegistry;
+    private final OAuth2RedirectFilterPostProcessor oAuth2RedirectFilterPostProcessor = new OAuth2RedirectFilterPostProcessor();
 
     private static final String[] PERMIT_ALL_PATTERN = new String[]{
             "login",
@@ -39,15 +35,17 @@ public class SecurityConfig {
                             authorize.anyRequest().permitAll(); //TODO: authenticated
                         }
                 )
+                .sessionManagement(configurer ->
+                        configurer.maximumSessions(MAXIMUM_SESSIONS)
+                )
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(configurer ->
                         configurer.defaultSuccessUrl(SUCCESS_URL)
                 )
                 .logout(configurer -> configurer.logoutUrl(LOGOUT_URL))
-                .oauth2Login(Customizer.withDefaults())
-                .addFilterBefore(sessionAuthenticationFilter, AnonymousAuthenticationFilter.class)
-                .sessionManagement(configurer ->
-                        configurer.maximumSessions(MAXIMUM_SESSIONS).sessionRegistry(sessionRegistry)
+                .oauth2Login(configurer ->
+                        configurer.withObjectPostProcessor(oAuth2RedirectFilterPostProcessor)
                 )
                 .build();
     }

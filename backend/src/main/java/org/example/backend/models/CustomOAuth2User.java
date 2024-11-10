@@ -7,13 +7,14 @@ import org.example.backend.utils.UserUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
 
 @Getter
 @EqualsAndHashCode
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User, Serializable {
 
     private final String id;
     private final String idpRegistrationId;

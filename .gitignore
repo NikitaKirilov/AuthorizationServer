@@ -5,3 +5,4 @@
 ### Authorization Server ###
 docker/.env
 postgres/data
+redis/data
