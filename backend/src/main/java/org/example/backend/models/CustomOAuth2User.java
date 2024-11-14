@@ -2,6 +2,7 @@ package org.example.backend.models;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.backend.models.entities.User;
 import org.example.backend.utils.UserUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Map;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 public class CustomOAuth2User implements OAuth2User, Serializable {
 
@@ -55,6 +57,6 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
 
     @Override
     public String getName() {
-        return this.id;
+        return this.email;
     }
 }

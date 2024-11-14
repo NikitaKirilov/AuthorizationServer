@@ -1,4 +1,4 @@
-package org.example.backend.exceptions.idpregistrations;
+package org.example.backend.exceptions;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 

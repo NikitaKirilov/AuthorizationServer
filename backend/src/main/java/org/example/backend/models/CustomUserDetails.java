@@ -2,6 +2,7 @@ package org.example.backend.models;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.backend.models.entities.User;
 import org.example.backend.utils.UserUtils;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,21 +12,22 @@ import java.sql.Timestamp;
 import java.util.Collection;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 public class CustomUserDetails implements UserDetails {
 
-    private final String id;
+    private String id;
 
-    private final Collection<? extends GrantedAuthority> authorities;
+    private Collection<? extends GrantedAuthority> authorities;
 
-    private final String email;
-    private final boolean emailVerified;
+    private String email;
+    private boolean emailVerified;
 
-    private final String password;
+    private String password;
 
-    private final String name;
-    private final String givenName;
-    private final String familyName;
+    private String name;
+    private String givenName;
+    private String familyName;
 
     private final Timestamp updatedAt;
 
@@ -48,6 +50,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.id;
+        return this.email;
     }
 }

@@ -95,4 +95,4 @@ create table idp_registration
 );
 
 
--- TODO: split tables to different files
+-- TODO: replace with liquibase migration

@@ -2,14 +2,10 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.IdpRegistrationDto;
-import org.example.backend.exceptions.idpregistrations.IdpRegistrationAlreadyExistsException;
-import org.example.backend.exceptions.idpregistrations.IdpRegistrationNotFoundException;
-import org.example.backend.models.CustomOAuth2User;
+import org.example.backend.exceptions.IdpRegistrationAlreadyExistsException;
+import org.example.backend.exceptions.IdpRegistrationNotFoundException;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.repositories.IdpRegistrationRepository;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +19,6 @@ import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 public class IdpRegistrationService {
 
     private final IdpRegistrationRepository idpRegistrationRepository;
-    private final SessionRegistry sessionRegistry;
 
     public IdpRegistration getById(String id) {
         return idpRegistrationRepository.findById(id)
@@ -84,7 +79,7 @@ public class IdpRegistrationService {
 
     public void deleteById(String id) {
         IdpRegistration idpRegistration = this.getById(id);
-        logoutAllUsers(idpRegistration.getRegistrationId());
+        //TODO: SessionService.logoutIdpRegistrationUsers(IdpRegistration idpRegistration)
         idpRegistrationRepository.deleteById(id);
     }
 
@@ -92,23 +87,8 @@ public class IdpRegistrationService {
         idpRegistrationRepository.findAll().forEach(
                 idpRegistration -> {
                     idpRegistrationRepository.deleteById(idpRegistration.getId());
-                    logoutAllUsers(idpRegistration.getRegistrationId());
+                    //TODO: SessionService.logoutIdpRegistrationUsers(IdpRegistration idpRegistration)
                 }
         );
-    }
-
-    private void logoutAllUsers(String registrationId) {
-        List<SessionInformation> list = sessionRegistry.getAllPrincipals().stream()
-                .filter(OAuth2AuthenticationToken.class::isInstance)
-                .map(OAuth2AuthenticationToken.class::cast)
-                .map(OAuth2AuthenticationToken::getPrincipal)
-                .filter(CustomOAuth2User.class::isInstance)
-                .map(CustomOAuth2User.class::cast)
-                .filter(user -> user.getIdpRegistrationId().equals(registrationId))
-                .map(user -> sessionRegistry.getAllSessions(user, false))
-                .flatMap(List::stream)
-                .toList();
-        //TODO: move to session or security service
-        list.forEach(SessionInformation::expireNow);
     }
 }

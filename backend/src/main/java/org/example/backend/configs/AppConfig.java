@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableRedisIndexedHttpSession(maxInactiveIntervalInSeconds = 31536000) //TODO move to properties
+@EnableRedisIndexedHttpSession
 public class AppConfig {
 
     @Bean
