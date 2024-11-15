@@ -17,9 +17,13 @@ public class CustomClientRegistrationRepository implements ClientRegistrationRep
     @Override
     public ClientRegistration findByRegistrationId(String registrationId) {
         IdpRegistration idpRegistration = idpRegistrationService.getByRegistrationId(registrationId);
+        return getClientRegistration(idpRegistration);
+    }
+
+    private ClientRegistration getClientRegistration(IdpRegistration idpRegistration) {
         OAuth2ProviderType type = idpRegistration.getType();
 
-        return type.getBuilder(registrationId)
+        return type.getBuilder(idpRegistration.getRegistrationId())
                 .clientId(idpRegistration.getClientId())
                 .clientSecret(idpRegistration.getClientSecret())
                 .clientName(idpRegistration.getClientName())

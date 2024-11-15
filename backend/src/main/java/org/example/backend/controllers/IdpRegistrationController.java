@@ -2,6 +2,7 @@ package org.example.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.IdpRegistrationDto;
+import org.example.backend.dtos.OAuth2LoginDto;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.services.IdpRegistrationService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +31,11 @@ public class IdpRegistrationController {
     @GetMapping
     public List<IdpRegistration> getAllIdpRegistrations() {
         return idpRegistrationService.getAll();
+    }
+
+    @GetMapping("/dtos")
+    public List<OAuth2LoginDto> getOAuth2LoginDtos() {
+        return idpRegistrationService.getOAuth2LoginDtos();
     }
 
     @PostMapping

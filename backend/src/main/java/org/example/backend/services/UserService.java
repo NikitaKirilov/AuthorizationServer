@@ -40,6 +40,7 @@ public class UserService {
                 .map(existingUser -> {
                     existingUser.setIdpRegistration(idpRegistration);
                     existingUser.setLastLogin(lastLogin);
+                    //TODO: try to merge user attribute (like name, familyname, etc) if existingUser attribute is null
                     return existingUser;
                 }).orElse(user);
 

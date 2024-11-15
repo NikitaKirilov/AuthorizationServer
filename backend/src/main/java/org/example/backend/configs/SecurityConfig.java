@@ -22,15 +22,17 @@ public class SecurityConfig {
     private static final ObjectPostProcessor<OAuth2AuthorizationRequestRedirectFilter> REQUEST_REDIRECT_FILTER_OBJECT_POST_PROCESSOR = OAuth2AuthenticationFailureHandler.getPostProcessor();
     private static final ObjectPostProcessor<RedisIndexedSessionRepository> SESSION_REPOSITORY_OBJECT_POST_PROCESSOR = RedisPrincipalNameIndexResolver.getPostProcessor();
 
-    private static final String[] PERMIT_ALL_PATTERN = new String[]{
-            "login",
-            "/oauth2/**"
-    };
-
     private static final int MAXIMUM_SESSIONS = 1;
 
     private static final String SUCCESS_URL = "/success";
     private static final String LOGOUT_URL = "/logout";
+
+    private static final String[] PERMIT_ALL_PATTERN = new String[]{
+            LOGOUT_URL,
+            "/login",
+            "/oauth2/**",
+            "/swagger-ui/**",
+    };
 
     private final OAuth2LoginAuthenticationSuccessHandler oAuth2LoginAuthenticationSuccessHandler;
     private final RememberMeServices rememberMeServices;

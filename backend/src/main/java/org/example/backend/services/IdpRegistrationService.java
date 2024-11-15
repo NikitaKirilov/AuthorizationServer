@@ -2,6 +2,7 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.IdpRegistrationDto;
+import org.example.backend.dtos.OAuth2LoginDto;
 import org.example.backend.exceptions.IdpRegistrationAlreadyExistsException;
 import org.example.backend.exceptions.IdpRegistrationNotFoundException;
 import org.example.backend.models.entities.IdpRegistration;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.example.backend.utils.StringUtils.getAuthorizationRequestUri;
 import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 
 @Service
@@ -36,6 +38,15 @@ public class IdpRegistrationService {
 
     public List<IdpRegistration> getAll() {
         return idpRegistrationRepository.findAll();
+    }
+
+    public List<OAuth2LoginDto> getOAuth2LoginDtos() {
+        return this.getAll().stream()
+                .map(idpRegistration -> new OAuth2LoginDto(
+                        idpRegistration.getClientName(),
+                        getAuthorizationRequestUri(idpRegistration.getRegistrationId()),
+                        idpRegistration.getImageUri()
+                )).toList();
     }
 
     public IdpRegistration saveIdpRegistration(IdpRegistrationDto idpRegistrationDto) {
