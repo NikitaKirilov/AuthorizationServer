@@ -34,3 +34,4 @@ build/
 
 ### Backend ###
 .env
+/src/main/resources/dist/**

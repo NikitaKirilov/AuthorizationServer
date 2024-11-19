@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from "react";
-import authApi, {LoginRequest} from "../api/authApi.ts";
+import authApi from "../api/authApi.ts";
+import SocialLogin from "../components/SocialLogin.tsx";
+import {LoginRequest} from "../types/LoginRequest.ts";
 
 const TITLE = "Login";
 
@@ -9,7 +11,7 @@ export default function LoginPage() {
     }, []);
 
     const [formData, setFormData] = useState<LoginRequest>({
-        email: "",
+        username: "",
         password: "",
     });
 
@@ -30,9 +32,9 @@ export default function LoginPage() {
                 <div>
                     <label>Email:</label>
                     <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
+                        type="username"
+                        name="username"
+                        value={formData.username}
                         onChange={handleChange}
                         required
                     />
@@ -49,6 +51,7 @@ export default function LoginPage() {
                 </div>
                 <button type="submit">Login</button>
             </form>
+            <SocialLogin/>
         </>
     );
 }

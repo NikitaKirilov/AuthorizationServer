@@ -1,9 +1,5 @@
 import axiosInstance from "./axiosConfig.ts";
-
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
+import {LoginRequest} from "../types/LoginRequest.ts";
 
 const authApi = {
     login: async (data: LoginRequest) => {
