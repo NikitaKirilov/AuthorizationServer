@@ -1,4 +1,4 @@
-package org.example.backend.configs;
+package org.example.backend.configs.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;

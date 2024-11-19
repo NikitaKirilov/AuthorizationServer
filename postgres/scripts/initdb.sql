@@ -41,7 +41,6 @@ VALUES ('sdgfsdg-gdsg4232-dsfafsa',
         'test@test.com',
         '$2a$12$o.8JB9HcR5Oe4M1JtlE/Gub.qMstq68uyAaIY26MjOlJ3c5KzHBV.', -- password is 1234
         'test',
-        'test',
         'test');
 
 
