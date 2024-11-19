@@ -1,4 +1,4 @@
-package org.example.backend.configs;
+package org.example.backend.configs.security;
 
 import org.example.backend.models.CustomOAuth2User;
 import org.example.backend.models.CustomUserDetails;

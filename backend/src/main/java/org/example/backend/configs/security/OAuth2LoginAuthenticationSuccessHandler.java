@@ -1,4 +1,4 @@
-package org.example.backend.configs;
+package org.example.backend.configs.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

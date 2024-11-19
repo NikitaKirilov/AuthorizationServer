@@ -1,4 +1,4 @@
-package org.example.backend.configs;
+package org.example.backend.configs.security;
 
 import org.example.backend.exceptions.AuthException;
 import org.springframework.core.convert.converter.Converter;

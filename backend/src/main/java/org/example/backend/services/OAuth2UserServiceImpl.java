@@ -1,6 +1,6 @@
 package org.example.backend.services;
 
-import org.example.backend.configs.OAuth2UserInfoRequestConverter;
+import org.example.backend.configs.security.OAuth2UserInfoRequestConverter;
 import org.example.backend.models.CustomOAuth2User;
 import org.example.backend.models.entities.IdpRegistration;
 import org.example.backend.models.entities.User;
