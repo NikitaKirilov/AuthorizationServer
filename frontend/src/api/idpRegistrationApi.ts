@@ -1,16 +1,13 @@
 import axiosInstance from "./axiosConfig.ts";
+import {ClientRegistrationPublicInfo} from "../types/ClientRegistrationPublicInfo.ts";
 
 const BASE_PATH = "/idp-registrations";
 
-export interface OAuth2LoginInfo {
-    clientName: string;
-    loginUri: string;
-    imageUri: string;
-}
-
 export const idpRegistrationApi = {
-    getLoginLinks: async (): Promise<Array<OAuth2LoginInfo>> => {
-        const response = await axiosInstance.get<Array<OAuth2LoginInfo>>(BASE_PATH + "/dtos");
+    getLoginLinks: async (): Promise<Array<ClientRegistrationPublicInfo>> => {
+        const response =
+            await axiosInstance.get<Array<ClientRegistrationPublicInfo>>(BASE_PATH + "/infos");
+
         return response.data;
     },
 };

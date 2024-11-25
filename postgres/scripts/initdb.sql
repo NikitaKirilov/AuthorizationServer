@@ -87,11 +87,10 @@ create table idp_registration
     name            varchar(200),
     description     varchar(1000),
     type            varchar(100),
-    image_uri       varchar(200),
+    image           bytea,
     created_at      timestamp           not null,
     updated_at      timestamp           not null,
     primary key (id)
 );
-
 
 -- TODO: replace with liquibase migration

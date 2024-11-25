@@ -42,7 +42,7 @@ public class IdpRegistration {
     @Enumerated(value = STRING)
     private OAuth2ProviderType type;
 
-    private String imageUri;
+    private byte[] image;
 
     private Timestamp createdAt;
     private Timestamp updatedAt;

@@ -26,11 +26,9 @@ public class IdpRegistrationDto {
 
     private OAuth2ProviderType type;
 
-    @JsonProperty("image_uri")
-    private String imageUri;
-
     @JsonIgnore
     public IdpRegistration toEntity() {
+        //TODO rewrite with lombok accessors chain = true
         return IdpRegistration.builder()
                 .registrationId(this.registrationId)
                 .clientId(this.clientId)
@@ -39,7 +37,6 @@ public class IdpRegistrationDto {
                 .name(this.name)
                 .description(this.description)
                 .type(this.type)
-                .imageUri(this.imageUri)
                 .build();
     }
 }
