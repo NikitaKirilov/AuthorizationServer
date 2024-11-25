@@ -6,15 +6,14 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.stereotype.Component;
 
 import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
+@Component
 public class RedisPrincipalNameIndexResolver<S extends Session> extends SingleIndexResolver<S> {
     private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -59,16 +58,5 @@ public class RedisPrincipalNameIndexResolver<S extends Session> extends SingleIn
                 return EXPRESSION.getValue(authentication, String.class);
             }
         }
-    }
-
-    public static ObjectPostProcessor<RedisIndexedSessionRepository> getPostProcessor() {
-        return new ObjectPostProcessor<>() {
-            @Override
-            public <O extends RedisIndexedSessionRepository> O postProcess(O object) {
-                IndexResolver<Session> resolver = new RedisPrincipalNameIndexResolver<>();
-                object.setIndexResolver(resolver);
-                return object;
-            }
-        };
     }
 }

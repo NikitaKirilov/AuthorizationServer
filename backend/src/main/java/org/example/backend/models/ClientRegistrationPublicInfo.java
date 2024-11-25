@@ -1,13 +1,14 @@
-package org.example.backend.dtos;
+package org.example.backend.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class OAuth2LoginDto {
+public class ClientRegistrationPublicInfo {
 
+    private String registrationId;
     private String clientName;
     private String loginUri;
-    private String imageUri;
+    private byte[] image;
 }
