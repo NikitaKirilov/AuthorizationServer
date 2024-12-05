@@ -1,8 +1,8 @@
-package org.example.backend.configs.security;
+package org.example.backend.configs.oauth2;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.backend.exceptions.IdpRegistrationNotFoundException;
+import org.example.backend.exceptions.ClientRegistrationNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         Throwable cause = exception.getCause();
-        if (cause instanceof IdpRegistrationNotFoundException ex) {
+        if (cause instanceof ClientRegistrationNotFoundException ex) {
             response.sendError(SC_NOT_FOUND, ex.getMessage());
             return;
         }

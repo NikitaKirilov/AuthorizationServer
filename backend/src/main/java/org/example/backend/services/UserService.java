@@ -1,7 +1,8 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.models.entities.IdpRegistration;
+import org.example.backend.exceptions.UserNotFoundException;
+import org.example.backend.models.entities.ClientRegistrationWrapper;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,8 @@ public class UserService {
     }
 
     public User getById(String id) {
-        return userRepository.findById(id).orElseThrow();
-    }
-
-    public Optional<User> getOptionalById(String id) {
-        return userRepository.findById(id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
     }
 
     public User save(User user) {
@@ -33,12 +31,12 @@ public class UserService {
 
     public User saveUserOnIdpLogin(User user) {
         String email = user.getEmail();
-        IdpRegistration idpRegistration = user.getIdpRegistration();
+        ClientRegistrationWrapper clientRegistrationWrapper = user.getClientRegistrationWrapper();
         Timestamp lastLogin = user.getLastLogin();
 
         user = getOptionalByEmail(email)
                 .map(existingUser -> {
-                    existingUser.setIdpRegistration(idpRegistration);
+                    existingUser.setClientRegistrationWrapper(clientRegistrationWrapper);
                     existingUser.setLastLogin(lastLogin);
                     //TODO: try to merge user attribute (like name, familyname, etc) if existingUser attribute is null
                     return existingUser;

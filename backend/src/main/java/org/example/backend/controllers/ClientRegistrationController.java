@@ -1,10 +1,10 @@
 package org.example.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dtos.IdpRegistrationDto;
+import org.example.backend.dtos.ClientRegistrationWrapperDto;
 import org.example.backend.models.ClientRegistrationPublicInfo;
-import org.example.backend.models.entities.IdpRegistration;
-import org.example.backend.services.IdpRegistrationService;
+import org.example.backend.models.entities.ClientRegistrationWrapper;
+import org.example.backend.services.ClientRegistrationWrapperService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,49 +21,49 @@ import java.util.List;
 @RestController
 @RequestMapping("/idp-registrations")
 @RequiredArgsConstructor
-public class IdpRegistrationController {
+public class ClientRegistrationController {
 
-    private final IdpRegistrationService idpRegistrationService;
+    private final ClientRegistrationWrapperService clientRegistrationWrapperService;
 
     @GetMapping("/{id}")
-    public IdpRegistration getIdpRegistration(@PathVariable String id) {
-        return idpRegistrationService.getById(id);
+    public ClientRegistrationWrapper getIdpRegistration(@PathVariable String id) {
+        return clientRegistrationWrapperService.getById(id);
     }
 
     @GetMapping
-    public List<IdpRegistration> getAllIdpRegistrations() {
-        return idpRegistrationService.getAll();
+    public List<ClientRegistrationWrapper> getAllIdpRegistrations() {
+        return clientRegistrationWrapperService.getAll();
     }
 
     @GetMapping("/infos")
     public List<ClientRegistrationPublicInfo> getClientRegistrationPublicInfos() {
-        return idpRegistrationService.getClientRegistrationPublicInfos();
+        return clientRegistrationWrapperService.getClientRegistrationPublicInfos();
     }
 
     @PostMapping
-    public IdpRegistration addIdpRegistration(
-            @RequestPart IdpRegistrationDto idpRegistrationDto,
-            @RequestPart MultipartFile image
+    public ClientRegistrationWrapper addIdpRegistration(
+            @RequestPart ClientRegistrationWrapperDto clientRegistrationWrapperDto,
+            @RequestPart(required = false) MultipartFile image
     ) throws IOException { //TODO: add validator
-        return idpRegistrationService.saveIdpRegistration(idpRegistrationDto, image);
+        return clientRegistrationWrapperService.saveClientRegistrationWrapper(clientRegistrationWrapperDto, image);
     }
 
     @PatchMapping("/{id}")
-    public IdpRegistration updateIdpRegistration(
+    public ClientRegistrationWrapper updateIdpRegistration(
             @PathVariable String id,
-            @RequestPart IdpRegistrationDto idpRegistrationDto,
+            @RequestPart ClientRegistrationWrapperDto clientRegistrationWrapperDto,
             @RequestPart(required = false) MultipartFile image
     ) throws IOException {
-        return idpRegistrationService.updateIdpRegistration(id, idpRegistrationDto, image);
+        return clientRegistrationWrapperService.updateClientRegistrationWrapper(id, clientRegistrationWrapperDto, image);
     }
 
     @DeleteMapping("/{id}")
     public void deleteIdpRegistration(@PathVariable String id) {
-        idpRegistrationService.deleteById(id);
+        clientRegistrationWrapperService.deleteById(id);
     }
 
     @DeleteMapping
     public void deleteAllIdpRegistrations() {
-        idpRegistrationService.deleteAll();
+        clientRegistrationWrapperService.deleteAll();
     }
 }

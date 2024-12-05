@@ -5,7 +5,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,14 +19,13 @@ import static jakarta.persistence.EnumType.STRING;
 @Setter
 @Getter
 @NoArgsConstructor
-@Builder(builderClassName = "Builder")
 @AllArgsConstructor
-public class IdpRegistration {
+public class ClientRegistrationWrapper {
 
     @Id
     private String id;
 
-    @OneToMany(mappedBy = "idpRegistration")
+    @OneToMany(mappedBy = "clientRegistrationWrapper")
     private List<User> users;
 
     private String registrationId;

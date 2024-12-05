@@ -38,7 +38,7 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
     public CustomOAuth2User(Map<String, Object> attributes, User user) {
         this.id = user.getId();
 
-        this.idpRegistrationId = user.getIdpRegistration().getId();
+        this.idpRegistrationId = user.getClientRegistrationWrapper().getId();
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();

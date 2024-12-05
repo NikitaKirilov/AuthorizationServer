@@ -1,9 +1,9 @@
-package org.example.backend.services;
+package org.example.backend.mappers.users;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
 import org.example.backend.models.GithubEmailResponse;
-import org.example.backend.models.entities.IdpRegistration;
+import org.example.backend.models.entities.ClientRegistrationWrapper;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.enums.OAuth2ProviderType;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,7 +26,7 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.G
 
 @Service
 @RequiredArgsConstructor
-public class GithubOAuth2UserHandler implements OAuth2UserHandler {
+public class GithubOAuth2UserMapper implements OAuth2UserMapper {
 
     private static final ParameterizedTypeReference<List<GithubEmailResponse>> GITHUB_EMAIL_LIST_TYPE = new ParameterizedTypeReference<>() {
     };
@@ -36,27 +36,30 @@ public class GithubOAuth2UserHandler implements OAuth2UserHandler {
     private final RestOperations restOperations;
 
     @Override
-    public User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration) {
+    public User mapToUser(OAuth2UserRequest request, OAuth2User oAuth2User, ClientRegistrationWrapper wrapper) {
         GithubEmailResponse githubEmailResponse = fetchEmail(request);
         String email = githubEmailResponse.getEmail();
         boolean emailVerified = githubEmailResponse.isVerified();
         Timestamp timestampNow = getCurrentTimestamp();
 
-        return User.builder()
-                .id(UUID.randomUUID().toString())
-                .idpRegistration(idpRegistration)
-                .email(email)
-                .emailVerified(emailVerified)
-                .name(oAuth2User.getAttribute(LOGIN))
-                .givenName(oAuth2User.getAttribute(GIVEN_NAME))
-                .lastLogin(timestampNow)
-                .createdAt(timestampNow)
-                .updatedAt(timestampNow)
-                .build();
+        return new User()
+                .setId(UUID.randomUUID().toString())
+
+                .setClientRegistrationWrapper(wrapper)
+
+                .setEmail(email)
+                .setEmailVerified(emailVerified)
+
+                .setName(oAuth2User.getAttribute(LOGIN))
+                .setGivenName(oAuth2User.getAttribute(GIVEN_NAME))
+
+                .setLastLogin(timestampNow)
+                .setCreatedAt(timestampNow)
+                .setUpdatedAt(timestampNow);
     }
 
     @Override
-    public OAuth2ProviderType getHandlerType() {
+    public OAuth2ProviderType getProviderType() {
         return GITHUB;
     }
 

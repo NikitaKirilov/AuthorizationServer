@@ -1,6 +1,6 @@
-package org.example.backend.services;
+package org.example.backend.mappers.users;
 
-import org.example.backend.models.entities.IdpRegistration;
+import org.example.backend.models.entities.ClientRegistrationWrapper;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.enums.OAuth2ProviderType;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -19,28 +19,31 @@ import static org.example.backend.models.enums.OAuth2ProviderType.YANDEX;
 import static org.example.backend.utils.TimestampUtils.getCurrentTimestamp;
 
 @Service
-public class YandexOAuth2UserHandler implements OAuth2UserHandler {
+public class YandexOAuth2UserMapper implements OAuth2UserMapper {
 
     @Override
-    public User getUser(OAuth2UserRequest request, OAuth2User oAuth2User, IdpRegistration idpRegistration) {
+    public User mapToUser(OAuth2UserRequest request, OAuth2User oAuth2User, ClientRegistrationWrapper wrapper) {
         Timestamp timestampNow = getCurrentTimestamp();
 
-        return User.builder()
-                .id(UUID.randomUUID().toString())
-                .idpRegistration(idpRegistration)
-                .email(oAuth2User.getAttribute(DEFAULT_EMAIL))
-                .emailVerified(TRUE)
-                .name(oAuth2User.getAttribute(LOGIN))
-                .givenName(oAuth2User.getAttribute(FIRST_NAME))
-                .familyName(oAuth2User.getAttribute(LAST_NAME))
-                .lastLogin(timestampNow)
-                .createdAt(timestampNow)
-                .updatedAt(timestampNow)
-                .build();
+        return new User()
+                .setId(UUID.randomUUID().toString())
+
+                .setClientRegistrationWrapper(wrapper)
+
+                .setEmail(oAuth2User.getAttribute(DEFAULT_EMAIL))
+                .setEmailVerified(TRUE)
+
+                .setName(oAuth2User.getAttribute(LOGIN))
+                .setGivenName(oAuth2User.getAttribute(FIRST_NAME))
+                .setFamilyName(oAuth2User.getAttribute(LAST_NAME))
+
+                .setLastLogin(timestampNow)
+                .setCreatedAt(timestampNow)
+                .setUpdatedAt(timestampNow);
     }
 
     @Override
-    public OAuth2ProviderType getHandlerType() {
+    public OAuth2ProviderType getProviderType() {
         return YANDEX;
     }
 }

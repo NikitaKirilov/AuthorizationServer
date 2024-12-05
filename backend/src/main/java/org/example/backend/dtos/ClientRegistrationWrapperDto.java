@@ -3,11 +3,11 @@ package org.example.backend.dtos;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.example.backend.models.entities.IdpRegistration;
+import org.example.backend.models.entities.ClientRegistrationWrapper;
 import org.example.backend.models.enums.OAuth2ProviderType;
 
 @Data
-public class IdpRegistrationDto {
+public class ClientRegistrationWrapperDto {
 
     @JsonProperty("registration_id")
     private String registrationId;
@@ -27,16 +27,17 @@ public class IdpRegistrationDto {
     private OAuth2ProviderType type;
 
     @JsonIgnore
-    public IdpRegistration toEntity() {
-        //TODO rewrite with lombok accessors chain = true
-        return IdpRegistration.builder()
-                .registrationId(this.registrationId)
-                .clientId(this.clientId)
-                .clientSecret(this.clientSecret)
-                .clientName(this.clientName)
-                .name(this.name)
-                .description(this.description)
-                .type(this.type)
-                .build();
+    public ClientRegistrationWrapper toEntity() {
+        return new ClientRegistrationWrapper()
+                .setRegistrationId(this.registrationId)
+
+                .setClientId(this.clientId)
+                .setClientSecret(this.clientSecret)
+                .setClientName(this.clientName)
+
+                .setName(this.name)
+                .setDescription(this.description)
+
+                .setType(this.type);
     }
 }

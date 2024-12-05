@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SessionService<S extends Session> {
 
-    public static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final FindByIndexNameSessionRepository<S> findByIndexNameSessionRepository;
+
+    //TODO: logoutIdpRegistrationUsers(IdpRegistration idpRegistration)
+    //TODO: refreshUserSessions(String userId) -> updateRememberMeToken(User user)
 }

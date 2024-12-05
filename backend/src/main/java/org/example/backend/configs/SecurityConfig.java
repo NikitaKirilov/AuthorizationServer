@@ -1,9 +1,9 @@
 package org.example.backend.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
+import org.example.backend.configs.oauth2.OAuth2LoginAuthenticationSuccessHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
-import org.example.backend.configs.security.OAuth2AuthenticationFailureHandler;
-import org.example.backend.configs.security.OAuth2LoginAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

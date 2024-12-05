@@ -14,7 +14,7 @@ VALUES ('AUTHORIZATION_SERVER', 'USER');
 create table app_user
 (
     id                  varchar(255),
-    idp_registration_id varchar(100),
+    client_registration_id varchar(100),
 
     email               varchar(255) unique not null,
     email_verified      boolean,
@@ -31,9 +31,8 @@ create table app_user
     updated_at          timestamp default now(),
 
     primary key (id),
-    foreign key (idp_registration_id) references idp_registration (id)
+    foreign key (client_registration_id) references client_registration_wrapper (id)
 );
-
 
 
 insert into app_user(id, email, password, name, given_name, family_name)
@@ -76,8 +75,7 @@ create table oauth2_registered_client
 );
 
 
-
-create table idp_registration
+create table client_registration_wrapper
 (
     id              varchar(100)        not null,
     registration_id varchar(100) unique not null,

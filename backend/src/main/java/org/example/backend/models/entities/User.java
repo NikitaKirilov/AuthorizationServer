@@ -38,9 +38,9 @@ public class User {
     private List<Scope> scopes;
 
     @ManyToOne
-    @JoinColumn(name = "idp_registration_id")
+    @JoinColumn(name = "client_registration_id")
     @JsonBackReference
-    private IdpRegistration idpRegistration;
+    private ClientRegistrationWrapper clientRegistrationWrapper;
 
     private String email;
     private boolean emailVerified;

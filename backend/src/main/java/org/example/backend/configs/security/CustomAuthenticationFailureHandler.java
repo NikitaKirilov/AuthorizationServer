@@ -37,11 +37,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     }
 
     private ApiError createApiError(Exception e, HttpStatus status) { //TODO: move to utils class
-        ApiError apiError = new ApiError();
-        apiError.setMessage(e.getMessage());
-        apiError.setStatus(status.value());
-        apiError.setTimestamp(LocalDateTime.now());
-
-        return apiError;
+        return new ApiError()
+                .setMessage(e.getMessage())
+                .setStatus(status.value())
+                .setTimestamp(LocalDateTime.now());
     }
 }
