@@ -7,7 +7,7 @@ import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,12 +27,9 @@ import static java.lang.Boolean.TRUE;
 import static org.springframework.web.cors.CorsConfiguration.ALL;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final SingleIndexResolver<Session> singleIndexResolver;
 
     private static final int MAXIMUM_SESSIONS = 1;
 
@@ -50,7 +47,9 @@ public class SecurityConfig {
     };
 
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final OAuth2LoginAuthenticationSuccessHandler oAuth2LoginAuthenticationSuccessHandler;
+    private final SingleIndexResolver<Session> singleIndexResolver;
     private final RememberMeServices rememberMeServices;
 
     @Value("${frontend.base-uri}")
