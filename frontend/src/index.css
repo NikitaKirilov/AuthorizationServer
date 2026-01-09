@@ -4,10 +4,35 @@
 
 
 .separator {
+    color: #969393;
     margin: 20px 0 20px 0;
     display: flex;
     align-items: center;
     text-align: center;
+}
+
+.error {
+    font-weight: 700;
+    color: #ffb24d;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+.text-hint {
+    color: #969393;
+}
+
+
+.link {
+    display: inline-block;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+
+
+.link:hover {
+    cursor: pointer;
 }
 
 

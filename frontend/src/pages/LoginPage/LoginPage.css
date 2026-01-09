@@ -17,24 +17,6 @@
 }
 
 
-.login-input {
-    outline: 0;
-    color: #FBFBFB;
-    text-align: left;
-    text-indent: 10px;
-    width: 50%;
-    height: 35px;
-    border-radius: 5px;
-    background: #332D2D;
-    border: 2px solid #FBFBFB;
-}
-
-
-.password-input {
-    margin-top: 20px;
-}
-
-
 .login-button {
     color: #FBFBFB;
     height: 40px;
@@ -46,34 +28,6 @@
 }
 
 
-.error {
-    font-weight: 700;
-    margin: 5px 0 5px 0;
-    color: #FF4D4F;
-    font-size: 14px;
-}
-
-
-.sign-up {
-    display: inline-block;
-    margin-bottom: 10px;
-    text-decoration: none;
-}
-
-
-.text-grey {
-    color: #969393;
-}
-
-
-::placeholder {
-    text-indent: 10px;
-    text-align: left;
-    color: #FBFBFB;
-}
-
-
-.sign-up,
 .reset-password,
 .login-button,
 input:hover {

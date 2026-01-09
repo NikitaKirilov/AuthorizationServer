@@ -4,11 +4,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.backend.models.entities.User;
-import org.example.backend.utils.UserUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 
 @Getter
@@ -29,12 +28,12 @@ public class CustomUserDetails implements UserDetails {
     private String givenName;
     private String familyName;
 
-    private final Timestamp updatedAt;
+    private Instant updatedAt;
 
     public CustomUserDetails(User user) {
         this.id = user.getId();
 
-        this.authorities = UserUtils.getAuthorities(user);
+        this.authorities = user.getGrantedAuthorities();
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();

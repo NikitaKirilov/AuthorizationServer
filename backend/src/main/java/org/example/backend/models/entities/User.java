@@ -1,22 +1,22 @@
 package org.example.backend.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-
-import static jakarta.persistence.FetchType.EAGER;
 
 @Entity(name = "app_user")
 @Getter
@@ -29,18 +29,18 @@ public class User {
     @Id
     private String id;
 
-    @ManyToMany(fetch = EAGER)
-    @JoinTable(
-            name = "app_user_scope",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "scope_id")
-    )
-    private List<Scope> scopes;
+    private String clientRegistrationId;
 
-    @ManyToOne
-    @JoinColumn(name = "client_registration_id")
-    @JsonBackReference
-    private ClientRegistrationWrapper clientRegistrationWrapper;
+    @OneToMany(mappedBy = "user")
+    private List<EmailVerificationToken> emailVerificationTokens = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id")
+    )
+    private List<Authority> authorities = new ArrayList<>();
 
     private String email;
     private boolean emailVerified;
@@ -51,8 +51,14 @@ public class User {
     private String givenName;
     private String familyName;
 
-    private Timestamp lastLogin;
+    private Instant lastLogin;
 
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public List<? extends GrantedAuthority> getGrantedAuthorities() {
+        return this.authorities.stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .toList();
+    }
 }

@@ -6,3 +6,7 @@ export const validateEmail = (email: string): string | null =>
 
 export const validatePassword = (password: string): string | null =>
     PASSWORD_REGEX.test(password) ? null : "Password must be at least 8 symbols long and contain 1 letter and 1 digit";
+
+export const checkFieldNotEmpty = (name: string): string | null =>
+    name ? null : "This field must not be empty";
+

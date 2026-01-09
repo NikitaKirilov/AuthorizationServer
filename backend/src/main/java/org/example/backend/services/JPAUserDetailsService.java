@@ -1,23 +1,26 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.exceptions.AuthException;
 import org.example.backend.models.CustomUserDetails;
 import org.example.backend.models.entities.User;
+import org.example.backend.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class JPAUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.getOptionalByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found by email: " + username));
+    @Transactional
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByEmailAndEmailVerifiedTrue(username)
+                .orElseThrow(() -> new AuthException("User not found by email: " + username));
 
         return new CustomUserDetails(user);
     }

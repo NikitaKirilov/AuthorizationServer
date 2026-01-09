@@ -1,15 +1,14 @@
 package org.example.backend.configs.security;
 
-import org.example.backend.models.CustomOAuth2User;
 import org.example.backend.models.CustomUserDetails;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
@@ -38,25 +37,10 @@ public class RedisPrincipalNameIndexResolver<S extends Session> extends SingleIn
     }
 
     private String getPrincipalNameFromAuthentication(Object authentication) {
-        switch (authentication) {
-            case UsernamePasswordAuthenticationToken token -> {
-                CustomUserDetails userDetails = (CustomUserDetails) token.getDetails();
-                return userDetails.getId();
-            }
-
-            case RememberMeAuthenticationToken token -> {
-                CustomUserDetails userDetails = (CustomUserDetails) token.getDetails();
-                return userDetails.getId();
-            }
-
-            case OAuth2AuthenticationToken token -> {
-                CustomOAuth2User oAuth2User = (CustomOAuth2User) token.getPrincipal();
-                return oAuth2User.getId();
-            }
-
-            default -> {
-                return EXPRESSION.getValue(authentication, String.class);
-            }
+        if (Objects.requireNonNull(authentication) instanceof UsernamePasswordAuthenticationToken token) {
+            CustomUserDetails userDetails = (CustomUserDetails) token.getPrincipal();
+            return userDetails.getName();
         }
+        return EXPRESSION.getValue(authentication, String.class);
     }
 }

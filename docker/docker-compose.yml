@@ -11,7 +11,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ../postgres/scripts:/docker-entrypoint-initdb.d
       - ../postgres/data:/var/lib/postgresql/data
     restart: always
     networks:
@@ -27,6 +26,14 @@ services:
     volumes:
       - ../redis/data:/data
     restart: always
+    networks:
+      - authorization_server
+
+  redis-insight:
+    image: redis/redisinsight:2.70
+    restart: always
+    ports:
+      - "5540:5540"
     networks:
       - authorization_server
 

@@ -1,21 +1,22 @@
 package org.example.backend.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.configs.oauth2.FederatedIdentityAuthenticationSuccessHandler;
 import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
-import org.example.backend.configs.oauth2.OAuth2LoginAuthenticationSuccessHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -30,8 +31,6 @@ import static org.springframework.web.cors.CorsConfiguration.ALL;
 @EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private static final int MAXIMUM_SESSIONS = 1;
 
     public static final String LOGIN_URL = "/login";
     private static final String LOGOUT_URL = "/logout";
@@ -48,28 +47,23 @@ public class SecurityConfig {
 
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final OAuth2LoginAuthenticationSuccessHandler oAuth2LoginAuthenticationSuccessHandler;
+    private final FederatedIdentityAuthenticationSuccessHandler federatedIdentityAuthenticationSuccessHandler;
     private final SingleIndexResolver<Session> singleIndexResolver;
-    private final RememberMeServices rememberMeServices;
 
     @Value("${frontend.base-uri}")
     private String frontendBaseUri; //TODO: move to properties class
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http.authorizeHttpRequests(authorize -> {
                     authorize.requestMatchers(PERMIT_ALL_PATTERN).permitAll();
                     authorize.anyRequest().permitAll();
                 })
-                .sessionManagement(configurer -> {
-                    configurer.maximumSessions(MAXIMUM_SESSIONS);
-                    configurer.withObjectPostProcessor(this.getRedisIndexedSessionRepositoryObjectPostProcessor());
-                })
-                .rememberMe(configurer -> {
-                            configurer.alwaysRemember(TRUE);
-                            configurer.rememberMeServices(rememberMeServices);
-                        }
+                .sessionManagement(configurer ->
+                        //configurer.sessionFixation().changeSessionId(); TODO: enable session id change
+                        configurer.withObjectPostProcessor(this.getRedisIndexedSessionRepositoryObjectPostProcessor())
                 )
+                .rememberMe(AbstractHttpConfigurer::disable)
                 .cors(configurer ->
                         configurer.configurationSource(corsConfigurationSource())
                 )
@@ -81,7 +75,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(configurer -> {
                     configurer.loginPage(LOGIN_URL);
-                    configurer.successHandler(oAuth2LoginAuthenticationSuccessHandler);
+                    configurer.successHandler(federatedIdentityAuthenticationSuccessHandler);
                     configurer.failureHandler(customAuthenticationFailureHandler);
                     configurer.withObjectPostProcessor(this.getRequestRedirectFilterObjectPostProcessor());
                 })
@@ -106,8 +100,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
+        return new JdbcRegisteredClientRepository(jdbcTemplate);
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
     }
 
     private ObjectPostProcessor<OAuth2AuthorizationRequestRedirectFilter> getRequestRedirectFilterObjectPostProcessor() {

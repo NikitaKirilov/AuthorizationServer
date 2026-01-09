@@ -1,0 +1,20 @@
+.form-field {
+    margin-bottom: 20px;
+}
+
+.input {
+    text-indent: 10px;
+    color: #FBFBFB;
+    width: 50%;
+    height: 35px;
+    background: #332D2D;
+    border-radius: 5px;
+    border: 2px solid #FBFBFB;
+}
+
+
+.input::placeholder {
+    text-indent: 10px;
+    text-align: left;
+    color: #FBFBFB;
+}

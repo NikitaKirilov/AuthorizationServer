@@ -5,13 +5,17 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
+import org.springframework.session.web.http.CookieHttpSessionIdResolver;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableRedisIndexedHttpSession
+@EnableAsync
 public class AppConfig {
 
     @Bean
@@ -26,5 +30,10 @@ public class AppConfig {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         return objectMapper;
+    }
+
+    @Bean
+    public HttpSessionIdResolver httpSessionIdResolver() {
+        return new CookieHttpSessionIdResolver();
     }
 }
