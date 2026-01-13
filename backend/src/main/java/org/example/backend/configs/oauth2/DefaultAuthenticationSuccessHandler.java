@@ -20,7 +20,7 @@ public class DefaultAuthenticationSuccessHandler implements AuthenticationSucces
     private final RequestCache requestCache = new HttpSessionRequestCache();
 
     private static final String REDIRECT_URL_HEADER = "redirect";
-    private static final String DEFAULT_TARGET_URL = "/login";
+    private static final String DEFAULT_TARGET_URL = "/app";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

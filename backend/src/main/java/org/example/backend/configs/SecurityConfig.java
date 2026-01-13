@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -71,7 +72,10 @@ public class SecurityConfig {
                 .cors(configurer ->
                         configurer.configurationSource(corsConfigurationSource())
                 )
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> {
+                    csrf.spa();
+                    csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                })
                 .formLogin(configurer -> {
                             configurer.loginPage(LOGIN_URL);
                             configurer.failureHandler(customAuthenticationFailureHandler);

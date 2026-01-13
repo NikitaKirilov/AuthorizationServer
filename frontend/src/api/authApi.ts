@@ -26,6 +26,10 @@ const authApi = {
     refresh: async () => {
         await axiosInstance.post("/registrations/refresh", {});
     },
+
+    csrf: async () => {
+        await axiosInstance.get("/csrf");
+    },
 };
 
 export default authApi;

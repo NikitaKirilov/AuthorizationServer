@@ -4,8 +4,14 @@ import {BrowserRouter} from "react-router-dom";
 import RegistrationPage from "./pages/RegistrationPage/RegistrationPage.tsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage/EmailVerificationPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
+import {useEffect} from "react";
+import authApi from "./api/authApi.ts";
 
 function App() {
+    useEffect(() => {
+        authApi.csrf().catch(console.error);
+    }, []);
+
     return (
         <BrowserRouter>
             <Routes>
