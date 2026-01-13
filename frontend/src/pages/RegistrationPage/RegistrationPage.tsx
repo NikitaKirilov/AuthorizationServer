@@ -6,12 +6,10 @@ import authApi from "../../api/authApi.ts";
 import {isAxiosError} from "axios";
 import {ApiError} from "../../types/ApiError.ts";
 import FormInput from "../../components/FormInput/FormInput.tsx";
-import "sweetalert2/src/sweetalert2.scss";
 
 const TITLE = "Registration";
 
 export default function RegistrationPage() {
-
     useEffect(() => {
         document.title = TITLE;
     }, []);

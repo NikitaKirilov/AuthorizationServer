@@ -1,12 +1,17 @@
 import OTPInput from "react-otp-input";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "./EmailVerificationPage.css";
 import authApi from "../../api/authApi.ts";
 import {isAxiosError} from "axios";
 import {ApiError} from "../../types/ApiError.ts";
 
+const TITLE = "Email Verification";
 
 export default function EmailVerificationPage() {
+    useEffect(() => {
+        document.title = TITLE;
+    }, []);
+
     const [code, setCode] = useState("");
     const [error, setError] = useState<string | undefined>();
     const email = localStorage.getItem("email");
