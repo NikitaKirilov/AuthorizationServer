@@ -5,9 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
+import org.example.backend.exceptions.EmailTokenExpiredException;
+import org.example.backend.exceptions.EmailTokenNotFoundException;
+import org.example.backend.exceptions.EmailTokenTooManyAttemptsException;
+import org.example.backend.exceptions.InvalidEmailVerificationCode;
 import org.example.backend.exceptions.ServerError;
 import org.example.backend.models.entities.EmailVerificationToken;
 import org.example.backend.models.entities.User;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,6 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class RegistrationService {
 
+    @Qualifier("defaultAuthenticationSuccessHandler")
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final EmailService emailservice;
     private final EmailVerificationTokenService emailVerificationTokenService;
@@ -29,20 +35,25 @@ public class RegistrationService {
     @Transactional
     public void processRegistration(HttpServletRequest request, UserDto userDto) {
         User registeredUser = userService.registerUser(userDto);
-        EmailVerificationToken token = emailVerificationTokenService.createToken(registeredUser);
-        emailservice.sendToken(token);
-        sessionService.setSessionOnRegistration(request, registeredUser);
+        String code = emailVerificationTokenService.createTokenAndGetCode(registeredUser);
+        emailservice.sendCode(registeredUser, code);
+        sessionService.updateSession(request, registeredUser);
     }
 
-    @Transactional
-    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String tokenId) {
-        EmailVerificationToken token = emailVerificationTokenService.getById(tokenId);
-        emailVerificationTokenService.validateToken(token);
+    @Transactional(noRollbackFor = {
+            InvalidEmailVerificationCode.class,
+            EmailTokenExpiredException.class,
+            EmailTokenTooManyAttemptsException.class,
+    })
+    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String code) {
+        String userId = sessionService.getUserId(request);
+        User user = userService.getById(userId);
+        EmailVerificationToken token = user.getActiveEmailVerificationToken()
+                .orElseThrow(() -> new EmailTokenNotFoundException("Email token not found"));
 
-        User user = token.getUser();
+        emailVerificationTokenService.validateCode(code, token);
         userService.activateUser(user);
-
-        sessionService.activateSession(request, user);
+        sessionService.updateSession(request, user);
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -53,10 +64,11 @@ public class RegistrationService {
     }
 
     @Transactional
-    public void sendNewToken(HttpServletRequest request) {
+    public void refreshCode(HttpServletRequest request) {
         String userId = sessionService.getUserId(request);
         User user = userService.getById(userId);
-        EmailVerificationToken token = emailVerificationTokenService.createToken(user);
-        emailservice.sendToken(token);
+        userService.checkAndUpdateNextVerificationTokenAt(user);
+        String code = emailVerificationTokenService.createTokenAndGetCode(user);
+        emailservice.sendCode(user, code);
     }
 }

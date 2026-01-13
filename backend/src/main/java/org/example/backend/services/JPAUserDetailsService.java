@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class JPAUserDetailsService implements UserDetailsService {
@@ -21,6 +23,7 @@ public class JPAUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByEmailAndEmailVerifiedTrue(username)
                 .orElseThrow(() -> new AuthException("User not found by email: " + username));
+        user.setLastLogin(Instant.now());
 
         return new CustomUserDetails(user);
     }

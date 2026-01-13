@@ -1,6 +1,7 @@
 package org.example.backend.configs;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.configs.oauth2.DefaultAuthenticationSuccessHandler;
 import org.example.backend.configs.oauth2.FederatedIdentityAuthenticationSuccessHandler;
 import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
@@ -24,6 +25,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 import static java.lang.Boolean.TRUE;
 import static org.springframework.web.cors.CorsConfiguration.ALL;
 
@@ -35,17 +38,18 @@ public class SecurityConfig {
     public static final String LOGIN_URL = "/login";
     private static final String LOGOUT_URL = "/logout";
 
-    private static final String[] PERMIT_ALL_PATTERN = new String[]{
+    public static final String[] PERMIT_ALL_PATTERN = new String[]{
             "/index.html",
             "/assets/**",
             LOGIN_URL,
             LOGOUT_URL,
             "/oauth2/**",
             "/swagger-ui/**",
-            "/idp-registrations/**",
+            "/app/**"
     };
 
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final DefaultAuthenticationSuccessHandler defaultAuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final FederatedIdentityAuthenticationSuccessHandler federatedIdentityAuthenticationSuccessHandler;
     private final SingleIndexResolver<Session> singleIndexResolver;
@@ -71,6 +75,7 @@ public class SecurityConfig {
                 .formLogin(configurer -> {
                             configurer.loginPage(LOGIN_URL);
                             configurer.failureHandler(customAuthenticationFailureHandler);
+                            configurer.successHandler(defaultAuthenticationSuccessHandler);
                         }
                 )
                 .oauth2Login(configurer -> {
@@ -92,6 +97,7 @@ public class SecurityConfig {
         corsConfiguration.addAllowedOrigin(frontendBaseUri);
         corsConfiguration.addAllowedHeader(ALL);
         corsConfiguration.addAllowedMethod(ALL);
+        corsConfiguration.setExposedHeaders(List.of("redirect"));
 
         UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
         corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);

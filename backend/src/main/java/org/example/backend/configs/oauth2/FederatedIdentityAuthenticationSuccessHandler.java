@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +14,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class FederatedIdentityAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-    private final AuthenticationSuccessHandler delegate = new SavedRequestAwareAuthenticationSuccessHandler();
+public class FederatedIdentityAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final UserService userService;
 
@@ -27,6 +24,6 @@ public class FederatedIdentityAuthenticationSuccessHandler implements Authentica
             userService.saveOrUpdateOAuth2User(token.getPrincipal(), token.getAuthorizedClientRegistrationId());
         }
 
-        this.delegate.onAuthenticationSuccess(request, response, authentication);
+        super.onAuthenticationSuccess(request, response, authentication);
     }
 }

@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from "react";
 import {RegistrationData} from "../../types/RegistrationData.ts";
-import "./RegistrationPage.css";
 import {checkFieldNotEmpty, validateEmail, validatePassword} from "../../utils/validationUtils.ts";
 import {RegistrationPageErrorState} from "../../types/RegistrationPageErrorState.ts";
 import authApi from "../../api/authApi.ts";
 import {isAxiosError} from "axios";
-import {ResponseError} from "../../types/ResponseError.ts";
+import {ApiError} from "../../types/ApiError.ts";
 import FormInput from "../../components/FormInput/FormInput.tsx";
-import Swal from "sweetalert2";
 import "sweetalert2/src/sweetalert2.scss";
 
 const TITLE = "Registration";
@@ -32,7 +30,7 @@ export default function RegistrationPage() {
         nameValidationError: null,
         givenNameValidationError: null,
         familyNameValidationError: null,
-        registrationError: null,
+        apiError: null,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +54,7 @@ export default function RegistrationPage() {
             nameValidationError: nameError,
             familyNameValidationError: familyNameError,
             givenNameValidationError: givenNameError,
-            registrationError: null,
+            apiError: null,
         });
 
         if (emailError || passwordError || nameError || familyNameError || givenNameError) {
@@ -66,22 +64,17 @@ export default function RegistrationPage() {
         await authApi.register(registrationData)
             .then(response => {
                 if (response.status === 200) {
-                    Swal.fire({
-                        title: "Success",
-                        text: "Email confirmation link was sent to your address",
-                        icon: "success",
-                        confirmButtonText: "Ok",
-                    });
+                    globalThis.localStorage.setItem("email", registrationData.email);
+                    globalThis.location.href = "/app/registrations/verify";
                 }
             })
             .catch(
                 (error) => {
                     if (isAxiosError(error) && error.response) {
-                        const responseError = error.response.data as ResponseError;
-                        console.log(responseError);
+                        const apiError = error.response.data as ApiError;
                         setError((prev) => ({
                             ...prev,
-                            registrationError: responseError.message,
+                            apiError: apiError.message,
                         }));
                     }
                 },
@@ -89,7 +82,7 @@ export default function RegistrationPage() {
     };
 
     return (
-        <div className={"registration-page"}>
+        <div className={"auth-form"}>
             <h1>REGISTRATION</h1>
             <p className={"text-hint"}>Please enter your information</p>
             <form onSubmit={handleSubmit}>
@@ -104,12 +97,12 @@ export default function RegistrationPage() {
                            onChange={handleChange} error={error.givenNameValidationError}/>
                 <FormInput name={"familyName"} placeholder={"Family name"} value={registrationData.familyName}
                            onChange={handleChange} error={error.familyNameValidationError}/>
-                <button className={"registration-button"} type={"submit"}>Register</button>
+                <button className={"default-button"} type={"submit"}>Register</button>
             </form>
-            <div className={"error"}>{error.registrationError}</div>
+            <div className={"default-error"}>{error.apiError}</div>
             <div className={"separator"}>OR</div>
             <p>Already have an account?</p>
-            <a className={"text-hint link"} href="/login">Sign in</a>
+            <a className={"text-hint link"} href="/app/login">Sign in</a>
         </div>
     );
 }

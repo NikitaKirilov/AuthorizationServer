@@ -18,6 +18,14 @@ const authApi = {
             },
         });
     },
+
+    verify: async (code: string) => {
+        return await axiosInstance.put("/registrations/confirm?code=" + code, {});
+    },
+
+    refresh: async () => {
+        await axiosInstance.post("/registrations/refresh", {});
+    },
 };
 
 export default authApi;

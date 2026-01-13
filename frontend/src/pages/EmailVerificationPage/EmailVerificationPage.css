@@ -1,0 +1,36 @@
+.otp-container {
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+
+.otp-input {
+    border: 2px solid white;
+    border-radius: 8px;
+    height: 25px;
+    font-size: 12px;
+    background-color: #332D2D;
+    color: white;
+}
+
+
+.send-new-token-button {
+    background: none;
+    border: none;
+    width: fit-content;
+    margin: 5px auto 5px auto;
+    display: block;
+}
+
+
+.send-new-token-button:hover {
+    text-decoration: underline;
+}
+
+
+.send-new-token-button,
+.otp-input::selection {
+    background: transparent;
+}
+

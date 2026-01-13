@@ -7,6 +7,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Version;
 
 import java.time.Instant;
 
@@ -23,7 +24,12 @@ public class EmailVerificationToken {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    private String codeHash;
+
     private boolean active;
+
+    @Version
+    private int attemptsCount;
 
     private Instant createdAt;
     private Instant updatedAt;

@@ -12,4 +12,6 @@ import org.springframework.stereotype.Component;
 public class EmailVerificationTokenProperties {
 
     private int expirationSeconds = 360;
+    private int codeLength = 6;
+    private int maxAttempts = 5;
 }

@@ -27,13 +27,13 @@ public class RegistrationController {
         registrationService.processRegistration(request, userDto);
     }
 
-    @PutMapping("/confirm")
-    public void confirmEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam String token) {
-        registrationService.verifyEmail(request, response, token);
+    @PostMapping("/refresh")
+    public void refreshCode(HttpServletRequest request) {
+        registrationService.refreshCode(request);
     }
 
-    @PutMapping("/resend")
-    public void resendToken(HttpServletRequest request) {
-        registrationService.sendNewToken(request);
+    @PutMapping("/confirm")
+    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) {
+        registrationService.verifyEmail(request, response, code);
     }
 }

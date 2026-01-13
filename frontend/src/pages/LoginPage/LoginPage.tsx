@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from "react";
 import authApi from "../../api/authApi.ts";
 import {LoginData} from "../../types/LoginData.ts";
-import {ResponseError} from "../../types/ResponseError.ts";
+import {ApiError} from "../../types/ApiError.ts";
 import {isAxiosError} from "axios";
-import "./LoginPage.css";
 import {LoginPageErrorState} from "../../types/LoginPageErrorState.ts";
 import {validateEmail, validatePassword} from "../../utils/validationUtils.ts";
 import FormInput from "../../components/FormInput/FormInput.tsx";
 import SocialLogin from "../../components/SocialLogin/SocialLogin.tsx";
+import googleImg from "../../../assets/google.png";
 
 const TITLE = "Login";
 
@@ -29,7 +29,6 @@ export default function LoginPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
-
         setFormData(prev => ({...prev, [name]: value}));
     };
 
@@ -49,21 +48,27 @@ export default function LoginPage() {
             return;
         }
 
-        await authApi.login(formData).catch(
-            (error) => {
-                if (isAxiosError(error) && error.response) {
-                    const responseError = error.response.data as ResponseError;
-                    setError((prev) => ({
-                        ...prev,
-                        loginError: responseError.message,
-                    }));
+        await authApi.login(formData)
+            .then(res => {
+                if (res.status === 200) {
+                    globalThis.location.href = res.headers["redirect"];
                 }
-            },
-        );
+            })
+            .catch(
+                (error) => {
+                    if (isAxiosError(error) && error.response) {
+                        const apiError = error.response.data as ApiError;
+                        setError((prev) => ({
+                            ...prev,
+                            loginError: apiError.message,
+                        }));
+                    }
+                },
+            );
     };
 
     return (
-        <div className={"login-page"}>
+        <div className={"auth-form"}>
             <h1>LOGIN</h1>
             <p className={"text-hint"}>Please enter your login and password</p>
             <form onSubmit={handleSubmit}>
@@ -71,17 +76,17 @@ export default function LoginPage() {
                            error={error.emailValidationError}/>
                 <FormInput name={"password"} placeholder={"Password"} value={formData.password} onChange={handleChange}
                            error={error.passwordValidationError}/>
-                <button className={"login-button"} type="submit">Login</button>
+                <button className={"default-button"} type="submit">Login</button>
                 {
                     error.loginError &&
-                    <p className={"error"}>{error.loginError}</p>
+                    <p className={"default-error"}>{error.loginError}</p>
                 }
             </form>
             <p className={"text-hint reset-password"}>Forgot password?</p>
             <div className={"separator"}>OR</div>
-            <SocialLogin providerName={"Google"} registrationId={"google"} imageUrl={"../../../assets/google.png"}/>
+            <SocialLogin providerName={"Google"} registrationId={"google"} imageUrl={googleImg}/>
             <p>Don't have an account?</p>
-            <a className={"text-hint link"} href="/registrations/new">Sign up</a>
+            <a className={"text-hint link"} href="/app/registrations/new">Sign up</a>
         </div>
     );
 }

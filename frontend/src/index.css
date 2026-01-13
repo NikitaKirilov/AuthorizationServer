@@ -1,5 +1,32 @@
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    background: #6a11cb;
+    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+}
+
+
+.auth-form {
+    width: 400px;
+    display: table;
+    margin-right: auto;
+    margin-left: auto;
+    color: #FBFBFB;
+    background: #332D2D;
+    text-align: center;
+    border-radius: 20px;
+}
+
+
+.default-button {
+    color: #FBFBFB;
+    height: 40px;
+    width: 30%;
+    border-radius: 19px;
+    background: #332D2D;
+    border: 2px solid #FBFBFB;
+    margin-bottom: 5px;
+    outline: 2px solid #6a11cb;
 }
 
 
@@ -11,7 +38,8 @@
     text-align: center;
 }
 
-.error {
+
+.default-error {
     font-weight: 700;
     color: #ffb24d;
     font-size: 14px;
@@ -36,6 +64,12 @@
 }
 
 
+.default-button:hover {
+    background-color: #373232;
+    cursor: pointer;
+}
+
+
 .separator::before,
 .separator::after {
     content: '';
@@ -51,4 +85,11 @@
 
 .separator:not(:empty)::after {
     margin-left: .25em;
+}
+
+
+@media (max-width: 400px) {
+    .login-page {
+        width: 350px;
+    }
 }

@@ -17,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity(name = "app_user")
 @Getter
@@ -56,9 +57,17 @@ public class User {
     private Instant createdAt;
     private Instant updatedAt;
 
+    private Instant nextVerificationTokenAt;
+
     public List<? extends GrantedAuthority> getGrantedAuthorities() {
         return this.authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                 .toList();
+    }
+
+    public Optional<EmailVerificationToken> getActiveEmailVerificationToken() {
+        return this.emailVerificationTokens.stream()
+                .filter(EmailVerificationToken::isActive)
+                .findAny();
     }
 }

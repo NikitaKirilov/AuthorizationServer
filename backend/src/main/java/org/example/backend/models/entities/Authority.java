@@ -19,7 +19,7 @@ public class Authority {
     private String id;
     private String registeredClientId;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "authorities")
     private List<User> users = new ArrayList<>();
 
     private String name;

@@ -28,7 +28,7 @@ export default function FormInput({
                 value={value}
                 onChange={onChange}
             />
-            <div className="error">{error}</div>
+            <div className="default-error">{error}</div>
         </div>
     );
 }

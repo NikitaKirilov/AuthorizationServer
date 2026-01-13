@@ -4,5 +4,5 @@ export interface RegistrationPageErrorState {
     nameValidationError: string | null;
     givenNameValidationError: string | null;
     familyNameValidationError: string | null;
-    registrationError: string | null;
+    apiError: string | null;
 }
