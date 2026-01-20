@@ -41,6 +41,7 @@ public class SecurityConfig {
             "/app/**",
             "/registrations/**",
             "/error**",
+            "/.well-known/appspecific/com.chrome.devtools.json" //TODO: remove later
     };
 
     private final CorsConfigurationSource defaultCorsConfigurationSource;

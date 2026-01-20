@@ -6,6 +6,7 @@ import EmailVerificationPage from "./pages/EmailVerificationPage/EmailVerificati
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import {useEffect} from "react";
 import authApi from "./api/authApi.ts";
+import ConsentPage from "./pages/ConsentPage/ConsentPage.tsx";
 
 function App() {
     useEffect(() => {
@@ -18,6 +19,7 @@ function App() {
                 <Route path={"app"}>
                     <Route path={"*"} element={<NotFoundPage/>}/>
                     <Route path={"login"} element={<LoginPage/>}/>
+                    <Route path={"consent"} element={<ConsentPage/>}/>
                     <Route path={"registrations"}>
                         <Route path={"new"} element={<RegistrationPage/>}/>
                         <Route path={"verify"} element={<EmailVerificationPage/>}/>

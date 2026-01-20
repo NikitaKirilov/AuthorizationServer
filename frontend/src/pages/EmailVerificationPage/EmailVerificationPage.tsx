@@ -23,9 +23,9 @@ export default function EmailVerificationPage() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        authApi.verify(code)
+        await authApi.verify(code)
             .then(response => {
                 if (response.status === 200) {
                     globalThis.localStorage.removeItem("email");
@@ -35,9 +35,9 @@ export default function EmailVerificationPage() {
             .catch(error => handleError(error));
     };
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        authApi.refresh()
+        await authApi.refresh()
             .catch(error => handleError(error));
     };
 

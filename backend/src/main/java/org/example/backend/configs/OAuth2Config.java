@@ -44,11 +44,17 @@ public class OAuth2Config {
     private final CorsConfigurationSource defaultCorsConfigurationSource;
     private final JwtCustomizer jwtCustomizer;
 
+    private static final String CONSENT_PAGE = "/app/consent";
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
+
+        authorizationServerConfigurer.authorizationEndpoint(auth -> {
+            auth.consentPage(CONSENT_PAGE);
+        });
 
         return http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
