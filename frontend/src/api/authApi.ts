@@ -14,7 +14,7 @@ const authApi = {
     register: async (data: RegistrationData) => {
         return await axiosInstance.post("/registrations", data, {
             headers: {
-                "context-type": "application/json",
+                "content-type": "application/json",
             },
         });
     },

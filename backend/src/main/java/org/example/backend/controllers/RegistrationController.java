@@ -22,14 +22,15 @@ public class RegistrationController {
     @PostMapping
     public void registerUser(
             HttpServletRequest request,
+            HttpServletResponse response,
             @RequestBody UserDto userDto
     ) {
-        registrationService.processRegistration(request, userDto);
+        registrationService.processRegistration(request, response, userDto);
     }
 
     @PostMapping("/refresh")
-    public void refreshCode(HttpServletRequest request) {
-        registrationService.refreshCode(request);
+    public void refreshCode() {
+        registrationService.refreshCode();
     }
 
     @PutMapping("/confirm")

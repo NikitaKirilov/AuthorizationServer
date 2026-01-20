@@ -1,14 +1,13 @@
 package org.example.backend.configs.security;
 
-import org.example.backend.models.CustomUserDetails;
+import org.example.backend.models.DefaultUserDetails;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
@@ -28,19 +27,21 @@ public class RedisPrincipalNameIndexResolver<S extends Session> extends SingleIn
             return principalName;
         }
 
-        Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-        if (authentication != null) {
-            return getPrincipalNameFromAuthentication(authentication);
+        SecurityContext context = session.getAttribute(SPRING_SECURITY_CONTEXT);
+        if (context != null) {
+            return getPrincipalNameFromAuthentication(context);
         }
 
         return null;
     }
 
-    private String getPrincipalNameFromAuthentication(Object authentication) {
-        if (Objects.requireNonNull(authentication) instanceof UsernamePasswordAuthenticationToken token) {
-            CustomUserDetails userDetails = (CustomUserDetails) token.getPrincipal();
-            return userDetails.getName();
+    private String getPrincipalNameFromAuthentication(SecurityContext context) {
+        Authentication authentication = context.getAuthentication();
+        if (authentication != null &&
+                authentication.getPrincipal() instanceof DefaultUserDetails userDetails) {
+            return userDetails.getId();
         }
+
         return EXPRESSION.getValue(authentication, String.class);
     }
 }

@@ -2,7 +2,7 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
-import org.example.backend.models.CustomUserDetails;
+import org.example.backend.models.DefaultUserDetails;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +25,6 @@ public class JPAUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new AuthException("User not found by email: " + username));
         user.setLastLogin(Instant.now());
 
-        return new CustomUserDetails(user);
+        return new DefaultUserDetails(user);
     }
 }

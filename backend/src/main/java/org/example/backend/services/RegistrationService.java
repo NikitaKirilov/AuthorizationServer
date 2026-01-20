@@ -29,15 +29,15 @@ public class RegistrationService {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final EmailService emailservice;
     private final EmailVerificationTokenService emailVerificationTokenService;
-    private final SessionService sessionService;
+    private final SecurityContextService securityContextService;
     private final UserService userService;
 
     @Transactional
-    public void processRegistration(HttpServletRequest request, UserDto userDto) {
+    public void processRegistration(HttpServletRequest request, HttpServletResponse response, UserDto userDto) {
         User registeredUser = userService.registerUser(userDto);
         String code = emailVerificationTokenService.createTokenAndGetCode(registeredUser);
         emailservice.sendCode(registeredUser, code);
-        sessionService.updateSession(request, registeredUser);
+        securityContextService.updateSecurityContext(request, response, registeredUser);
     }
 
     @Transactional(noRollbackFor = {
@@ -46,14 +46,14 @@ public class RegistrationService {
             EmailTokenTooManyAttemptsException.class,
     })
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String code) {
-        String userId = sessionService.getUserId(request);
+        String userId = securityContextService.getUserId();
         User user = userService.getById(userId);
         EmailVerificationToken token = user.getActiveEmailVerificationToken()
                 .orElseThrow(() -> new EmailTokenNotFoundException("Email token not found"));
 
         emailVerificationTokenService.validateCode(code, token);
         userService.activateUser(user);
-        sessionService.updateSession(request, user);
+        securityContextService.updateSecurityContext(request, response, user);
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -64,8 +64,8 @@ public class RegistrationService {
     }
 
     @Transactional
-    public void refreshCode(HttpServletRequest request) {
-        String userId = sessionService.getUserId(request);
+    public void refreshCode() {
+        String userId = securityContextService.getUserId();
         User user = userService.getById(userId);
         userService.checkAndUpdateNextVerificationTokenAt(user);
         String code = emailVerificationTokenService.createTokenAndGetCode(user);

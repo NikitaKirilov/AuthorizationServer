@@ -1,4 +1,4 @@
-package org.example.backend.configs.oauth2;
+package org.example.backend.configs.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +41,4 @@ public class DefaultAuthenticationSuccessHandler implements AuthenticationSucces
             session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
         }
     }
-
-
 }

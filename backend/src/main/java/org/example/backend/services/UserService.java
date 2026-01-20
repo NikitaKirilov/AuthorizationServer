@@ -67,7 +67,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void saveOrUpdateOAuth2User(OAuth2User oAuth2User, String registrationId) {
+    public User saveOrUpdateOAuth2User(OAuth2User oAuth2User, String registrationId) {
         OAuth2UserMapper mapper = oAuth2UserMappers.getMapper(registrationId);
         User mappedUser = mapper.mapOAuth2UserToEntity(oAuth2User);
         Instant now = Instant.now();
@@ -86,7 +86,7 @@ public class UserService {
             return mappedUser;
         });
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void activateUser(User user) {

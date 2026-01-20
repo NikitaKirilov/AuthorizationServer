@@ -1,6 +1,5 @@
 package org.example.backend.models;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.backend.models.entities.User;
@@ -12,8 +11,7 @@ import java.util.Collection;
 
 @Getter
 @Setter
-@EqualsAndHashCode
-public class CustomUserDetails implements UserDetails {
+public class DefaultUserDetails implements UserDetails {
 
     private String id;
 
@@ -30,7 +28,7 @@ public class CustomUserDetails implements UserDetails {
 
     private Instant updatedAt;
 
-    public CustomUserDetails(User user) {
+    public DefaultUserDetails(User user) {
         this.id = user.getId();
 
         this.authorities = user.getGrantedAuthorities();
@@ -40,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
 
         this.password = user.getPassword();
 
-        this.name = user.getGivenName();
+        this.name = user.getName();
         this.givenName = user.getGivenName();
         this.familyName = user.getFamilyName();
 

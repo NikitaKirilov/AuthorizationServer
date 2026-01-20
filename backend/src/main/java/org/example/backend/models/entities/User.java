@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class User {
 
     public List<? extends GrantedAuthority> getGrantedAuthorities() {
         return this.authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .map(Authority::toGrantedAuthority)
                 .toList();
     }
 
