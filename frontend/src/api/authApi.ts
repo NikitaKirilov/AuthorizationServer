@@ -23,8 +23,8 @@ const authApi = {
         return await axiosInstance.put("/registrations/confirm?code=" + code, {});
     },
 
-    refresh: async () => {
-        await axiosInstance.post("/registrations/refresh", {});
+    createToken: async () => {
+        await axiosInstance.post("/registrations/token", {});
     },
 
     csrf: async () => {

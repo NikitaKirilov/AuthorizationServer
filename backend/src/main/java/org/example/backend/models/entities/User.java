@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Entity(name = "app_user")
 @Getter
@@ -61,7 +62,7 @@ public class User {
     public List<? extends GrantedAuthority> getGrantedAuthorities() {
         return this.authorities.stream()
                 .map(Authority::toGrantedAuthority)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Optional<EmailVerificationToken> getActiveEmailVerificationToken() {

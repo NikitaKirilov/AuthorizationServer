@@ -1,4 +1,5 @@
 export interface ApiError {
     status: number,
-    message: string
+    message: string,
+    details?:  { [key: string]: object };
 }

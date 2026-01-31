@@ -3,14 +3,13 @@ package org.example.backend.services;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.exceptions.RegistrationException;
-import org.example.backend.models.DefaultUserDetails;
+import org.example.backend.exceptions.SecurityContextException;
+import org.example.backend.models.UserPrincipal;
 import org.example.backend.models.entities.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +21,9 @@ public class SecurityContextService {
 
     public void updateSecurityContext(HttpServletRequest request, HttpServletResponse response, User user) {
         SecurityContext context = SecurityContextHolder.getContext();
-        UserDetails userDetails = new DefaultUserDetails(user);
+        UserPrincipal principal = new UserPrincipal(user);
         Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
         context.setAuthentication(authentication);
 
         securityContextRepository.saveContext(context, request, response);
@@ -33,10 +32,10 @@ public class SecurityContextService {
     public String getUserId() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof DefaultUserDetails userDetails) {
-            return userDetails.getId();
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+            return userPrincipal.getId();
         }
 
-        throw new RegistrationException("Cannot get user id from context");
+        throw new SecurityContextException("Cannot get user id from context. Try to re login");
     }
 }

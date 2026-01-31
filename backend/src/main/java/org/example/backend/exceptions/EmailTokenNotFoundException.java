@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class EmailTokenNotFoundException extends RuntimeException {
 
-    public EmailTokenNotFoundException(String message) {
-        super(message);
+    private static final String MESSAGE = "Email token not found";
+
+    public EmailTokenNotFoundException() {
+        super(MESSAGE);
     }
 }
 

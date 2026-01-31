@@ -2,7 +2,7 @@ package org.example.backend.configs.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
-import org.example.backend.models.DefaultUserDetails;
+import org.example.backend.models.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -34,31 +34,31 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
             throw new AuthException("Authentication object is null");
         }
 
-        DefaultUserDetails userDetails = this.getUserDetails(authentication);
+        UserPrincipal userPrincipal = this.getUserPrincipal(authentication);
         JwtClaimsSet.Builder claimsBuilder = context.getClaims();
         if (context.getAuthorizedScopes().contains(PROFILE)) {
             claimsBuilder.claims(consumer -> {
-                consumer.computeIfAbsent(NAME, val -> userDetails.getName());
-                consumer.computeIfAbsent(GIVEN_NAME, val -> userDetails.getGivenName());
-                consumer.computeIfAbsent(FAMILY_NAME, val -> userDetails.getFamilyName());
+                consumer.computeIfAbsent(NAME, val -> userPrincipal.getUsername());
+                consumer.computeIfAbsent(GIVEN_NAME, val -> userPrincipal.getGivenName());
+                consumer.computeIfAbsent(FAMILY_NAME, val -> userPrincipal.getFamilyName());
             });
         }
 
         if (context.getAuthorizedScopes().contains(EMAIL)) {
-            claimsBuilder.claim(EMAIL, userDetails.getEmail());
-            claimsBuilder.claim(EMAIL_VERIFIED, userDetails.isEmailVerified());
+            claimsBuilder.claim(EMAIL, userPrincipal.getEmail());
+            claimsBuilder.claim(EMAIL_VERIFIED, userPrincipal.isEmailVerified());
         }
 
-        List<String> roles = userDetails.getAuthorities().stream()
+        List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         claimsBuilder.claim(ROLES, roles);
-        claimsBuilder.claim(SUB, userDetails.getId());
+        claimsBuilder.claim(SUB, userPrincipal.getId());
     }
 
-    private DefaultUserDetails getUserDetails(Authentication authentication) {
-        if (authentication.getPrincipal() instanceof DefaultUserDetails userDetails) {
-            return userDetails;
+    private UserPrincipal getUserPrincipal(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+            return userPrincipal;
         }
 
         throw new AuthException("Unsupported authentication principal: " + authentication);

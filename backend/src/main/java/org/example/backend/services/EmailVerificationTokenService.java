@@ -2,11 +2,8 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.example.backend.exceptions.EmailIsAlreadyVerifiedException;
-import org.example.backend.exceptions.EmailTokenExpiredException;
-import org.example.backend.exceptions.EmailTokenIsNotActiveException;
-import org.example.backend.exceptions.EmailTokenTooManyAttemptsException;
-import org.example.backend.exceptions.InvalidEmailVerificationCode;
+import org.example.backend.exceptions.EmailTokenNotFoundException;
+import org.example.backend.exceptions.EmailTokenVerificationException;
 import org.example.backend.models.entities.EmailVerificationToken;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.properties.EmailVerificationTokenProperties;
@@ -15,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -25,11 +20,14 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 @RequiredArgsConstructor
 public class EmailVerificationTokenService {
 
-    private static final int MAX_TOKENS_PER_USER = 5;
-
     private final EmailVerificationTokenProperties tokenProperties;
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public EmailVerificationToken getActiveByUser(User user) {
+        return emailVerificationTokenRepository.findByUserAndActiveTrue(user)
+                .orElseThrow(EmailTokenNotFoundException::new);
+    }
 
     public String createTokenAndGetCode(User user) {
         String code = RandomStringUtils.secure().nextAlphanumeric(tokenProperties.getCodeLength());
@@ -39,23 +37,23 @@ public class EmailVerificationTokenService {
 
     public void validateCode(String code, EmailVerificationToken token) {
         if (!token.isActive()) {
-            throw new EmailTokenIsNotActiveException("Email token is not active");
+            throw new EmailTokenVerificationException("Email verification token is not active");
         }
 
         if (token.getAttemptsCount() == tokenProperties.getMaxAttempts()) {
             this.deactivateToken(token);
-            throw new EmailTokenTooManyAttemptsException("Too many attempts for token: " + token.getId());
+            throw new EmailTokenVerificationException("Too many attempts for token: " + token.getId());
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
             this.deactivateToken(token);
-            throw new EmailTokenExpiredException("Expired email confirmation token");
+            throw new EmailTokenVerificationException("Expired email verification token");
         }
 
         token.setAttemptsCount(token.getAttemptsCount() + 1);
 
         if (!passwordEncoder.matches(code, token.getCodeHash())) {
-            throw new InvalidEmailVerificationCode("Invalid email verification code");
+            throw new EmailTokenVerificationException("Invalid verification code");
         }
 
         this.deactivateToken(token);
@@ -67,19 +65,12 @@ public class EmailVerificationTokenService {
     }
 
     private void createToken(User user, String code) {
-        if (user.isEmailVerified()) {
-            throw new EmailIsAlreadyVerifiedException("Email is already verified for user: " + user.getId());
-        }
+        //TODO: add task that will clear inactive tokens
+        emailVerificationTokenRepository.deactivateActiveTokenForUser(user);
 
         Instant now = Instant.now();
-        List<EmailVerificationToken> tokens = user.getEmailVerificationTokens();
-        if (tokens.size() >= MAX_TOKENS_PER_USER) {
-            tokens.stream().min(Comparator.comparing(EmailVerificationToken::getCreatedAt)).ifPresent(emailVerificationTokenRepository::delete);
-        }
-
-        user.getActiveEmailVerificationToken().ifPresent(this::deactivateToken);
-
         EmailVerificationToken token = new EmailVerificationToken();
+
         token.setId(UUID.randomUUID().toString());
         token.setUser(user);
         token.setCodeHash(passwordEncoder.encode(code));

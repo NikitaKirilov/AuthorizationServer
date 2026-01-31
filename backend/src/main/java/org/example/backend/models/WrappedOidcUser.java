@@ -1,6 +1,8 @@
 package org.example.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.backend.models.entities.User;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -10,8 +12,15 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import java.util.Map;
 
 @Getter
-public class WrappedOidcUser extends DefaultUserDetails implements OidcUser {
+@Setter
+public class WrappedOidcUser extends UserPrincipal implements OidcUser {
+
     private final DefaultOidcUser oidcUser;
+
+    @JsonCreator
+    public WrappedOidcUser(DefaultOidcUser oidcUser) {
+        this.oidcUser = oidcUser;
+    }
 
     public WrappedOidcUser(DefaultOidcUser oidcUser, User user) {
         super(user);
@@ -36,10 +45,5 @@ public class WrappedOidcUser extends DefaultUserDetails implements OidcUser {
     @Override
     public Map<String, Object> getAttributes() {
         return this.oidcUser.getAttributes();
-    }
-
-    @Override
-    public String getName() {
-        return this.oidcUser.getName();
     }
 }

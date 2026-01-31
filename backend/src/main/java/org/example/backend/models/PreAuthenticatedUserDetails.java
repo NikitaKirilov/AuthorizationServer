@@ -3,46 +3,36 @@ package org.example.backend.models;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.backend.models.entities.User;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.Instant;
 import java.util.Collection;
 
 @Getter
 @Setter
-public class DefaultUserDetails implements UserDetails {
-
-    private String id;
+public class PreAuthenticatedUserDetails implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
     private String email;
-    private boolean emailVerified;
-
     private String password;
 
-    private String name;
-    private String givenName;
-    private String familyName;
-
-    private Instant updatedAt;
-
-    public DefaultUserDetails(User user) {
-        this.id = user.getId();
-
+    public PreAuthenticatedUserDetails(User user) {
         this.authorities = user.getGrantedAuthorities();
 
         this.email = user.getEmail();
-        this.emailVerified = user.isEmailVerified();
-
         this.password = user.getPassword();
+    }
 
-        this.name = user.getName();
-        this.givenName = user.getGivenName();
-        this.familyName = user.getFamilyName();
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    }
 
-        this.updatedAt = user.getUpdatedAt();
+    @Override
+    public @Nullable String getPassword() {
+        return this.password;
     }
 
     @Override

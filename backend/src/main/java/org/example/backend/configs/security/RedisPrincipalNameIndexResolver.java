@@ -1,6 +1,6 @@
 package org.example.backend.configs.security;
 
-import org.example.backend.models.DefaultUserDetails;
+import org.example.backend.models.UserPrincipal;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.core.Authentication;
@@ -38,9 +38,9 @@ public class RedisPrincipalNameIndexResolver<S extends Session> extends SingleIn
     private String getPrincipalNameFromAuthentication(SecurityContext context) {
         Authentication authentication = context.getAuthentication();
         if (authentication != null &&
-                authentication.getPrincipal() instanceof DefaultUserDetails userDetails) {
-            return userDetails.getId();
-        }
+                authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+            return userPrincipal.getName();
+        } //TODO: remove
 
         return EXPRESSION.getValue(authentication, String.class);
     }

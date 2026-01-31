@@ -6,7 +6,10 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ResponseStatus(BAD_REQUEST)
 public class EmailIsAlreadyVerifiedException extends RuntimeException {
-    public EmailIsAlreadyVerifiedException(String message) {
-        super(message);
+
+    private static final String MESSAGE = "Email is already verified";
+
+    public EmailIsAlreadyVerifiedException() {
+        super(MESSAGE);
     }
 }

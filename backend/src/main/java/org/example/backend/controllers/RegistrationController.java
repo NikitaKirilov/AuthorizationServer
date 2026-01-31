@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
-import org.example.backend.services.RegistrationService;
+import org.example.backend.services.UserAuthFlowService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RegistrationController {
 
-    private final RegistrationService registrationService;
+    private final UserAuthFlowService userAuthFlowService;
 
     @PostMapping
     public void registerUser(
@@ -25,16 +25,16 @@ public class RegistrationController {
             HttpServletResponse response,
             @RequestBody UserDto userDto
     ) {
-        registrationService.processRegistration(request, response, userDto);
+        userAuthFlowService.processRegistration(request, response, userDto);
     }
 
-    @PostMapping("/refresh")
-    public void refreshCode() {
-        registrationService.refreshCode();
+    @PostMapping("/token")
+    public void createToken() {
+        userAuthFlowService.createToken();
     }
 
     @PutMapping("/confirm")
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) {
-        registrationService.verifyEmail(request, response, code);
+        userAuthFlowService.verifyEmail(request, response, code);
     }
 }

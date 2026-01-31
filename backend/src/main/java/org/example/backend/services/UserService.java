@@ -2,7 +2,9 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
+import org.example.backend.exceptions.EmailIsAlreadyVerifiedException;
 import org.example.backend.exceptions.RegistrationException;
+import org.example.backend.exceptions.TokenCooldownException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.mappers.oauth2user.OAuth2UserMapper;
 import org.example.backend.mappers.oauth2user.OAuth2UserMappers;
@@ -15,15 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private static final int MAX_UNVERIFIED_USER_PER_EMAIL = 5;
 
     private final AuthorityService authorityService;
     private final OAuth2UserMappers oAuth2UserMappers;
@@ -36,33 +34,32 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
     }
 
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found by email: " + email));
+    }
+
     public User registerUser(UserDto userDto) {
-        List<User> unverifiedUsers = userRepository.findAllByEmail(userDto.getEmail());
-        if (unverifiedUsers.stream().anyMatch(User::isEmailVerified)) {
-            throw new RegistrationException("User with such email is already registered");
+        User user = userRepository.findByEmail(userDto.getEmail()).orElseGet(User::new);
+        if (user.isEmailVerified()) {
+            throw new RegistrationException("Registration failed");
         }
 
-        if (unverifiedUsers.size() >= MAX_UNVERIFIED_USER_PER_EMAIL) {
-            unverifiedUsers.stream()
-                    .min(Comparator.comparing(User::getCreatedAt))
-                    .ifPresent(userRepository::delete);
+        Instant now = Instant.now();
+        if (user.getId() == null) {
+            user.setId(UUID.randomUUID().toString());
+            user.setCreatedAt(now);
+            user.setNextVerificationTokenAt(now);
+        } else {
+            user.setUpdatedAt(now);
         }
 
-        User user = new User();
-
-        user.setId(UUID.randomUUID().toString());
         user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         user.setName(userDto.getName());
         user.setGivenName(userDto.getGivenName());
         user.setFamilyName(userDto.getFamilyName());
-
-        user.setCreatedAt(Instant.now());
-
-        user.setNextVerificationTokenAt(
-                Instant.now().plus(userProperties.getNextVerificationTokenAtSeconds(), ChronoUnit.SECONDS)
-        );
 
         return userRepository.save(user);
     }
@@ -72,8 +69,10 @@ public class UserService {
         User mappedUser = mapper.mapOAuth2UserToEntity(oAuth2User);
         Instant now = Instant.now();
 
-        User user = userRepository.findByEmailAndEmailVerifiedTrue(mappedUser.getEmail()).map(existing -> {
+        User user = userRepository.findByEmail(mappedUser.getEmail()).map(existing -> {
+            existing.setEmailVerified(true);
             existing.setClientRegistrationId(registrationId);
+            existing.getAuthorities().add(authorityService.getDefaultAuthority());
             existing.setLastLogin(now);
             existing.setUpdatedAt(now);
             return existing;
@@ -96,16 +95,18 @@ public class UserService {
         user.getAuthorities().add(authorityService.getDefaultAuthority());
         user.setLastLogin(now);
         user.setUpdatedAt(now);
-
-        userRepository.deleteAllByEmailAndEmailVerifiedFalse(user.getEmail());
     }
 
-    public void checkAndUpdateNextVerificationTokenAt(User user) {
+    public void checkUserCanRequestToken(User user) {
         Instant now = Instant.now();
         Instant nextTokenAt = user.getNextVerificationTokenAt();
+
+        if (user.isEmailVerified()) {
+            throw new EmailIsAlreadyVerifiedException();
+        }
+
         if (now.isBefore(nextTokenAt)) {
-            throw new RegistrationException("Next verification token available in: "
-                    + (nextTokenAt.getEpochSecond() - now.getEpochSecond()) + " seconds");
+            throw new TokenCooldownException(nextTokenAt);
         }
 
         user.setNextVerificationTokenAt(

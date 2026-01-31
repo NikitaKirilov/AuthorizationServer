@@ -3,7 +3,7 @@ package org.example.backend.configs;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
-import org.example.backend.configs.security.DefaultAuthenticationSuccessHandler;
+import org.example.backend.configs.security.LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -13,10 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.DelegatingSecurityContextRepository;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SingleIndexResolver;
@@ -32,6 +28,7 @@ public class SecurityConfig {
     private static final String LOGOUT_URL = "/logout";
 
     private static final String[] PERMIT_ALL_PATTERN = new String[]{
+            "/csrf",
             "/index.html",
             "/assets/**",
             "/login",
@@ -46,7 +43,7 @@ public class SecurityConfig {
 
     private final CorsConfigurationSource defaultCorsConfigurationSource;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-    private final DefaultAuthenticationSuccessHandler defaultAuthenticationSuccessHandler;
+    private final LoginSuccessHandler loginSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final SingleIndexResolver<Session> singleIndexResolver;
 
@@ -73,7 +70,7 @@ public class SecurityConfig {
                         configurer.loginPage(LOGIN_PAGE)
                                 .loginProcessingUrl("/login")
                                 .failureHandler(customAuthenticationFailureHandler)
-                                .successHandler(defaultAuthenticationSuccessHandler)
+                                .successHandler(loginSuccessHandler)
                 )
                 .oauth2Login(configurer -> {
                     configurer.loginPage(LOGIN_PAGE);
@@ -83,14 +80,6 @@ public class SecurityConfig {
                         configurer.logoutUrl(LOGOUT_URL)
                 )
                 .build();
-    }
-
-    @Bean
-    public SecurityContextRepository securityContextRepository() {
-        return new DelegatingSecurityContextRepository(
-                new RequestAttributeSecurityContextRepository(),
-                new HttpSessionSecurityContextRepository()
-        );
     }
 
     private ObjectPostProcessor<OAuth2AuthorizationRequestRedirectFilter> getRequestRedirectFilterObjectPostProcessor() {

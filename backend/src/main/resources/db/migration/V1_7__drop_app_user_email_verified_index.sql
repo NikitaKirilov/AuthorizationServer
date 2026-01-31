@@ -1,0 +1,1 @@
+DROP INDEX app_user_email_verified
