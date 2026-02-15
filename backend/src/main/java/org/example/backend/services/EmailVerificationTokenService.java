@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.UUID;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationTokenService {
@@ -41,13 +39,11 @@ public class EmailVerificationTokenService {
         }
 
         if (token.getAttemptsCount() == tokenProperties.getMaxAttempts()) {
-            this.deactivateToken(token);
-            throw new EmailTokenVerificationException("Too many attempts for token: " + token.getId());
+            throw new EmailTokenVerificationException("Too many attempts. Try to request new code");
         }
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
-            this.deactivateToken(token);
-            throw new EmailTokenVerificationException("Expired email verification token");
+            throw new EmailTokenVerificationException("Code is expired. Try to request new code");
         }
 
         token.setAttemptsCount(token.getAttemptsCount() + 1);
@@ -56,12 +52,7 @@ public class EmailVerificationTokenService {
             throw new EmailTokenVerificationException("Invalid verification code");
         }
 
-        this.deactivateToken(token);
-    }
-
-    private void deactivateToken(EmailVerificationToken token) {
         token.setActive(false);
-        token.setUpdatedAt(Instant.now());
     }
 
     private void createToken(User user, String code) {
@@ -75,8 +66,7 @@ public class EmailVerificationTokenService {
         token.setUser(user);
         token.setCodeHash(passwordEncoder.encode(code));
         token.setActive(true);
-        token.setCreatedAt(now);
-        token.setExpiresAt(now.plus(tokenProperties.getExpirationSeconds(), SECONDS));
+        token.setExpiresAt(now.plusSeconds(tokenProperties.getExpirationSeconds()));
 
         emailVerificationTokenRepository.save(token);
     }

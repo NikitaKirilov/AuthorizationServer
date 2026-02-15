@@ -10,14 +10,15 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL_VERIFIED;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.FAMILY_NAME;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GIVEN_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NICKNAME;
 import static org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimNames.SUB;
 
 @Component
@@ -38,7 +39,7 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
         JwtClaimsSet.Builder claimsBuilder = context.getClaims();
         if (context.getAuthorizedScopes().contains(PROFILE)) {
             claimsBuilder.claims(consumer -> {
-                consumer.computeIfAbsent(NAME, val -> userPrincipal.getUsername());
+                consumer.computeIfAbsent(NICKNAME, val -> userPrincipal.getNickname());
                 consumer.computeIfAbsent(GIVEN_NAME, val -> userPrincipal.getGivenName());
                 consumer.computeIfAbsent(FAMILY_NAME, val -> userPrincipal.getFamilyName());
             });
@@ -49,9 +50,10 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
             claimsBuilder.claim(EMAIL_VERIFIED, userPrincipal.isEmailVerified());
         }
 
-        List<String> roles = userPrincipal.getAuthorities().stream()
+        Set<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .toList();
+                .collect(Collectors.toSet());
+
         claimsBuilder.claim(ROLES, roles);
         claimsBuilder.claim(SUB, userPrincipal.getId());
     }

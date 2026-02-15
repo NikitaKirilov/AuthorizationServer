@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -28,6 +29,7 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
@@ -80,12 +82,13 @@ public class OAuth2Config {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
+    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
         RegisteredClient devPublicClient = RegisteredClient
                 .withId("id")
                 .clientId("client_id")
+                .clientSecret(passwordEncoder.encode("secret"))
                 .clientName("public_client")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 .authorizationGrantTypes(consumer -> {
                     consumer.add(AuthorizationGrantType.AUTHORIZATION_CODE);
                     consumer.add(AuthorizationGrantType.REFRESH_TOKEN);
@@ -96,6 +99,9 @@ public class OAuth2Config {
                     consumer.add(EMAIL);
                     consumer.add(PROFILE);
                 })
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(true)
+                        .build())
                 .tokenSettings(TokenSettings.builder()
                         .reuseRefreshTokens(false)
                         .build()
@@ -108,25 +114,13 @@ public class OAuth2Config {
         return repository;
     }
 
-    public JsonMapper jsonMapper() {
-        ClassLoader loader = getClass().getClassLoader();
-        BasicPolymorphicTypeValidator.Builder typeValidatorBuilder = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(UserPrincipal.class)
-                .allowIfSubType(WrappedOidcUser.class)
-                .allowIfSubType(WrappedOAuth2User.class);
-
-        return JsonMapper.builder()
-                .addModules(SecurityJacksonModules.getModules(loader, typeValidatorBuilder))
-                .build();
-    }
-
     @Bean
     public OAuth2AuthorizationService oAuth2AuthorizationService(
             JdbcTemplate jdbcTemplate,
             RegisteredClientRepository registeredClientRepository
     ) {
         JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
-        JsonMapper jsonMapper = jsonMapper();
+        JsonMapper jsonMapper = createJsonMapper();
 
         service.setAuthorizationRowMapper(
                 new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper(registeredClientRepository,
@@ -156,5 +150,17 @@ public class OAuth2Config {
                 accessTokenGenerator,
                 publicClientRefreshTokenGenerator
         );
+    }
+
+    private JsonMapper createJsonMapper() {
+        ClassLoader loader = getClass().getClassLoader();
+        BasicPolymorphicTypeValidator.Builder typeValidatorBuilder = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(UserPrincipal.class)
+                .allowIfSubType(WrappedOidcUser.class)
+                .allowIfSubType(WrappedOAuth2User.class);
+
+        return JsonMapper.builder()
+                .addModules(SecurityJacksonModules.getModules(loader, typeValidatorBuilder))
+                .build();
     }
 }

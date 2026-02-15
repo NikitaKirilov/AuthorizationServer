@@ -1,4 +1,4 @@
-package org.example.backend.mappers.oauth2user;
+package org.example.backend.mappers.idp;
 
 import org.springframework.stereotype.Component;
 

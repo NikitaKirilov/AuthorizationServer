@@ -6,8 +6,9 @@ import org.example.backend.exceptions.EmailIsAlreadyVerifiedException;
 import org.example.backend.exceptions.RegistrationException;
 import org.example.backend.exceptions.TokenCooldownException;
 import org.example.backend.exceptions.UserNotFoundException;
-import org.example.backend.mappers.oauth2user.OAuth2UserMapper;
-import org.example.backend.mappers.oauth2user.OAuth2UserMappers;
+import org.example.backend.mappers.UserMapper;
+import org.example.backend.mappers.idp.OAuth2UserMapper;
+import org.example.backend.mappers.idp.OAuth2UserMappers;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.properties.UserProperties;
 import org.example.backend.repositories.UserRepository;
@@ -16,7 +17,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
@@ -26,6 +26,7 @@ public class UserService {
     private final AuthorityService authorityService;
     private final OAuth2UserMappers oAuth2UserMappers;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final UserProperties userProperties;
 
@@ -45,19 +46,15 @@ public class UserService {
             throw new RegistrationException("Registration failed");
         }
 
-        Instant now = Instant.now();
         if (user.getId() == null) {
             user.setId(UUID.randomUUID().toString());
-            user.setCreatedAt(now);
-            user.setNextVerificationTokenAt(now);
-        } else {
-            user.setUpdatedAt(now);
+            user.setNextVerificationTokenAt(Instant.now());
         }
 
         user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        user.setName(userDto.getName());
+        user.setNickname(userDto.getNickname());
         user.setGivenName(userDto.getGivenName());
         user.setFamilyName(userDto.getFamilyName());
 
@@ -70,17 +67,17 @@ public class UserService {
         Instant now = Instant.now();
 
         User user = userRepository.findByEmail(mappedUser.getEmail()).map(existing -> {
-            existing.setEmailVerified(true);
+            if (!existing.isEmailVerified()) {
+                userMapper.mergeUsers(mappedUser, existing);
+                existing.getAuthorities().add(authorityService.getDefaultAuthority());
+            }
             existing.setClientRegistrationId(registrationId);
-            existing.getAuthorities().add(authorityService.getDefaultAuthority());
             existing.setLastLogin(now);
-            existing.setUpdatedAt(now);
             return existing;
         }).orElseGet(() -> {
             mappedUser.setId(UUID.randomUUID().toString());
             mappedUser.setClientRegistrationId(registrationId);
             mappedUser.getAuthorities().add(authorityService.getDefaultAuthority());
-            mappedUser.setCreatedAt(now);
             mappedUser.setLastLogin(now);
             return mappedUser;
         });
@@ -89,12 +86,13 @@ public class UserService {
     }
 
     public void activateUser(User user) {
-        Instant now = Instant.now();
+        if (user.isEmailVerified()) {
+            throw new RegistrationException("Registration failed");
+        }
 
         user.setEmailVerified(true);
         user.getAuthorities().add(authorityService.getDefaultAuthority());
-        user.setLastLogin(now);
-        user.setUpdatedAt(now);
+        user.setLastLogin(Instant.now());
     }
 
     public void checkUserCanRequestToken(User user) {
@@ -109,8 +107,6 @@ public class UserService {
             throw new TokenCooldownException(nextTokenAt);
         }
 
-        user.setNextVerificationTokenAt(
-                now.plus(userProperties.getNextVerificationTokenAtSeconds(), ChronoUnit.SECONDS)
-        );
+        user.setNextVerificationTokenAt(now.plusSeconds(userProperties.getNextVerificationTokenAtSeconds()));
     }
 }

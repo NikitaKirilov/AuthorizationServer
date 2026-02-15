@@ -3,12 +3,14 @@ package org.example.backend.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.backend.models.entities.Authority;
 import org.example.backend.models.entities.User;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -21,7 +23,7 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
     private String email;
     private boolean emailVerified;
 
-    private String name;
+    private String nickname;
     private String givenName;
     private String familyName;
 
@@ -32,12 +34,13 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
     public UserPrincipal(User user) {
         this.id = user.getId();
 
-        this.authorities = user.getGrantedAuthorities();
+        this.authorities = user.getAuthorities().stream()
+                .map(Authority::toGrantedAuthority).collect(Collectors.toSet());
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();
 
-        this.name = user.getName();
+        this.nickname = user.getNickname();
         this.givenName = user.getGivenName();
         this.familyName = user.getFamilyName();
     }
@@ -45,9 +48,5 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
     @Override
     public String getName() {
         return this.id;
-    }
-
-    public String getUsername() {
-        return this.name;
     }
 }

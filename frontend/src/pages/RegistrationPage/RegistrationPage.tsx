@@ -17,7 +17,7 @@ export default function RegistrationPage() {
     const [registrationData, setRegistrationData] = useState<RegistrationData>({
         email: "",
         password: "",
-        name: "",
+        nickname: "",
         givenName: "",
         familyName: "",
     });
@@ -25,7 +25,7 @@ export default function RegistrationPage() {
     const [error, setError] = useState<RegistrationPageErrorState>({
         emailValidationError: null,
         passwordValidationError: null,
-        nameValidationError: null,
+        nicknameValidationError: null,
         givenNameValidationError: null,
         familyNameValidationError: null,
         apiError: null,
@@ -42,20 +42,20 @@ export default function RegistrationPage() {
 
         const emailError = validateEmail(registrationData.email);
         const passwordError = validatePassword(registrationData.password);
-        const nameError = checkFieldNotEmpty(registrationData.name);
+        const nicknameError = checkFieldNotEmpty(registrationData.nickname);
         const familyNameError = checkFieldNotEmpty(registrationData.familyName);
         const givenNameError = checkFieldNotEmpty(registrationData.givenName);
 
         setError({
             emailValidationError: emailError,
             passwordValidationError: passwordError,
-            nameValidationError: nameError,
+            nicknameValidationError: nicknameError,
             familyNameValidationError: familyNameError,
             givenNameValidationError: givenNameError,
             apiError: null,
         });
 
-        if (emailError || passwordError || nameError || familyNameError || givenNameError) {
+        if (emailError || passwordError || nicknameError || familyNameError || givenNameError) {
             return;
         }
 
@@ -89,8 +89,8 @@ export default function RegistrationPage() {
                 <FormInput name={"password"} placeholder={"Password"} value={registrationData.password}
                            type={"password"}
                            onChange={handleChange} error={error.passwordValidationError}/>
-                <FormInput name={"name"} placeholder={"Name"} value={registrationData.name}
-                           onChange={handleChange} error={error.nameValidationError}/>
+                <FormInput name={"nickname"} placeholder={"Nickname"} value={registrationData.nickname}
+                           onChange={handleChange} error={error.nicknameValidationError}/>
                 <FormInput name={"givenName"} placeholder={"Given name"} value={registrationData.givenName}
                            onChange={handleChange} error={error.givenNameValidationError}/>
                 <FormInput name={"familyName"} placeholder={"Family name"} value={registrationData.familyName}

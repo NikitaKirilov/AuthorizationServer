@@ -1,4 +1,4 @@
-package org.example.backend.mappers.oauth2user;
+package org.example.backend.mappers.idp;
 
 import org.example.backend.models.DefaultClaimNames;
 import org.example.backend.models.entities.User;
@@ -16,7 +16,7 @@ public class GoogleOAuth2UserMapper implements OAuth2UserMapper {
 
         user.setEmail(oauth2User.getAttribute(DefaultClaimNames.EMAIL.getValue()));
         user.setEmailVerified(oauth2User.getAttribute(DefaultClaimNames.EMAIL_VERIFIED.getValue()));
-        user.setName(oauth2User.getAttribute(DefaultClaimNames.NAME.getValue()));
+        user.setNickname(oauth2User.getAttribute(DefaultClaimNames.NAME.getValue()));
         user.setGivenName(oauth2User.getAttribute(DefaultClaimNames.GIVEN_NAME.getValue()));
         user.setFamilyName(oauth2User.getAttribute(DefaultClaimNames.FAMILY_NAME.getValue()));
 

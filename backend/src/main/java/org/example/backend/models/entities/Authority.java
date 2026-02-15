@@ -9,8 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -22,7 +22,7 @@ public class Authority {
     private String registeredClientId;
 
     @ManyToMany(mappedBy = "authorities")
-    private List<User> users = new ArrayList<>();
+    private Set<User> users = new HashSet<>();
 
     private String name;
     private String description;

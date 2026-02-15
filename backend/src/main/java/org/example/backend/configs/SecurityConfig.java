@@ -14,9 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.session.Session;
-import org.springframework.session.SingleIndexResolver;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -45,7 +42,6 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final LoginSuccessHandler loginSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final SingleIndexResolver<Session> singleIndexResolver;
 
     @Bean
     @Order(2)
@@ -55,8 +51,7 @@ public class SecurityConfig {
                     authorize.anyRequest().authenticated();
                 })
                 .sessionManagement(configurer ->
-                        //configurer.sessionFixation().changeSessionId(); TODO: enable session id change
-                        configurer.withObjectPostProcessor(this.getRedisIndexedSessionRepositoryObjectPostProcessor())
+                        configurer.sessionFixation().changeSessionId()
                 )
                 .rememberMe(AbstractHttpConfigurer::disable)
                 .cors(configurer ->
@@ -87,16 +82,6 @@ public class SecurityConfig {
             @Override
             public <O extends OAuth2AuthorizationRequestRedirectFilter> O postProcess(O object) {
                 object.setAuthenticationFailureHandler(oAuth2AuthenticationFailureHandler);
-                return object;
-            }
-        };
-    }
-
-    private ObjectPostProcessor<RedisIndexedSessionRepository> getRedisIndexedSessionRepositoryObjectPostProcessor() {
-        return new ObjectPostProcessor<>() {
-            @Override
-            public <O extends RedisIndexedSessionRepository> O postProcess(O object) {
-                object.setIndexResolver(singleIndexResolver);
                 return object;
             }
         };

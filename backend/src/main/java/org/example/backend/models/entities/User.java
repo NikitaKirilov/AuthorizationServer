@@ -1,6 +1,7 @@
 package org.example.backend.models.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -11,15 +12,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Entity(name = "app_user")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Builder(builderClassName = "Builder")
@@ -41,33 +45,24 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id")
     )
-    private List<Authority> authorities = new ArrayList<>();
+    private Set<Authority> authorities = new HashSet<>();
 
     private String email;
     private boolean emailVerified;
 
     private String password;
 
-    private String name;
+    private String nickname;
     private String givenName;
     private String familyName;
 
     private Instant lastLogin;
 
+    @CreatedDate
     private Instant createdAt;
+
+    @LastModifiedDate
     private Instant updatedAt;
 
     private Instant nextVerificationTokenAt;
-
-    public List<? extends GrantedAuthority> getGrantedAuthorities() {
-        return this.authorities.stream()
-                .map(Authority::toGrantedAuthority)
-                .collect(Collectors.toList());
-    }
-
-    public Optional<EmailVerificationToken> getActiveEmailVerificationToken() {
-        return this.emailVerificationTokens.stream()
-                .filter(EmailVerificationToken::isActive)
-                .findAny();
-    }
 }

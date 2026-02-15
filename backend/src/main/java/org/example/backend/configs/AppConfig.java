@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableRedisIndexedHttpSession
 @EnableAsync
 @EnableResilientMethods
+@EnableJpaAuditing
 public class AppConfig {
 
     @Bean
