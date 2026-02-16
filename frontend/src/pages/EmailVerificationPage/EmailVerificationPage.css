@@ -15,7 +15,7 @@
 }
 
 
-.send-new-token-button {
+.send-new-code-button {
     background: none;
     border: none;
     width: fit-content;
@@ -24,12 +24,12 @@
 }
 
 
-.send-new-token-button:hover {
+.send-new-code-button:hover {
     text-decoration: underline;
 }
 
 
-.send-new-token-button,
+.send-new-code-button,
 .otp-input::selection {
     background: transparent;
 }

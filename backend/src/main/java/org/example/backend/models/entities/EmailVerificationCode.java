@@ -20,7 +20,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EmailVerificationToken {
+public class EmailVerificationCode {
 
     @Id
     private String id;

@@ -5,9 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
-import org.example.backend.exceptions.EmailTokenVerificationException;
+import org.example.backend.exceptions.EmailVerificationCodeValidationException;
 import org.example.backend.exceptions.ServerError;
-import org.example.backend.models.entities.EmailVerificationToken;
+import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,7 +29,7 @@ public class UserAuthFlowService {
     @Qualifier("defaultAuthenticationSuccessHandler")
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final EmailService emailservice;
-    private final EmailVerificationTokenService emailVerificationTokenService;
+    private final EmailVerificationCodeService emailVerificationCodeService;
     private final SecurityContextService securityContextService;
     private final UserService userService;
 
@@ -46,13 +46,13 @@ public class UserAuthFlowService {
         securityContextService.updateSecurityContext(request, response, user);
     }
 
-    @Transactional(noRollbackFor = EmailTokenVerificationException.class)
+    @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String code) {
         String userId = securityContextService.getUserId();
         User user = userService.getById(userId);
-        EmailVerificationToken token = emailVerificationTokenService.getActiveByUser(user);
+        EmailVerificationCode token = emailVerificationCodeService.getActiveByUser(user);
 
-        emailVerificationTokenService.validateCode(code, token);
+        emailVerificationCodeService.validateCode(code, token);
         userService.activateUser(user);
         securityContextService.updateSecurityContext(request, response, user);
 
@@ -70,7 +70,7 @@ public class UserAuthFlowService {
         String userId = securityContextService.getUserId();
         User user = userService.getById(userId);
         userService.checkUserCanRequestToken(user);
-        String code = emailVerificationTokenService.createTokenAndGetCode(user);
-        emailservice.sendCode(user, code);
+        String code = emailVerificationCodeService.createAndGetSourceCode(user);
+        emailservice.sendEmailVerificationCode(user, code);
     }
 }

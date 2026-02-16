@@ -3,8 +3,8 @@ package org.example.backend.services;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyVerifiedException;
+import org.example.backend.exceptions.EmailVerificationCodeCooldownException;
 import org.example.backend.exceptions.RegistrationException;
-import org.example.backend.exceptions.TokenCooldownException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.mappers.UserMapper;
 import org.example.backend.mappers.idp.OAuth2UserMapper;
@@ -48,7 +48,7 @@ public class UserService {
 
         if (user.getId() == null) {
             user.setId(UUID.randomUUID().toString());
-            user.setNextVerificationTokenAt(Instant.now());
+            user.setNextVerificationCodeAt(Instant.now());
         }
 
         user.setEmail(userDto.getEmail());
@@ -97,16 +97,16 @@ public class UserService {
 
     public void checkUserCanRequestToken(User user) {
         Instant now = Instant.now();
-        Instant nextTokenAt = user.getNextVerificationTokenAt();
+        Instant nextCodeAt = user.getNextVerificationCodeAt();
 
         if (user.isEmailVerified()) {
             throw new EmailIsAlreadyVerifiedException();
         }
 
-        if (now.isBefore(nextTokenAt)) {
-            throw new TokenCooldownException(nextTokenAt);
+        if (now.isBefore(nextCodeAt)) {
+            throw new EmailVerificationCodeCooldownException(nextCodeAt);
         }
 
-        user.setNextVerificationTokenAt(now.plusSeconds(userProperties.getNextVerificationTokenAtSeconds()));
+        user.setNextVerificationCodeAt(now.plusSeconds(userProperties.getNextVerificationCodeAtSeconds()));
     }
 }

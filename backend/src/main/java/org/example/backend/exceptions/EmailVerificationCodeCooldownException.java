@@ -8,12 +8,12 @@ import java.time.Instant;
 
 @Getter
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class TokenCooldownException extends RuntimeException {
+public class EmailVerificationCodeCooldownException extends RuntimeException {
 
     private static final String MESSAGE = "Token is in cooldown";
     private final Instant nextTokenAt;
 
-    public TokenCooldownException(Instant nextTokenAt) {
+    public EmailVerificationCodeCooldownException(Instant nextTokenAt) {
         super(MESSAGE);
         this.nextTokenAt = nextTokenAt;
     }

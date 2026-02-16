@@ -37,7 +37,7 @@ public class User {
     private String clientRegistrationId;
 
     @OneToMany(mappedBy = "user")
-    private List<EmailVerificationToken> emailVerificationTokens = new ArrayList<>();
+    private List<EmailVerificationCode> emailVerificationCodes = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -64,5 +64,5 @@ public class User {
     @LastModifiedDate
     private Instant updatedAt;
 
-    private Instant nextVerificationTokenAt;
+    private Instant nextVerificationCodeAt;
 }

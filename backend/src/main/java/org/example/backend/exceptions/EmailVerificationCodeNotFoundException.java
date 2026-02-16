@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class EmailTokenNotFoundException extends RuntimeException {
+public class EmailVerificationCodeNotFoundException extends RuntimeException {
 
-    private static final String MESSAGE = "Email token not found";
+    private static final String MESSAGE = "Email verification code not found";
 
-    public EmailTokenNotFoundException() {
+    public EmailVerificationCodeNotFoundException() {
         super(MESSAGE);
     }
 }

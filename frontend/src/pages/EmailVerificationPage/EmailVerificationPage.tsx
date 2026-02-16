@@ -4,27 +4,38 @@ import "./EmailVerificationPage.css";
 import authApi from "../../api/authApi.ts";
 import {isAxiosError} from "axios";
 import {ApiError} from "../../types/ApiError.ts";
+import {EmailVerificationPageErrorState} from "../../types/EmailVerificationPageErrorState.ts";
 
 const TITLE = "Email Verification";
 
 export default function EmailVerificationPage() {
-    const [code, setCode] = useState("");
-    const [error, setError] = useState<string | undefined>();
     const email = localStorage.getItem("email");
+    const [code, setCode] = useState("");
+    const [error, setError] = useState<EmailVerificationPageErrorState>({
+        emailVerificationCodeValidationError: null,
+        emailVerificationCodeCooldownError: null,
+        userError: null,
+    });
 
-    const handleCooldown = (nextTokenAtStr: string) => {
-        localStorage.setItem("nextTokenAt", nextTokenAtStr);
+    const handleCooldown = (nextCodeAtStr: string) => {
+        localStorage.setItem("nextCodeAt", nextCodeAtStr);
 
         const timer = () => {
-            const nextTokenAt = new Date(nextTokenAtStr).getTime();
+            const nextCodeAt = new Date(nextCodeAtStr).getTime();
             const now = Date.now();
-            const secondsLeft = Math.max(Math.ceil((nextTokenAt - now) / 1000), 0);
+            const secondsLeft = Math.max(Math.ceil((nextCodeAt - now) / 1000), 0);
 
             if (secondsLeft === 0) {
-                setError(undefined);
-                localStorage.removeItem("nextTokenAt");
+                setError(prev => ({
+                    ...prev,
+                    emailVerificationCodeCooldownError: null,
+                }));
+                localStorage.removeItem("nextCodeAt");
             } else {
-                setError(`Next verification code in ${secondsLeft} seconds`);
+                setError(prev => ({
+                    ...prev,
+                    emailVerificationCodeCooldownError: `Next verification code in ${secondsLeft} seconds`,
+                }));
                 setTimeout(timer, 1000);
             }
         };
@@ -35,16 +46,19 @@ export default function EmailVerificationPage() {
     useEffect(() => {
         document.title = TITLE;
 
-        const savedNextTokenAt = localStorage.getItem("nextTokenAt");
-        if (savedNextTokenAt) {
-            handleCooldown(savedNextTokenAt);
+        const savedNextCodeAt = localStorage.getItem("nextCodeAt");
+        if (savedNextCodeAt) {
+            handleCooldown(savedNextCodeAt);
         } else {
             authApi.createToken().catch(error => {
                 if (isAxiosError(error) && error.response) {
                     const apiError = error.response.data as ApiError;
-                    const nextTokenAt = apiError.details?.["next_token_at"] as string | undefined;
-                    if (nextTokenAt) handleCooldown(nextTokenAt);
-                    else setError(apiError.message);
+                    const nextCodeAt = apiError.details?.["next_code_at"] as string | undefined;
+                    if (nextCodeAt) handleCooldown(nextCodeAt);
+                    else setError(prev => ({
+                        ...prev,
+                        userError: apiError.message,
+                    }));
                 }
             });
         }
@@ -56,14 +70,17 @@ export default function EmailVerificationPage() {
             .then(response => {
                 if (response.status === 200) {
                     localStorage.removeItem("email");
-                    localStorage.removeItem("nextTokenAt");
+                    localStorage.removeItem("nextCodeAt");
                     location.href = response.headers["redirect"];
                 }
             })
             .catch(error => {
                 if (isAxiosError(error) && error.response) {
                     const apiError = error.response.data as ApiError;
-                    setError(apiError.message);
+                    setError(prev => ({
+                        ...prev,
+                        emailVerificationCodeValidationError: apiError.message,
+                    }));
                 }
             });
     };
@@ -72,16 +89,19 @@ export default function EmailVerificationPage() {
         e.preventDefault();
         await authApi.createToken()
             .then(() => {
-                const nextTokenAt = new Date();
-                nextTokenAt.setSeconds(nextTokenAt.getSeconds() + 60);
-                handleCooldown(nextTokenAt.toString());
+                const nextCodeAt = new Date();
+                nextCodeAt.setSeconds(nextCodeAt.getSeconds() + 60);
+                handleCooldown(nextCodeAt.toString());
             })
             .catch(error => {
                 if (isAxiosError(error) && error.response) {
                     const apiError = error.response.data as ApiError;
-                    const nextTokenAt = apiError.details?.["next_token_at"] as string | undefined;
-                    if (nextTokenAt) handleCooldown(nextTokenAt);
-                    else setError(apiError.message);
+                    const nextCodeAt = apiError.details?.["next_code_at"] as string | undefined;
+                    if (nextCodeAt) handleCooldown(nextCodeAt);
+                    else setError(prev => ({
+                        ...prev,
+                        userError: apiError.message,
+                    }));
                 }
             });
     };
@@ -89,7 +109,7 @@ export default function EmailVerificationPage() {
     return (
         <div className="auth-form">
             <h1>Please check your email</h1>
-            <p className="text-hint">We've sent a code to your email {email && ": " + email}</p>
+            <p className="text-hint">We've sent a code to your email{email && ": " + email}</p>
             <form onSubmit={handleSubmit}>
                 <OTPInput
                     value={code}
@@ -102,10 +122,15 @@ export default function EmailVerificationPage() {
                     inputStyle="otp-input"
                 />
                 <button className="default-button" type="submit" disabled={code.length !== 6}>Submit</button>
-                {!localStorage.getItem("nextTokenAt") &&
-                    <button className="text-hint send-new-token-button" onClick={handleClick}>Send new token</button>
+                {!error.emailVerificationCodeCooldownError &&
+                    <button className="text-hint send-new-code-button" onClick={handleClick}>Send new code</button>
                 }
-                <p className="default-error">{error}</p>
+                {Object.values(error)
+                    .filter(Boolean)
+                    .map((errMessage, index) => (
+                        <p key={index} className="default-error">{errMessage}</p>
+                    ))
+                }
             </form>
         </div>
     );

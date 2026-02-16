@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component;
 @Data
 public class UserProperties {
 
-    private int nextVerificationTokenAtSeconds = 60;
+    private int nextVerificationCodeAtSeconds = 60;
 }

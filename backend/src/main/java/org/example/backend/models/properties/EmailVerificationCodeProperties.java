@@ -6,10 +6,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "email.token")
+@ConfigurationProperties(prefix = "email.code")
 @Getter
 @Setter
-public class EmailVerificationTokenProperties {
+public class EmailVerificationCodeProperties {
 
     private int expirationSeconds = 360;
     private int codeLength = 6;
