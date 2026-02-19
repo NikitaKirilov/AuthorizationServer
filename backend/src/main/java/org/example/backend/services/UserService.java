@@ -2,15 +2,12 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
-import org.example.backend.exceptions.EmailIsAlreadyVerifiedException;
-import org.example.backend.exceptions.EmailVerificationCodeCooldownException;
 import org.example.backend.exceptions.RegistrationException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.mappers.UserMapper;
 import org.example.backend.mappers.idp.OAuth2UserMapper;
 import org.example.backend.mappers.idp.OAuth2UserMappers;
 import org.example.backend.models.entities.User;
-import org.example.backend.models.properties.UserProperties;
 import org.example.backend.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -28,7 +25,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final UserProperties userProperties;
 
     public User getById(String id) {
         return userRepository.findById(id)
@@ -48,7 +44,6 @@ public class UserService {
 
         if (user.getId() == null) {
             user.setId(UUID.randomUUID().toString());
-            user.setNextVerificationCodeAt(Instant.now());
         }
 
         user.setEmail(userDto.getEmail());
@@ -93,20 +88,5 @@ public class UserService {
         user.setEmailVerified(true);
         user.getAuthorities().add(authorityService.getDefaultAuthority());
         user.setLastLogin(Instant.now());
-    }
-
-    public void checkUserCanRequestToken(User user) {
-        Instant now = Instant.now();
-        Instant nextCodeAt = user.getNextVerificationCodeAt();
-
-        if (user.isEmailVerified()) {
-            throw new EmailIsAlreadyVerifiedException();
-        }
-
-        if (now.isBefore(nextCodeAt)) {
-            throw new EmailVerificationCodeCooldownException(nextCodeAt);
-        }
-
-        user.setNextVerificationCodeAt(now.plusSeconds(userProperties.getNextVerificationCodeAtSeconds()));
     }
 }

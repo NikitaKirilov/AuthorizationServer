@@ -28,6 +28,7 @@ public class EmailVerificationCodeService {
     }
 
     public String createAndGetSourceCode(User user) {
+        emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
         String code = RandomStringUtils.secure().nextAlphanumeric(codeProperties.getCodeLength());
         this.createEmailVerificationCode(user, code);
         return code;
@@ -56,17 +57,13 @@ public class EmailVerificationCodeService {
     }
 
     private void createEmailVerificationCode(User user, String code) {
-        //TODO: add task that will clear inactive tokens
-        emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
-
-        Instant now = Instant.now();
         EmailVerificationCode token = new EmailVerificationCode();
 
         token.setId(UUID.randomUUID().toString());
         token.setUser(user);
         token.setCodeHash(passwordEncoder.encode(code));
         token.setActive(true);
-        token.setExpiresAt(now.plusSeconds(codeProperties.getExpirationSeconds()));
+        token.setExpiresAt(Instant.now().plusSeconds(codeProperties.getExpirationSeconds()));
 
         emailVerificationCodeRepository.save(token);
     }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
 import org.example.backend.exceptions.ServerError;
+import org.example.backend.models.Action;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +29,7 @@ public class UserAuthFlowService {
 
     @Qualifier("defaultAuthenticationSuccessHandler")
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final CooldownService cooldownService;
     private final EmailService emailservice;
     private final EmailVerificationCodeService emailVerificationCodeService;
     private final SecurityContextService securityContextService;
@@ -42,6 +44,7 @@ public class UserAuthFlowService {
     @Transactional
     public void processLogin(HttpServletRequest request, HttpServletResponse response, UserDetails userDetails) {
         User user = userService.getByEmail(userDetails.getUsername());
+        //TODO: add device service
         user.setLastLogin(Instant.now());
         securityContextService.updateSecurityContext(request, response, user);
     }
@@ -69,7 +72,9 @@ public class UserAuthFlowService {
     public void createToken() {
         String userId = securityContextService.getUserId();
         User user = userService.getById(userId);
-        userService.checkUserCanRequestToken(user);
+
+        cooldownService.acquire(Action.CODE_REQUEST, user.getId());
+
         String code = emailVerificationCodeService.createAndGetSourceCode(user);
         emailservice.sendEmailVerificationCode(user, code);
     }

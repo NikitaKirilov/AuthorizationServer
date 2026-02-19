@@ -17,51 +17,35 @@ export default function EmailVerificationPage() {
         userError: null,
     });
 
-    const handleCooldown = (nextCodeAtStr: string) => {
-        localStorage.setItem("nextCodeAt", nextCodeAtStr);
-
-        const timer = () => {
-            const nextCodeAt = new Date(nextCodeAtStr).getTime();
-            const now = Date.now();
-            const secondsLeft = Math.max(Math.ceil((nextCodeAt - now) / 1000), 0);
-
-            if (secondsLeft === 0) {
-                setError(prev => ({
-                    ...prev,
-                    emailVerificationCodeCooldownError: null,
-                }));
-                localStorage.removeItem("nextCodeAt");
-            } else {
-                setError(prev => ({
-                    ...prev,
-                    emailVerificationCodeCooldownError: `Next verification code in ${secondsLeft} seconds`,
-                }));
-                setTimeout(timer, 1000);
-            }
-        };
-
-        timer();
+    const handleCooldown = (cooldown: number) => {
+        if (cooldown <= 0) {
+            setError(prev => ({
+                ...prev,
+                emailVerificationCodeCooldownError: null,
+            }));
+        } else {
+            setError(prev => ({
+                ...prev,
+                emailVerificationCodeCooldownError: `Next verification code in ${cooldown} seconds`,
+            }));
+            setTimeout(() => handleCooldown(cooldown - 1), 1000);
+        }
     };
 
     useEffect(() => {
         document.title = TITLE;
 
-        const savedNextCodeAt = localStorage.getItem("nextCodeAt");
-        if (savedNextCodeAt) {
-            handleCooldown(savedNextCodeAt);
-        } else {
-            authApi.createToken().catch(error => {
-                if (isAxiosError(error) && error.response) {
-                    const apiError = error.response.data as ApiError;
-                    const nextCodeAt = apiError.details?.["next_code_at"] as string | undefined;
-                    if (nextCodeAt) handleCooldown(nextCodeAt);
-                    else setError(prev => ({
-                        ...prev,
-                        userError: apiError.message,
-                    }));
-                }
-            });
-        }
+        authApi.createToken().catch(error => {
+            if (isAxiosError(error) && error.response) {
+                const apiError = error.response.data as ApiError;
+                const cooldown = apiError.details?.["cooldown"] as number | undefined;
+                if (cooldown) handleCooldown(cooldown);
+                else setError(prev => ({
+                    ...prev,
+                    userError: apiError.message,
+                }));
+            }
+        });
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +54,6 @@ export default function EmailVerificationPage() {
             .then(response => {
                 if (response.status === 200) {
                     localStorage.removeItem("email");
-                    localStorage.removeItem("nextCodeAt");
                     location.href = response.headers["redirect"];
                 }
             })
@@ -89,15 +72,13 @@ export default function EmailVerificationPage() {
         e.preventDefault();
         await authApi.createToken()
             .then(() => {
-                const nextCodeAt = new Date();
-                nextCodeAt.setSeconds(nextCodeAt.getSeconds() + 60);
-                handleCooldown(nextCodeAt.toString());
+                handleCooldown(60);
             })
             .catch(error => {
                 if (isAxiosError(error) && error.response) {
                     const apiError = error.response.data as ApiError;
-                    const nextCodeAt = apiError.details?.["next_code_at"] as string | undefined;
-                    if (nextCodeAt) handleCooldown(nextCodeAt);
+                    const cooldown = apiError.details?.["cooldown"] as number | undefined;
+                    if (cooldown) handleCooldown(cooldown);
                     else setError(prev => ({
                         ...prev,
                         userError: apiError.message,
