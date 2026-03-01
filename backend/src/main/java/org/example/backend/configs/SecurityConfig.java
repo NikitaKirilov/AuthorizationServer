@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String LOGIN_PROCESSING_URL = "/login";
     public static final String LOGIN_PAGE = "/app/login";
     private static final String LOGOUT_URL = "/logout";
 
@@ -30,7 +31,7 @@ public class SecurityConfig {
             "/csrf",
             "/index.html",
             "/assets/**",
-            "/login",
+            LOGIN_PROCESSING_URL,
             LOGIN_PAGE,
             LOGOUT_URL,
             "/swagger-ui/**",
@@ -66,7 +67,7 @@ public class SecurityConfig {
                 })
                 .formLogin(configurer ->
                         configurer.loginPage(LOGIN_PAGE)
-                                .loginProcessingUrl("/login")
+                                .loginProcessingUrl(LOGIN_PROCESSING_URL)
                                 .failureHandler(customAuthenticationFailureHandler)
                                 .successHandler(loginSuccessHandler)
                 )
