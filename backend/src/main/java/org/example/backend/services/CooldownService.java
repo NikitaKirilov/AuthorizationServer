@@ -31,6 +31,12 @@ public class CooldownService {
         }
     }
 
+    public boolean isBlocked(Action action, String userId) {
+        String key = this.buildKey(action, userId);
+        long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return ttl > 0;
+    }
+
     private String buildKey(Action action, String userId) {
         return PREFIX + DELIMITER + action.getName() + DELIMITER + userId;
     }

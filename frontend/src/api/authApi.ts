@@ -20,11 +20,11 @@ const authApi = {
     },
 
     verify: async (code: string) => {
-        return await axiosInstance.put("/registrations/confirm?code=" + code, {});
+        return await axiosInstance.put("/registrations/verify?code=" + code, {});
     },
 
     createToken: async () => {
-        await axiosInstance.post("/registrations/token", {});
+        await axiosInstance.post("/registrations/code/refresh", {});
     },
 
     csrf: async () => {

@@ -6,12 +6,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GoogleOAuth2UserMapper implements OAuth2UserMapper {
+public class GoogleOAuth2UserMapper extends OAuth2UserMapper {
 
     private static final String REGISTRATION_ID = "google";
 
     @Override
-    public User mapOAuth2UserToEntity(OAuth2User oauth2User) {
+    protected User mapOAuth2UserToEntity(OAuth2User oauth2User) {
         User user = new User();
 
         user.setEmail(oauth2User.getAttribute(DefaultClaimNames.EMAIL.getValue()));
@@ -24,7 +24,7 @@ public class GoogleOAuth2UserMapper implements OAuth2UserMapper {
     }
 
     @Override
-    public String getAssociatedRegistrationId() {
+    protected String getAssociatedRegistrationId() {
         return REGISTRATION_ID;
     }
 }

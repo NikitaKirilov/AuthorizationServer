@@ -29,11 +29,11 @@ public class SecurityContextService {
         securityContextRepository.saveContext(context, request, response);
     }
 
-    public String getUserId() {
+    public UserPrincipal getPrincipal() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-            return userPrincipal.getId();
+            return userPrincipal;
         }
 
         throw new SecurityContextException("Cannot get user id from context. Try to re login");

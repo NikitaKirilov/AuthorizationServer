@@ -3,9 +3,9 @@ package org.example.backend.mappers.idp;
 import org.example.backend.models.entities.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-public interface OAuth2UserMapper {
+public abstract class OAuth2UserMapper {
 
-    User mapOAuth2UserToEntity(OAuth2User oauth2User);
+    protected abstract User mapOAuth2UserToEntity(OAuth2User oauth2User);
 
-    String getAssociatedRegistrationId();
+    protected abstract String getAssociatedRegistrationId();
 }

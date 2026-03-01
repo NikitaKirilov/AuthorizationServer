@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 class EmailService {
 
-    public static final String SUBJECT = "Email Verification Token";
+    public static final String SUBJECT = "Email Verification Code";
 
     private final JavaMailSender mailSender;
 

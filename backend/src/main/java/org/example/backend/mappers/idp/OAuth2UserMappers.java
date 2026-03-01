@@ -1,5 +1,7 @@
 package org.example.backend.mappers.idp;
 
+import org.example.backend.models.entities.User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -16,7 +18,8 @@ public class OAuth2UserMappers {
                 mappersMap.put(mapper.getAssociatedRegistrationId(), mapper));
     }
 
-    public OAuth2UserMapper getMapper(String registrationId) {
-        return mappersMap.get(registrationId);
+    public User delegate(OAuth2User oAuth2User, String registrationId) {
+        OAuth2UserMapper mapper = mappersMap.get(registrationId);
+        return mapper.mapOAuth2UserToEntity(oAuth2User);
     }
 }

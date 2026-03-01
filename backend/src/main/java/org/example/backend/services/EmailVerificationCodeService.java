@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.example.backend.exceptions.EmailVerificationCodeNotFoundException;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
+import org.example.backend.models.Action;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.properties.EmailVerificationCodeProperties;
@@ -18,6 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailVerificationCodeService {
 
+    private final CooldownService cooldownService;
+    private final EmailService emailService;
     private final EmailVerificationCodeProperties codeProperties;
     private final EmailVerificationCodeRepository emailVerificationCodeRepository;
     private final PasswordEncoder passwordEncoder;
@@ -27,11 +30,11 @@ public class EmailVerificationCodeService {
                 .orElseThrow(EmailVerificationCodeNotFoundException::new);
     }
 
-    public String createAndGetSourceCode(User user) {
+    public void sendCode(User user) {
+        cooldownService.acquire(Action.CODE_REQUEST, user.getId());
         emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
-        String code = RandomStringUtils.secure().nextAlphanumeric(codeProperties.getCodeLength());
-        this.createEmailVerificationCode(user, code);
-        return code;
+        String code = this.createCode(user);
+        emailService.sendEmailVerificationCode(user, code);
     }
 
     public void validateCode(String code, EmailVerificationCode token) {
@@ -56,15 +59,18 @@ public class EmailVerificationCodeService {
         token.setActive(false);
     }
 
-    private void createEmailVerificationCode(User user, String code) {
-        EmailVerificationCode token = new EmailVerificationCode();
+    private String createCode(User user) {
+        String sourceCode = RandomStringUtils.secure().nextAlphanumeric(codeProperties.getCodeLength());
+        EmailVerificationCode code = new EmailVerificationCode();
 
-        token.setId(UUID.randomUUID().toString());
-        token.setUser(user);
-        token.setCodeHash(passwordEncoder.encode(code));
-        token.setActive(true);
-        token.setExpiresAt(Instant.now().plusSeconds(codeProperties.getExpirationSeconds()));
+        code.setId(UUID.randomUUID().toString());
+        code.setUser(user);
+        code.setCodeHash(passwordEncoder.encode(sourceCode));
+        code.setActive(true);
+        code.setExpiresAt(Instant.now().plusSeconds(codeProperties.getExpirationSeconds()));
 
-        emailVerificationCodeRepository.save(token);
+        emailVerificationCodeRepository.save(code);
+
+        return sourceCode;
     }
 }

@@ -3,8 +3,8 @@ package org.example.backend.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dtos.UserDto;
-import org.example.backend.services.UserAuthFlowService;
+import org.example.backend.dtos.RegistrationDto;
+import org.example.backend.services.RegistrationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,24 +17,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RegistrationController {
 
-    private final UserAuthFlowService userAuthFlowService;
+    private final RegistrationService registrationService;
 
     @PostMapping
     public void registerUser(
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody UserDto userDto
+            @RequestBody RegistrationDto registrationDto
     ) {
-        userAuthFlowService.processRegistration(request, response, userDto);
+        registrationService.processRegistration(request, response, registrationDto);
     }
 
-    @PostMapping("/token")
-    public void createToken() {
-        userAuthFlowService.createToken();
+    @PostMapping("/code/refresh")
+    public void refreshCode() {
+        registrationService.refreshCode();
     }
 
-    @PutMapping("/confirm")
+    @PutMapping("/verify")
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) {
-        userAuthFlowService.verifyEmail(request, response, code);
+        registrationService.verifyEmail(request, response, code);
     }
 }
