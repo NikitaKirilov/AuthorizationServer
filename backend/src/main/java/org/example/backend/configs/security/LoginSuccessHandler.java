@@ -4,8 +4,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.backend.models.AttemptAction;
 import org.example.backend.models.PreAuthenticatedUserDetails;
+import org.example.backend.services.AttemptsService;
 import org.example.backend.services.UserService;
+import org.example.backend.utils.RequestUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,12 +19,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends DefaultAuthenticationSuccessHandler {
 
+    private final AttemptsService attemptsService;
     private final UserService userService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (authentication.getPrincipal() instanceof PreAuthenticatedUserDetails details) {
             userService.loginUser(request, response, details);
+            attemptsService.reset(AttemptAction.LOGIN, details.getUsername(), RequestUtils.getIpAddress(request));
         }
 
         super.onAuthenticationSuccess(request, response, SecurityContextHolder.getContext().getAuthentication());

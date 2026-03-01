@@ -8,7 +8,7 @@ import org.example.backend.dtos.RegistrationDto;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
 import org.example.backend.exceptions.RegistrationException;
 import org.example.backend.exceptions.ServerError;
-import org.example.backend.models.Action;
+import org.example.backend.models.CooldownAction;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,7 +39,7 @@ public class RegistrationService {
             RegistrationDto registrationDto
     ) {
         User user = userService.registerUser(request, response, registrationDto);
-        if (!cooldownService.isBlocked(Action.CODE_REQUEST, user.getId())) {
+        if (!cooldownService.isBlocked(CooldownAction.CODE_REQUEST, user.getId())) {
             emailVerificationCodeService.sendCode(user);
         }
     }

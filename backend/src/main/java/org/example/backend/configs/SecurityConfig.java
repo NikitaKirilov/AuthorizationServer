@@ -3,6 +3,7 @@ package org.example.backend.configs;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
+import org.example.backend.configs.security.LoginAttemptsFilter;
 import org.example.backend.configs.security.LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -40,6 +42,7 @@ public class SecurityConfig {
 
     private final CorsConfigurationSource defaultCorsConfigurationSource;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final LoginAttemptsFilter loginAttemptsFilter;
     private final LoginSuccessHandler loginSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
@@ -74,6 +77,7 @@ public class SecurityConfig {
                 .logout(configurer ->
                         configurer.logoutUrl(LOGOUT_URL)
                 )
+                .addFilterBefore(loginAttemptsFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

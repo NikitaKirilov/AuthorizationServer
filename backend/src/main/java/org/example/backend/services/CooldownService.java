@@ -2,7 +2,7 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.ActionCooldownException;
-import org.example.backend.models.Action;
+import org.example.backend.models.CooldownAction;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.stereotype.Service;
 
@@ -18,26 +18,26 @@ public class CooldownService {
 
     private final RedisOperations<Object, Object> redisTemplate;
 
-    public void acquire(Action action, String userId) {
-        String key = this.buildKey(action, userId);
+    public void acquire(CooldownAction cooldownAction, String userId) {
+        String key = this.buildKey(cooldownAction, userId);
 
-        long cooldown = action.getCooldown();
+        long cooldown = cooldownAction.getCooldown();
         long expiresAt = Instant.now().plusSeconds(cooldown).getEpochSecond();
 
         Boolean success = redisTemplate.opsForValue().setIfAbsent(key, expiresAt, cooldown, TimeUnit.SECONDS);
         if (Boolean.FALSE.equals(success)) {
             Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-            throw new ActionCooldownException(action.getName(), ttl);
+            throw new ActionCooldownException(cooldownAction.getName(), ttl);
         }
     }
 
-    public boolean isBlocked(Action action, String userId) {
-        String key = this.buildKey(action, userId);
+    public boolean isBlocked(CooldownAction cooldownAction, String userId) {
+        String key = this.buildKey(cooldownAction, userId);
         long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
         return ttl > 0;
     }
 
-    private String buildKey(Action action, String userId) {
-        return PREFIX + DELIMITER + action.getName() + DELIMITER + userId;
+    private String buildKey(CooldownAction cooldownAction, String userId) {
+        return PREFIX + DELIMITER + cooldownAction.getName() + DELIMITER + userId;
     }
 }

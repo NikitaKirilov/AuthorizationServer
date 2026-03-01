@@ -3,14 +3,14 @@ package org.example.backend.models;
 import lombok.Getter;
 
 @Getter
-public enum Action {
+public enum CooldownAction {
 
     CODE_REQUEST("email_code_request", 60L);
 
     private final String name;
-    private final Long cooldown;
+    private final long cooldown;
 
-    Action(String name, Long cooldown) {
+    CooldownAction(String name, long cooldown) {
         this.name = name;
         this.cooldown = cooldown;
     }
