@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.models.ApiError;
 import org.example.backend.models.AttemptAction;
-import org.example.backend.services.AttemptsService;
+import org.example.backend.services.AttemptService;
 import org.example.backend.utils.RequestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
-    private final AttemptsService attemptsService;
+    private final AttemptService attemptService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -32,7 +32,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         String username = request.getParameter("username");
         String ip = RequestUtils.getIpAddress(request);
 
-        attemptsService.track(AttemptAction.LOGIN, username, ip);
+        attemptService.track(AttemptAction.LOGIN, username, ip);
 
         ApiError apiError = createApiError(exception, UNAUTHORIZED);
         String errorJson = objectMapper.writeValueAsString(apiError);

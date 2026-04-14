@@ -1,5 +1,7 @@
 package org.example.backend.mappers;
 
+import org.example.backend.dtos.RegistrationDto;
+import org.example.backend.dtos.UserDto;
 import org.example.backend.models.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
@@ -10,5 +12,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    void mergeUsers(User src, @MappingTarget User trg);
+    User mergeUsers(User src, @MappingTarget User trg);
+
+    UserDto mapToUserDto(User user);
+
+    RegistrationDto mapToRegistrationDto(User user);
 }

@@ -17,7 +17,7 @@ export default function EmailVerificationPage() {
         userError: null,
     });
 
-    const handleCooldown = (cooldown: number) => {
+    const handleTokenRequestCooldown = (cooldown: number) => {
         if (cooldown <= 0) {
             setError(prev => ({
                 ...prev,
@@ -28,24 +28,36 @@ export default function EmailVerificationPage() {
                 ...prev,
                 emailVerificationCodeCooldownError: `Next verification code in ${cooldown} seconds`,
             }));
-            setTimeout(() => handleCooldown(cooldown - 1), 1000);
+            setTimeout(() => handleTokenRequestCooldown(cooldown - 1), 1000);
         }
     };
 
-    useEffect(() => {
-        document.title = TITLE;
-
-        authApi.createToken().catch(error => {
+    const requestToken = async () => {
+        authApi.createToken()
+            .then(() => {
+                setError(() => ({
+                    emailVerificationCodeCooldownError: null,
+                    emailVerificationCodeValidationError: null,
+                    userError: null,
+                }));
+                handleTokenRequestCooldown(60);
+            })
+            .catch(error => {
             if (isAxiosError(error) && error.response) {
                 const apiError = error.response.data as ApiError;
                 const cooldown = apiError.details?.["cooldown"] as number | undefined;
-                if (cooldown) handleCooldown(cooldown);
+                if (cooldown) handleTokenRequestCooldown(cooldown);
                 else setError(prev => ({
                     ...prev,
                     userError: apiError.message,
                 }));
             }
-        });
+            })
+    }
+
+    useEffect(() => {
+        document.title = TITLE;
+        requestToken();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -70,21 +82,7 @@ export default function EmailVerificationPage() {
 
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        await authApi.createToken()
-            .then(() => {
-                handleCooldown(60);
-            })
-            .catch(error => {
-                if (isAxiosError(error) && error.response) {
-                    const apiError = error.response.data as ApiError;
-                    const cooldown = apiError.details?.["cooldown"] as number | undefined;
-                    if (cooldown) handleCooldown(cooldown);
-                    else setError(prev => ({
-                        ...prev,
-                        userError: apiError.message,
-                    }));
-                }
-            });
+        await requestToken();
     };
 
     return (

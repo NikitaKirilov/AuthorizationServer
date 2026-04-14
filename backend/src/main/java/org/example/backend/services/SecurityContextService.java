@@ -3,7 +3,6 @@ package org.example.backend.services;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.exceptions.SecurityContextException;
 import org.example.backend.models.UserPrincipal;
 import org.example.backend.models.entities.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,15 +26,5 @@ public class SecurityContextService {
         context.setAuthentication(authentication);
 
         securityContextRepository.saveContext(context, request, response);
-    }
-
-    public UserPrincipal getPrincipal() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-            return userPrincipal;
-        }
-
-        throw new SecurityContextException("Cannot get user id from context. Try to re login");
     }
 }

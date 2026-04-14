@@ -7,8 +7,9 @@
 
 
 .auth-form {
-    width: 400px;
-    display: table;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
     margin-right: auto;
     margin-left: auto;
     color: #FBFBFB;

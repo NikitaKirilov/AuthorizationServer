@@ -13,14 +13,15 @@ import org.springframework.stereotype.Service;
 class EmailService {
 
     public static final String SUBJECT = "Email Verification Code";
+    private static final String MESSAGE = "Your verification code: %s \n If it wasn't you - ignore this message";
 
     private final JavaMailSender mailSender;
 
     public void sendEmailVerificationCode(User user, String code) {
         SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setText("Your verification code: " + code);
-        message.setTo(user.getEmail());
+        message.setText(MESSAGE.formatted(code));
+        message.setTo(user.getPendingEmail());
         message.setSubject(SUBJECT);
 
         mailSender.send(message);

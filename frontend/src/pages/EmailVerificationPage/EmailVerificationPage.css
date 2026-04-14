@@ -12,6 +12,7 @@
     font-size: 12px;
     background-color: #332D2D;
     color: white;
+    caret-color: transparent;
 }
 
 
@@ -34,3 +35,7 @@
     background: transparent;
 }
 
+
+.otp-input:focus {
+    outline: none;
+}

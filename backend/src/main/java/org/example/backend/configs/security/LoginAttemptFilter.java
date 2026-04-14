@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.models.AttemptAction;
-import org.example.backend.services.AttemptsService;
+import org.example.backend.services.AttemptService;
 import org.example.backend.utils.RequestUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,16 +19,12 @@ import static org.example.backend.configs.SecurityConfig.LOGIN_PROCESSING_URL;
 
 @Component
 @RequiredArgsConstructor
-public class LoginAttemptsFilter extends OncePerRequestFilter {
+public class LoginAttemptFilter extends OncePerRequestFilter {
 
-    private final AttemptsService attemptService;
+    private final AttemptService attemptService;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String username = request.getParameter("username");
         String ip = RequestUtils.getIpAddress(request);
 

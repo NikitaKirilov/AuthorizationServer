@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class AttemptsService {
+public class AttemptService {
 
     private static final String DELIMITER = ":";
     private static final String PREFIX = "sso:attempts";

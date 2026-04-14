@@ -1,0 +1,87 @@
+.profile-page {
+    display: flex;
+    background-color: #332D2D;
+    color: #FFFFFF;
+    height: 98vh;
+}
+
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    font-size: small;
+    border-right: 1px solid grey;
+}
+
+
+.menu-option {
+    flex: 1;
+    padding-left: 10px;
+    padding-right: 7px;
+}
+
+
+.user-info {
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+    width: stretch;
+}
+
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    gap: 30px;
+}
+
+
+.profile-input {
+    flex: 1;
+    padding: 5px;
+    height: 30px;
+    outline: 2px solid #6a11cb;
+    background: #332D2D;
+    border: 2px solid #FBFBFB;
+    caret-color: white;
+    color: #FBFBFB;
+}
+
+
+.edit-button {
+    margin-right: 50%;
+    color: #FBFBFB;
+    height: 40px;
+    width: 100px;
+    background: #332D2D;
+    border: 2px solid #FBFBFB;
+    margin-bottom: 15px;
+    outline: 2px solid #6a11cb;
+}
+
+
+.edit-button:hover {
+    background-color: #373232;
+    cursor: pointer;
+}
+
+
+.profile-input:disabled {
+    color: grey;
+    cursor: not-allowed;
+}
+
+
+.profile-input:enabled {
+    cursor: pointer;
+}
+
+
+.menu-option:hover {
+    background-color: #353030;
+    color: lightgray;
+    cursor: pointer;
+}
+
+

@@ -28,12 +28,12 @@ public class RegistrationController {
         registrationService.processRegistration(request, response, registrationDto);
     }
 
-    @PostMapping("/code/refresh")
+    @PostMapping("/code/refresh") //TODO email/refresh
     public void refreshCode() {
         registrationService.refreshCode();
     }
 
-    @PutMapping("/verify")
+    @PutMapping("/verify") //TODO: email/verify
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, @RequestParam String code) {
         registrationService.verifyEmail(request, response, code);
     }

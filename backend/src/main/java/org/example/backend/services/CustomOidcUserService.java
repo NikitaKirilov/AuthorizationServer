@@ -15,14 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomOidcUserService extends OidcUserService {
 
-    private final UserService userService;
+    private final UserAuthService userAuthService;
 
     @Override
     @Transactional
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         DefaultOidcUser oidcUser = (DefaultOidcUser) super.loadUser(userRequest);
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        User user = userService.saveOrUpdateOAuth2User(oidcUser, registrationId);
+        User user = userAuthService.loginUserWithOAuth2(oidcUser, registrationId);
 
         return new WrappedOidcUser(oidcUser, user);
     }

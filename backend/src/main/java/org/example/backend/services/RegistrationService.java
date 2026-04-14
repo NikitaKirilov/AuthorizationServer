@@ -5,12 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
+import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
-import org.example.backend.exceptions.RegistrationException;
 import org.example.backend.exceptions.ServerError;
 import org.example.backend.models.CooldownAction;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
+import org.example.backend.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.resilience.annotation.Retryable;
@@ -28,8 +29,10 @@ public class RegistrationService {
 
     @Qualifier("defaultAuthenticationSuccessHandler")
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AuthorityService authorityService;
     private final CooldownService cooldownService;
     private final EmailVerificationCodeService emailVerificationCodeService;
+    private final SecurityContextService securityContextService;
     private final UserService userService;
 
     @Transactional
@@ -38,8 +41,11 @@ public class RegistrationService {
             HttpServletResponse response,
             RegistrationDto registrationDto
     ) {
-        User user = userService.registerUser(request, response, registrationDto);
-        if (!cooldownService.isBlocked(CooldownAction.CODE_REQUEST, user.getId())) {
+        User user = userService.createUser(registrationDto);
+        authorityService.assignDefaultAuthority(user);
+        securityContextService.updateSecurityContext(request, response, user);
+        if (!cooldownService.isBlocked(CooldownAction.REQUEST_CODE, user.getId())) {
+            cooldownService.acquire(CooldownAction.REQUEST_CODE, user.getId());
             emailVerificationCodeService.sendCode(user);
         }
     }
@@ -47,20 +53,24 @@ public class RegistrationService {
     @Transactional
     @Retryable(value = DataIntegrityViolationException.class, delay = 10)
     public void refreshCode() {
-        User user = userService.getUserFromContext();
+        User user = userService.getUserById(SecurityUtils.getCurrentUserId());
+
         if (user.isEmailVerified()) {
-            throw new RegistrationException("User is already verified");
+            throw new EmailIsAlreadyTakenException();
         }
+
+        cooldownService.acquire(CooldownAction.REQUEST_CODE, user.getId());
         emailVerificationCodeService.sendCode(user);
     }
 
     @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
-    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String code) {
-        User user = userService.getUserFromContext();
-        EmailVerificationCode token = emailVerificationCodeService.getActiveByUser(user);
+    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String srcCode) {
+        User user = userService.getUserById(SecurityUtils.getCurrentUserId());
+        EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
-        emailVerificationCodeService.validateCode(code, token);
-        userService.activateUser(request, response, user);
+        emailVerificationCodeService.validateCode(srcCode, code);
+        userService.updateEmail(user);
+        securityContextService.updateSecurityContext(request, response, user);
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

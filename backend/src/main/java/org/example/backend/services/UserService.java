@@ -1,55 +1,60 @@
 package org.example.backend.services;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.exceptions.RegistrationException;
+import org.example.backend.dtos.UpdateUserDto;
+import org.example.backend.dtos.UpdateUserPasswordDto;
+import org.example.backend.dtos.UserDto;
+import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
+import org.example.backend.exceptions.UserUpdateException;
 import org.example.backend.mappers.UserMapper;
-import org.example.backend.mappers.idp.OAuth2UserMappers;
-import org.example.backend.models.UserPrincipal;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AuthorityService authorityService;
-    private final OAuth2UserMappers oAuth2UserMappers;
+    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matching()
+            .withIgnoreCase()
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+            .withIgnoreNullValues()
+            .withIgnorePaths("emailVerificationCodes", "authorities", "emailVerified", "lastLogin", "createdAt", "updatedAt");
+
     private final PasswordEncoder passwordEncoder;
-    private final SecurityContextService securityContextService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public User getById(String id) {
+    public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
     }
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found by email: " + email));
+    public UserDto getUserDtoById(String id) {
+        User user = this.getUserById(id);
+        return userMapper.mapToUserDto(user);
     }
 
-    public User getUserFromContext() {
-        UserPrincipal userPrincipal = securityContextService.getPrincipal();
-        return this.getById(userPrincipal.getId());
+    public List<UserDto> getAllUsers(User user, Pageable pageable) {
+        Page<User> users = userRepository.findAll(Example.of(user, EXAMPLE_MATCHER), pageable);
+        return users.stream().map(userMapper::mapToUserDto).toList();
     }
 
-    public User registerUser(HttpServletRequest request, HttpServletResponse response, RegistrationDto registrationDto) {
+    public User createUser(RegistrationDto registrationDto) {
         User user = userRepository.findByEmail(registrationDto.getEmail()).orElseGet(User::new);
+
         if (user.isEmailVerified()) {
-            throw new RegistrationException("Registration failed");
+            throw new EmailIsAlreadyTakenException();
         }
 
         if (user.getId() == null) {
@@ -57,56 +62,56 @@ public class UserService {
         }
 
         user.setEmail(registrationDto.getEmail());
+        user.setPendingEmail(registrationDto.getEmail());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
         user.setNickname(registrationDto.getNickname());
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
 
-        userRepository.save(user);
-        securityContextService.updateSecurityContext(request, response, user);
-
-        return user;
+        return userRepository.save(user);
     }
 
-    @Transactional
-    public void loginUser(HttpServletRequest request, HttpServletResponse response, UserDetails userDetails) {
-        User user = this.getByEmail(userDetails.getUsername());
-        //TODO: add device service
-        user.setLastLogin(Instant.now());
-        securityContextService.updateSecurityContext(request, response, user);
-    }
+    public User updateUser(String id, UpdateUserDto updateUserDto) {
+        User user = this.getUserById(id);
 
-    public User saveOrUpdateOAuth2User(OAuth2User oAuth2User, String registrationId) {
-        User mappedUser = oAuth2UserMappers.delegate(oAuth2User, registrationId);
-        User user = userRepository.findByEmail(mappedUser.getEmail()).map(existing -> {
-            if (!existing.isEmailVerified()) {
-                userMapper.mergeUsers(mappedUser, existing);
-                existing.getAuthorities().add(authorityService.getDefaultAuthority());
-            }
-            existing.setClientRegistrationId(registrationId);
-            existing.setLastLogin(Instant.now());
-            return existing;
-        }).orElseGet(() -> {
-            mappedUser.setId(UUID.randomUUID().toString());
-            mappedUser.setClientRegistrationId(registrationId);
-            mappedUser.getAuthorities().add(authorityService.getDefaultAuthority());
-            mappedUser.setLastLogin(Instant.now());
-            return mappedUser;
-        });
+        user.setNickname(updateUserDto.getNickname());
+        user.setGivenName(updateUserDto.getGivenName());
+        user.setFamilyName(updateUserDto.getFamilyName());
 
         return userRepository.save(user);
     }
 
-    public void activateUser(HttpServletRequest request, HttpServletResponse response, User user) {
-        if (user.isEmailVerified()) {
-            throw new RegistrationException("Registration failed");
+    public User updatePassword(String userId, UpdateUserPasswordDto updateUserPasswordDto) {
+        User user = this.getUserById(userId);
+        String oldPassword = updateUserPasswordDto.getOldPassword();
+        String newPassword = updateUserPasswordDto.getNewPassword();
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new UserUpdateException("Passwords don't match");
         }
 
-        user.setEmailVerified(true);
-        user.getAuthorities().add(authorityService.getDefaultAuthority());
-        user.setLastLogin(Instant.now());
+        user.setPassword(passwordEncoder.encode(newPassword));
 
-        securityContextService.updateSecurityContext(request, response, user);
+        return userRepository.save(user);
+    }
+
+    public User updateEmail(User user) {
+        String newEmail = user.getPendingEmail();
+
+        userRepository.findByEmail(newEmail).ifPresent(existingUser -> {
+            if (existingUser.isEmailVerified()) {
+                throw new EmailIsAlreadyTakenException();
+            } else if (user != existingUser) {
+                userRepository.delete(existingUser);
+                userRepository.flush();
+            }
+        });
+
+        user.setEmail(newEmail);
+        user.setEmailVerified(true);
+        user.setPendingEmail(null);
+
+        return userRepository.save(user);
     }
 }

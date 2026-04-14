@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.example.backend.exceptions.EmailVerificationCodeNotFoundException;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
-import org.example.backend.models.CooldownAction;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.properties.EmailVerificationCodeProperties;
@@ -19,22 +18,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailVerificationCodeService {
 
-    private final CooldownService cooldownService;
     private final EmailService emailService;
     private final EmailVerificationCodeProperties codeProperties;
     private final EmailVerificationCodeRepository emailVerificationCodeRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public EmailVerificationCode getActiveByUser(User user) {
-        return emailVerificationCodeRepository.findByUserAndActiveTrue(user)
-                .orElseThrow(EmailVerificationCodeNotFoundException::new);
-    }
-
     public void sendCode(User user) {
-        cooldownService.acquire(CooldownAction.CODE_REQUEST, user.getId());
         emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
         String code = this.createCode(user);
         emailService.sendEmailVerificationCode(user, code);
+    }
+
+    public EmailVerificationCode getActiveByUser(User user) {
+        return emailVerificationCodeRepository.findByUserAndActiveTrue(user)
+                .orElseThrow(EmailVerificationCodeNotFoundException::new);
     }
 
     public void validateCode(String code, EmailVerificationCode token) {
@@ -72,5 +69,9 @@ public class EmailVerificationCodeService {
         emailVerificationCodeRepository.save(code);
 
         return sourceCode;
+    }
+
+    public void deactivateActiveCode(User user) {
+        emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
     }
 }

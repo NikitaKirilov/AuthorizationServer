@@ -36,7 +36,7 @@ public class User {
 
     private String clientRegistrationId;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<EmailVerificationCode> emailVerificationCodes = new ArrayList<>();
 
     @ManyToMany
@@ -48,6 +48,8 @@ public class User {
     private Set<Authority> authorities = new HashSet<>();
 
     private String email;
+    private String pendingEmail;
+
     private boolean emailVerified;
 
     private String password;

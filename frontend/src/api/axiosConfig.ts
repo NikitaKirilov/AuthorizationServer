@@ -22,4 +22,20 @@ axiosInstance.interceptors.request.use(async (request) => {
     }
 });
 
+
+axiosInstance.interceptors.response.use(
+    async (response) => response,
+    async (error) => {
+        const data = error.response.data;
+        if (data.message === "EMAIL_NOT_VERIFIED") {
+            globalThis.location.href = "/app/registrations/verify";
+        } else if (data.message === "LOGIN_REQUIRED") {
+            globalThis.location.href = "/app/login";
+        }
+
+        throw error;
+    },
+);
+
+
 export default axiosInstance;
