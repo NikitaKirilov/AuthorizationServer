@@ -4,28 +4,26 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.models.AttemptAction;
-import org.example.backend.models.PreAuthenticatedUserDetails;
-import org.example.backend.services.AttemptService;
 import org.example.backend.services.UserAuthService;
-import org.example.backend.utils.RequestUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class LoginSuccessHandler extends DefaultAuthenticationSuccessHandler {
+public class FederatedIdentityAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
-    private final AttemptService attemptService;
     private final UserAuthService userAuthService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        if (authentication.getPrincipal() instanceof PreAuthenticatedUserDetails details) {
-            authentication = userAuthService.loginUser(request, response, details);
-            attemptService.reset(AttemptAction.LOGIN, details.getUsername(), RequestUtils.getIpAddress(request));
+        if (authentication instanceof OAuth2AuthenticationToken token) {
+            authentication = userAuthService.loginUserWithOAuth2(
+                    request, response, token.getPrincipal(), token.getAuthorizedClientRegistrationId()
+            );
         }
 
         super.onAuthenticationSuccess(request, response, authentication);

@@ -12,7 +12,7 @@
     font-size: 12px;
     background-color: #332D2D;
     color: white;
-    caret-color: transparent;
+    outline: 2px solid #6a11cb;
 }
 
 
@@ -33,9 +33,4 @@
 .send-new-code-button,
 .otp-input::selection {
     background: transparent;
-}
-
-
-.otp-input:focus {
-    outline: none;
 }

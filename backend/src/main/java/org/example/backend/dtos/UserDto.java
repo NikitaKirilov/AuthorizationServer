@@ -15,5 +15,4 @@ public class UserDto {
 
     private Instant createdAt;
     private Instant updatedAt;
-    private Instant lastLogin;
 }

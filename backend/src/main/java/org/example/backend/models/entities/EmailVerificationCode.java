@@ -25,11 +25,11 @@ public class EmailVerificationCode {
     @Id
     private String id;
 
+    private String codeHash;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    private String codeHash;
 
     private boolean active;
 
@@ -42,5 +42,5 @@ public class EmailVerificationCode {
     @LastModifiedDate
     private Instant updatedAt;
 
-    private Instant expiresAt;
+    private Instant expiredAt;
 }

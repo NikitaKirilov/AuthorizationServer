@@ -19,12 +19,12 @@ const authApi = {
         });
     },
 
-    verify: async (code: string) => {
-        return await axiosInstance.put("/registrations/verify?code=" + code, {});
+    verify: async (token: string) => {
+        return await axiosInstance.put("/registrations/verify?sourceCode=" + token, {});
     },
 
-    createToken: async () => {
-        await axiosInstance.post("/registrations/code/refresh", {});
+    createNewCode: async () => {
+        await axiosInstance.post("/registrations/code/new");
     },
 
     csrf: async () => {

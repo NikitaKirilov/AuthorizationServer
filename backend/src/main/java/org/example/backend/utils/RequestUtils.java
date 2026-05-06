@@ -10,9 +10,8 @@ public class RequestUtils {
 
     public String getIpAddress(HttpServletRequest request) {
         String header = request.getHeader(X_FORWARDED_FOR);
-        if (header != null) {
-            return header.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
+        return header != null && !header.isBlank()
+                ? header.split(",")[0].trim()
+                : request.getRemoteAddr();
     }
 }

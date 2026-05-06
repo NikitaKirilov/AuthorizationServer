@@ -5,6 +5,7 @@ import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
 import org.example.backend.configs.security.DefaultAuthenticationEntryPoint;
 import org.example.backend.configs.security.EmailVerifiedFilter;
+import org.example.backend.configs.security.FederatedIdentityAuthenticationSuccessHandler;
 import org.example.backend.configs.security.LoginAttemptFilter;
 import org.example.backend.configs.security.LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +56,7 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final DefaultAuthenticationEntryPoint authenticationEntryPoint;
     private final EmailVerifiedFilter emailVerifiedFilter;
+    private final FederatedIdentityAuthenticationSuccessHandler federatedIdentityAuthenticationSuccessHandler;
     private final LoginAttemptFilter loginAttemptFilter;
     private final LoginSuccessHandler loginSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
@@ -88,6 +90,7 @@ public class SecurityConfig {
                         customizer.authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .oauth2Login(configurer -> {
+                    configurer.successHandler(federatedIdentityAuthenticationSuccessHandler);
                     configurer.loginPage(LOGIN_PAGE);
                     configurer.withObjectPostProcessor(this.getRequestRedirectFilterObjectPostProcessor());
                 })

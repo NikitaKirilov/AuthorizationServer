@@ -10,7 +10,9 @@ import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.exceptions.UserUpdateException;
 import org.example.backend.mappers.UserMapper;
 import org.example.backend.models.entities.User;
+import org.example.backend.repositories.AuthorityRepository;
 import org.example.backend.repositories.UserRepository;
+import org.example.backend.utils.SecurityUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -32,12 +34,22 @@ public class UserService {
             .withIgnorePaths("emailVerificationCodes", "authorities", "emailVerified", "lastLogin", "createdAt", "updatedAt");
 
     private final PasswordEncoder passwordEncoder;
+    private final AuthorityRepository authorityRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
     public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found by email: " + email));
+    }
+
+    public User getCurrentUser() {
+        return this.getUserById(SecurityUtils.getCurrentUserId());
     }
 
     public UserDto getUserDtoById(String id) {
@@ -69,6 +81,31 @@ public class UserService {
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
 
+        user.getAuthorities().add(authorityRepository.getDefaultAuthority());
+
+        return userRepository.save(user);
+    }
+
+    public User createOAuth2User(User newUser, String registrationId) {
+        User user = userRepository.findByEmail(newUser.getEmail())
+                .map(existing -> {
+                            if (!existing.isEmailVerified()) {
+                                return userMapper.mergeUsers(newUser, existing);
+                            }
+                            return existing;
+                        }
+                )
+                .orElse(newUser);
+
+        if (user.getId() == null) {
+            user.setId(UUID.randomUUID().toString());
+        }
+
+        user.setEmailVerified(true);
+        user.setClientRegistrationId(registrationId);
+
+        user.getAuthorities().add(authorityRepository.getDefaultAuthority());
+
         return userRepository.save(user);
     }
 
@@ -84,6 +121,7 @@ public class UserService {
 
     public User updatePassword(String userId, UpdateUserPasswordDto updateUserPasswordDto) {
         User user = this.getUserById(userId);
+
         String oldPassword = updateUserPasswordDto.getOldPassword();
         String newPassword = updateUserPasswordDto.getNewPassword();
 

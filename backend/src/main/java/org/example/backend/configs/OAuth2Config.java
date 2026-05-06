@@ -5,9 +5,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.configs.oauth2.JwtCustomizer;
 import org.example.backend.configs.oauth2.PublicClientRefreshTokenGenerator;
-import org.example.backend.models.UserPrincipal;
-import org.example.backend.models.WrappedOAuth2User;
-import org.example.backend.models.WrappedOidcUser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,7 +14,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -42,8 +38,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import static org.example.backend.configs.SecurityConfig.LOGIN_PAGE;
 import static org.springframework.security.oauth2.core.oidc.OidcScopes.EMAIL;
@@ -122,16 +116,7 @@ public class OAuth2Config {
             JdbcTemplate jdbcTemplate,
             RegisteredClientRepository registeredClientRepository
     ) {
-        JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
-        JsonMapper jsonMapper = createJsonMapper();
-
-        service.setAuthorizationRowMapper(
-                new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper(registeredClientRepository,
-                        jsonMapper));
-        service.setAuthorizationParametersMapper(
-                new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationParametersMapper(jsonMapper));
-
-        return service;
+        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
     }
 
     @Bean
@@ -161,17 +146,5 @@ public class OAuth2Config {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
-    }
-
-    private JsonMapper createJsonMapper() {
-        ClassLoader loader = getClass().getClassLoader();
-        BasicPolymorphicTypeValidator.Builder typeValidatorBuilder = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(UserPrincipal.class)
-                .allowIfSubType(WrappedOidcUser.class)
-                .allowIfSubType(WrappedOAuth2User.class);
-
-        return JsonMapper.builder()
-                .addModules(SecurityJacksonModules.getModules(loader, typeValidatorBuilder))
-                .build();
     }
 }

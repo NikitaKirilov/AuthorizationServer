@@ -36,14 +36,14 @@ public class EmailVerificationCodeService {
 
     public void validateCode(String code, EmailVerificationCode token) {
         if (!token.isActive()) {
-            throw new EmailVerificationCodeValidationException("Email verification code is not active");
+            throw new EmailVerificationCodeValidationException("Code is not active");
         }
 
         if (token.getAttemptsCount() == codeProperties.getMaxAttempts()) {
             throw new EmailVerificationCodeValidationException("Too many attempts. Try to request new code");
         }
 
-        if (token.getExpiresAt().isBefore(Instant.now())) {
+        if (token.getExpiredAt().isBefore(Instant.now())) {
             throw new EmailVerificationCodeValidationException("Code is expired. Try to request new code");
         }
 
@@ -64,14 +64,10 @@ public class EmailVerificationCodeService {
         code.setUser(user);
         code.setCodeHash(passwordEncoder.encode(sourceCode));
         code.setActive(true);
-        code.setExpiresAt(Instant.now().plusSeconds(codeProperties.getExpirationSeconds()));
+        code.setExpiredAt(Instant.now().plusSeconds(codeProperties.getExpirationSeconds()));
 
         emailVerificationCodeRepository.save(code);
 
         return sourceCode;
-    }
-
-    public void deactivateActiveCode(User user) {
-        emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
     }
 }

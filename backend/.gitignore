@@ -35,3 +35,4 @@ build/
 ### Backend ###
 .env
 /src/main/resources/dist/**
+/src/main/resources/geolite/**

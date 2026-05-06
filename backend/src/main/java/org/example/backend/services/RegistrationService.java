@@ -11,12 +11,10 @@ import org.example.backend.exceptions.ServerError;
 import org.example.backend.models.CooldownAction;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
-import org.example.backend.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +27,12 @@ public class RegistrationService {
 
     @Qualifier("defaultAuthenticationSuccessHandler")
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final AuthorityService authorityService;
     private final CooldownService cooldownService;
     private final EmailVerificationCodeService emailVerificationCodeService;
-    private final SecurityContextService securityContextService;
     private final UserService userService;
+    private final SecurityContextService securityContextService;
+    private final UserDeviceService userDeviceService;
+    private final SessionService sessionService;
 
     @Transactional
     public void processRegistration(
@@ -42,40 +41,40 @@ public class RegistrationService {
             RegistrationDto registrationDto
     ) {
         User user = userService.createUser(registrationDto);
-        authorityService.assignDefaultAuthority(user);
-        securityContextService.updateSecurityContext(request, response, user);
-        if (!cooldownService.isBlocked(CooldownAction.REQUEST_CODE, user.getId())) {
-            cooldownService.acquire(CooldownAction.REQUEST_CODE, user.getId());
+        securityContextService.createAuthorizedUserContext(request, response, user);
+        if (!cooldownService.isBlocked(CooldownAction.NEW_CODE_REQUEST, user.getId())) {
+            cooldownService.acquire(CooldownAction.NEW_CODE_REQUEST, user.getId());
             emailVerificationCodeService.sendCode(user);
         }
     }
 
     @Transactional
     @Retryable(value = DataIntegrityViolationException.class, delay = 10)
-    public void refreshCode() {
-        User user = userService.getUserById(SecurityUtils.getCurrentUserId());
+    public void createNewCode() {
+        User user = userService.getCurrentUser();
 
         if (user.isEmailVerified()) {
             throw new EmailIsAlreadyTakenException();
         }
 
-        cooldownService.acquire(CooldownAction.REQUEST_CODE, user.getId());
+        cooldownService.acquire(CooldownAction.NEW_CODE_REQUEST, user.getId());
         emailVerificationCodeService.sendCode(user);
     }
 
     @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
-    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String srcCode) {
-        User user = userService.getUserById(SecurityUtils.getCurrentUserId());
+    public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String sourceCode) {
+        User user = userService.getCurrentUser();
         EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
-        emailVerificationCodeService.validateCode(srcCode, code);
+        emailVerificationCodeService.validateCode(sourceCode, code);
         userService.updateEmail(user);
-        securityContextService.updateSecurityContext(request, response, user);
+        userDeviceService.verifyDevice(user, request);
+        sessionService.closeUserSessionsExceptCurrent(user);
 
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Authentication authentication = securityContextService.createAuthorizedUserContext(request, response, user);
             authenticationSuccessHandler.onAuthenticationSuccess(request, response, authentication);
-        } catch (IOException | ServletException e) {
+        } catch (ServletException | IOException e) {
             throw new ServerError(e);
         }
     }

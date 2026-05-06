@@ -2,6 +2,7 @@ package org.example.backend.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.maxmind.geoip2.DatabaseReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,10 @@ import org.springframework.session.web.http.CookieHttpSessionIdResolver;
 import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import ua_parser.Parser;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,6 +30,8 @@ import org.springframework.web.client.RestTemplate;
 @EnableResilientMethods
 @EnableJpaAuditing
 public class AppConfig {
+
+    public static final String PATH_TO_GEOLITE_DB = "/geolite/GeoLite2-City.mmdb";
 
     @Bean
     public RestOperations restOperations() {
@@ -51,5 +58,16 @@ public class AppConfig {
                 new RequestAttributeSecurityContextRepository(),
                 new HttpSessionSecurityContextRepository()
         );
+    }
+
+    @Bean
+    public DatabaseReader databaseReader() throws IOException {
+        InputStream stream = getClass().getResourceAsStream(PATH_TO_GEOLITE_DB);
+        return new DatabaseReader.Builder(stream).build();
+    }
+
+    @Bean
+    public Parser userAgentParser() {
+        return new Parser();
     }
 }

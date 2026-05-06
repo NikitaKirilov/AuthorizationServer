@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Map;
 
@@ -39,10 +40,13 @@ public class SessionService {
         });
     }
 
-    public void closeUserSessions(User user) {
-        Map<String, RedisSession> sessions = redisIndexedSessionRepository.findByPrincipalName(user.getId());
-        sessions.forEach((sessionId, session) -> {
-            redisIndexedSessionRepository.deleteById(sessionId);
+    public void closeUserSessionsExceptCurrent(User user) {
+        String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+        redisIndexedSessionRepository.findByPrincipalName(user.getId())
+                .forEach((sessionId, session) -> {
+                    if (!sessionId.equals(currentSessionId)) {
+                        redisIndexedSessionRepository.deleteById(sessionId);
+                    }
         });
     }
 }

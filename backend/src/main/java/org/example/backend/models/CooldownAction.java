@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum CooldownAction {
 
-    REQUEST_CODE("request_code", 60L);
+    NEW_CODE_REQUEST("new_code_request", 60L);
 
     private final String name;
     private final long cooldown;

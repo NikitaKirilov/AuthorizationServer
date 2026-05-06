@@ -24,13 +24,8 @@ public class UserProfileService {
     private final UserService userService;
     private final SessionService sessionService;
 
-    private User getUserFromContext() {
-        String id = SecurityUtils.getCurrentUserId();
-        return userService.getUserById(id);
-    }
-
     public UserDto getCurrentUserDto() {
-        return userMapper.mapToUserDto(this.getUserFromContext());
+        return userMapper.mapToUserDto(userService.getCurrentUser());
     }
 
     @Transactional
@@ -48,7 +43,7 @@ public class UserProfileService {
 
     @Transactional
     public UserDto updateEmail(String newEmail) {
-        User user = this.getUserFromContext();
+        User user = userService.getCurrentUser();
 
         if (user.getEmail().equals(newEmail)) {
             throw new UserUpdateException("Emails must not be the same");
@@ -66,14 +61,14 @@ public class UserProfileService {
 
     @Transactional
     public void refreshCode() {
-        User user = this.getUserFromContext();
-        cooldownService.acquire(CooldownAction.REQUEST_CODE, user.getId());
+        User user = userService.getCurrentUser();
+        cooldownService.acquire(CooldownAction.NEW_CODE_REQUEST, user.getId());
         emailVerificationCodeService.sendCode(user);
     }
 
     @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
     public UserDto verifyNewEmail(String sourceCode) {
-        User user = this.getUserFromContext();
+        User user = userService.getCurrentUser();
         EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
         emailVerificationCodeService.validateCode(sourceCode, code);

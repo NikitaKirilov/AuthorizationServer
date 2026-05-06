@@ -33,7 +33,7 @@ export default function EmailVerificationPage() {
     };
 
     const requestToken = async () => {
-        authApi.createToken()
+        authApi.createNewCode()
             .then(() => {
                 setError(() => ({
                     emailVerificationCodeCooldownError: null,
@@ -57,7 +57,6 @@ export default function EmailVerificationPage() {
 
     useEffect(() => {
         document.title = TITLE;
-        requestToken();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {

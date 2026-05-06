@@ -24,6 +24,10 @@
         <flyway.version>11.20.0</flyway.version>
         <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
         <mapstruct.version>1.6.3</mapstruct.version>
+        <!-- https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2 -->
+        <geoip2.version>5.0.2</geoip2.version>
+        <!-- https://mvnrepository.com/artifact/com.github.ua-parser/uap-java -->
+        <uap-java.version>1.6.1</uap-java.version>
     </properties>
     <profiles>
         <profile>
@@ -159,6 +163,18 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.maxmind.geoip2</groupId>
+            <artifactId>geoip2</artifactId>
+            <version>${geoip2.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ua-parser</groupId>
+            <artifactId>uap-java</artifactId>
+            <version>${uap-java.version}</version>
         </dependency>
     </dependencies>
     <build>

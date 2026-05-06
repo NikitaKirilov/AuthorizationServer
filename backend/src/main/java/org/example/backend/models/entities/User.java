@@ -47,6 +47,9 @@ public class User {
     )
     private Set<Authority> authorities = new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    private Set<UserDevice> userDevices = new HashSet<>();
+
     private String email;
     private String pendingEmail;
 
@@ -57,8 +60,6 @@ public class User {
     private String nickname;
     private String givenName;
     private String familyName;
-
-    private Instant lastLogin;
 
     @CreatedDate
     private Instant createdAt;
