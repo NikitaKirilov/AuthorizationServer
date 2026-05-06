@@ -20,7 +20,7 @@ export default function Callback() {
                 sessionStorage.setItem("refresh_token", data.refresh_token);
             }
 
-            globalThis.location.href = "/home"
+            globalThis.location.href = "/home";
         });
     }, []);
 
