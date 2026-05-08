@@ -41,11 +41,11 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-            name = "user_authority",
+            name = "app_user_role",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "authority_id")
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Authority> authorities = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     private Set<UserDevice> userDevices = new HashSet<>();

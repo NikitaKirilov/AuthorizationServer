@@ -2,14 +2,15 @@ package org.example.backend.configs.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
+import org.example.backend.models.ResourceBasedGrantedAuthority;
 import org.example.backend.models.UserPrincipal;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,7 @@ import static org.springframework.security.oauth2.server.authorization.token.OAu
 public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
     private static final String AUTHENTICATION_PRINCIPAL_KEY = "org.springframework.security.core.Authentication.PRINCIPAL";
-    private static final String ROLES = "roles";
+    private static final String AUTHORITIES = "authorities";
 
     @Override
     public void customize(JwtEncodingContext context) {
@@ -50,11 +51,13 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
             claimsBuilder.claim(EMAIL_VERIFIED, userPrincipal.isEmailVerified());
         }
 
-        Set<String> roles = userPrincipal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+        Map<String, Set<String>> allAuthorities = userPrincipal.getAuthorities().stream()
+                .collect(Collectors.groupingBy(
+                        ResourceBasedGrantedAuthority::getResource,
+                        Collectors.mapping(ResourceBasedGrantedAuthority::getAuthority, Collectors.toSet())
+                ));
 
-        claimsBuilder.claim(ROLES, roles);
+        claimsBuilder.claim(AUTHORITIES, allAuthorities);
         claimsBuilder.claim(SUB, userPrincipal.getId());
     }
 

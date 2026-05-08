@@ -47,6 +47,6 @@ public class SessionService {
                     if (!sessionId.equals(currentSessionId)) {
                         redisIndexedSessionRepository.deleteById(sessionId);
                     }
-        });
+                });
     }
 }

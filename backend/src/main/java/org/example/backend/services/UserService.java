@@ -10,7 +10,7 @@ import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.exceptions.UserUpdateException;
 import org.example.backend.mappers.UserMapper;
 import org.example.backend.models.entities.User;
-import org.example.backend.repositories.AuthorityRepository;
+import org.example.backend.repositories.RoleRepository;
 import org.example.backend.repositories.UserRepository;
 import org.example.backend.utils.SecurityUtils;
 import org.springframework.data.domain.Example;
@@ -34,7 +34,7 @@ public class UserService {
             .withIgnorePaths("emailVerificationCodes", "authorities", "emailVerified", "lastLogin", "createdAt", "updatedAt");
 
     private final PasswordEncoder passwordEncoder;
-    private final AuthorityRepository authorityRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
@@ -81,7 +81,7 @@ public class UserService {
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
 
-        user.getAuthorities().add(authorityRepository.getDefaultAuthority());
+        user.getRoles().add(roleRepository.getDefaultASUserRole());
 
         return userRepository.save(user);
     }
@@ -104,7 +104,7 @@ public class UserService {
         user.setEmailVerified(true);
         user.setClientRegistrationId(registrationId);
 
-        user.getAuthorities().add(authorityRepository.getDefaultAuthority());
+        user.getRoles().add(roleRepository.getDefaultASUserRole());
 
         return userRepository.save(user);
     }

@@ -3,10 +3,8 @@ package org.example.backend.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.backend.models.entities.Authority;
 import org.example.backend.models.entities.User;
 import org.springframework.security.core.AuthenticatedPrincipal;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -18,7 +16,7 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
 
     private String id;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private Collection<ResourceBasedGrantedAuthority> authorities;
 
     private String email;
     private boolean emailVerified;
@@ -34,8 +32,11 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
     public UserPrincipal(User user) {
         this.id = user.getId();
 
-        this.authorities = user.getAuthorities().stream()
-                .map(Authority::toGrantedAuthority).collect(Collectors.toSet());
+        this.authorities = user.getRoles().stream()
+                .flatMap(role -> role.getAuthorities().stream())
+                .map(authority ->
+                        new ResourceBasedGrantedAuthority(authority.getResource(), authority.getName()))
+                .collect(Collectors.toSet());
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();

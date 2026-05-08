@@ -3,7 +3,7 @@ package org.example.backend.services;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.models.DefaultAuthenticationToken;
+import org.example.backend.models.AuthenticatedUserAuthenticationToken;
 import org.example.backend.models.UserPrincipal;
 import org.example.backend.models.entities.User;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -25,8 +25,7 @@ public class SecurityContextService {
 
         UserPrincipal principal = new UserPrincipal(user);
         Object details = new WebAuthenticationDetails(request);
-        AbstractAuthenticationToken authentication =
-                new DefaultAuthenticationToken(principal, principal.getAuthorities());
+        AbstractAuthenticationToken authentication = new AuthenticatedUserAuthenticationToken(principal);
 
         authentication.setDetails(details);
 
