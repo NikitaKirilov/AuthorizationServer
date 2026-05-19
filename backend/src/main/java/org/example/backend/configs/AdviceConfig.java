@@ -2,11 +2,17 @@ package org.example.backend.configs;
 
 import org.example.backend.exceptions.ActionCooldownException;
 import org.example.backend.models.ApiError;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -23,6 +29,26 @@ public class AdviceConfig {
         apiError.setTimestamp(LocalDateTime.now());
         apiError.setStatus(BAD_REQUEST.value());
         apiError.addDetail("cooldown", exception.getCooldown());
+
+        return new ResponseEntity<>(apiError, BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        ApiError apiError = new ApiError();
+
+        apiError.setMessage("Fields are not valid");
+        apiError.setTimestamp(LocalDateTime.now());
+        apiError.setStatus(BAD_REQUEST.value());
+
+        Map<String, Object> details = exception.getBindingResult().getFieldErrors().stream()
+                .filter(fieldError -> Objects.nonNull(fieldError.getDefaultMessage()))
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        DefaultMessageSourceResolvable::getDefaultMessage,
+                        (firstError, secondError) -> firstError));
+
+        apiError.setDetails(details);
 
         return new ResponseEntity<>(apiError, BAD_REQUEST);
     }

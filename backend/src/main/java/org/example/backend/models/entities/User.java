@@ -17,6 +17,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,8 @@ public class User {
     private String nickname;
     private String givenName;
     private String familyName;
+
+    private LocalDate birthday;
 
     @CreatedDate
     private Instant createdAt;

@@ -67,7 +67,7 @@ public class RegistrationService {
         EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
         emailVerificationCodeService.validateCode(sourceCode, code);
-        userService.updateEmail(user);
+        userService.verifyEmail(user);
         userDeviceService.verifyDevice(user, request);
         sessionService.closeUserSessionsExceptCurrent(user);
 

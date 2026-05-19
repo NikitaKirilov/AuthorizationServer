@@ -6,10 +6,13 @@ import authApi from "../../api/authApi.ts";
 import {isAxiosError} from "axios";
 import {ApiError} from "../../types/ApiError.ts";
 import FormInput from "../../components/FormInput/FormInput.tsx";
+import FormField from "../../components/FormField/FormField.tsx";
+import BirthdayPicker from "../../components/BirthdayPicker/BirthdayPicker.tsx";
 
 const TITLE = "Registration";
 
 export default function RegistrationPage() {
+    const [date, setSelectedDate] = useState<Date | null | undefined>(null);
     useEffect(() => {
         document.title = TITLE;
     }, []);
@@ -82,6 +85,7 @@ export default function RegistrationPage() {
     return (
         <div className={"auth-form"}>
             <h1>REGISTRATION</h1>
+
             <p className={"text-hint"}>Please enter your information</p>
             <form onSubmit={handleSubmit}>
                 <FormInput name={"email"} placeholder={"Email"} value={registrationData.email} type={"email"}
@@ -95,6 +99,9 @@ export default function RegistrationPage() {
                            onChange={handleChange} error={error.givenNameValidationError}/>
                 <FormInput name={"familyName"} placeholder={"Family name"} value={registrationData.familyName}
                            onChange={handleChange} error={error.familyNameValidationError}/>
+                <FormField label={"Дата рождения"} htmlFor={"birthday"}>
+                    <BirthdayPicker selectedDate={date} onChange={setSelectedDate}/>
+                </FormField>
                 <button className={"default-button"} type={"submit"}>Register</button>
             </form>
             <div className={"default-error"}>{error.apiError}</div>

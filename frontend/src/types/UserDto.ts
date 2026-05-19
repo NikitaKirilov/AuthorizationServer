@@ -3,7 +3,7 @@ export interface UserDto {
     nickname: string;
     givenName: string;
     familyName: string;
+    birthday: Date;
     createdAt: string;
     updateAt: string;
-    lastLogin: string;
 }

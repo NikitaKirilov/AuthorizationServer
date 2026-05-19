@@ -7,7 +7,7 @@ import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import {useEffect} from "react";
 import authApi from "./api/authApi.ts";
 import ConsentPage from "./pages/ConsentPage/ConsentPage.tsx";
-import UserProfilePage from "./pages/UserProfilePage/UserProfilePage.tsx";
+import {UserProfilePage} from "./pages/UserProfilePage/UserProfilePage.tsx";
 
 function App() {
     useEffect(() => {
@@ -25,8 +25,8 @@ function App() {
                         <Route path={"new"} element={<RegistrationPage/>}/>
                         <Route path={"verify"} element={<EmailVerificationPage/>}/>
                     </Route>
-                    <Route path={"profile"}>
-                        <Route path={""} element={<UserProfilePage/>}/>
+                    <Route path={"user"}>
+                        <Route path={"profile"} element={<UserProfilePage/>}/>
                     </Route>
                 </Route>
             </Routes>

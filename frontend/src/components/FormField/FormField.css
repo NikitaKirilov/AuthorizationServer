@@ -1,0 +1,17 @@
+.form-field {
+    display: flex;
+    flex-direction: column;
+
+    overflow-wrap: break-word;
+}
+
+
+.form-field-error {
+    display: flex;
+    justify-content: flex-start;
+
+    color: rgb(214, 93, 95);
+    font-size: 18px;
+
+    gap: 5px;
+}

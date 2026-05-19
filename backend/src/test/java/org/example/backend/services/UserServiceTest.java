@@ -1,8 +1,8 @@
 package org.example.backend.services;
 
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.dtos.UpdateUserDto;
-import org.example.backend.dtos.UpdateUserPasswordDto;
+import org.example.backend.dtos.UserUpdateDto;
+import org.example.backend.dtos.UserPasswordUpdateDto;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
@@ -60,8 +60,8 @@ class UserServiceTest {
 
     private User mockUser;
     private UserDto mockUserDto;
-    private UpdateUserDto mockUpdateUserDto;
-    private UpdateUserPasswordDto mockUpdateUserPasswordDto;
+    private UserUpdateDto mockUserUpdateDto;
+    private UserPasswordUpdateDto mockUserPasswordUpdateDto;
     private RegistrationDto mockRegistrationDto;
 
     @BeforeEach
@@ -77,8 +77,7 @@ class UserServiceTest {
                 .setGivenName("Test")
                 .setFamilyName("Test")
                 .setCreatedAt(now)
-                .setUpdatedAt(now)
-                .setLastLogin(now);
+                .setUpdatedAt(now);
 
         mockUserDto = new UserDto()
                 .setEmail(mockUser.getEmail())
@@ -86,16 +85,15 @@ class UserServiceTest {
                 .setGivenName(mockUser.getGivenName())
                 .setFamilyName(mockUser.getFamilyName())
                 .setCreatedAt(mockUser.getCreatedAt())
-                .setUpdatedAt(mockUser.getUpdatedAt())
-                .setLastLogin(mockUser.getLastLogin());
+                .setUpdatedAt(mockUser.getUpdatedAt());
 
 
-        mockUpdateUserDto = new UpdateUserDto()
+        mockUserUpdateDto = new UserUpdateDto()
                 .setNickname("NewNickname")
                 .setFamilyName("NewFamilyName")
                 .setGivenName("NewGivenName");
 
-        mockUpdateUserPasswordDto = new UpdateUserPasswordDto()
+        mockUserPasswordUpdateDto = new UserPasswordUpdateDto()
                 .setNewPassword("newPassword")
                 .setOldPassword("password");
 
@@ -236,11 +234,11 @@ class UserServiceTest {
         when(userRepository.findById(id)).thenReturn(Optional.of(mockUser));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.updateUser(id, mockUpdateUserDto);
+        User user = userService.updateUser(id, mockUserUpdateDto);
 
-        assertEquals(mockUpdateUserDto.getNickname(), user.getNickname());
-        assertEquals(mockUpdateUserDto.getFamilyName(), user.getFamilyName());
-        assertEquals(mockUpdateUserDto.getGivenName(), user.getGivenName());
+        assertEquals(mockUserUpdateDto.getNickname(), user.getNickname());
+        assertEquals(mockUserUpdateDto.getFamilyName(), user.getFamilyName());
+        assertEquals(mockUserUpdateDto.getGivenName(), user.getGivenName());
 
         verify(userRepository).findById(id);
         verify(userRepository).save(any(User.class));
@@ -250,7 +248,7 @@ class UserServiceTest {
     void updateUser_WhenUserIdIsNotPresent_ThenThrowException() {
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(id, mockUpdateUserDto));
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(id, mockUserUpdateDto));
 
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any(User.class));
@@ -261,18 +259,18 @@ class UserServiceTest {
         String oldPassword = mockUser.getPassword();
 
         when(userRepository.findById(id)).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(mockUpdateUserPasswordDto.getOldPassword(), oldPassword))
+        when(passwordEncoder.matches(mockUserPasswordUpdateDto.getOldPassword(), oldPassword))
                 .thenReturn(true);
-        when(passwordEncoder.encode(mockUpdateUserPasswordDto.getNewPassword())).thenReturn("newEncoded");
+        when(passwordEncoder.encode(mockUserPasswordUpdateDto.getNewPassword())).thenReturn("newEncoded");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.updatePassword(id, mockUpdateUserPasswordDto);
+        User user = userService.updatePassword(id, mockUserPasswordUpdateDto);
 
         assertEquals("newEncoded", user.getPassword());
 
         verify(userRepository).findById(id);
-        verify(passwordEncoder).matches(mockUpdateUserPasswordDto.getOldPassword(), oldPassword);
-        verify(passwordEncoder).encode(mockUpdateUserPasswordDto.getNewPassword());
+        verify(passwordEncoder).matches(mockUserPasswordUpdateDto.getOldPassword(), oldPassword);
+        verify(passwordEncoder).encode(mockUserPasswordUpdateDto.getNewPassword());
         verify(userRepository).save(any(User.class));
 
     }
@@ -281,7 +279,7 @@ class UserServiceTest {
     void updatePassword_WhenUserIdIsNotPresent_ThenThrowException() {
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.updatePassword(id, mockUpdateUserPasswordDto));
+        assertThrows(UserNotFoundException.class, () -> userService.updatePassword(id, mockUserPasswordUpdateDto));
 
         verify(userRepository).findById(id);
         verify(passwordEncoder, never()).matches(anyString(), anyString());
@@ -292,26 +290,26 @@ class UserServiceTest {
     @Test
     void updatePassword_WhenUserIdIsPresentAndPasswordsNotMatches_ThenThrowException() {
         when(userRepository.findById(id)).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(mockUpdateUserPasswordDto.getOldPassword(), mockUser.getPassword()))
+        when(passwordEncoder.matches(mockUserPasswordUpdateDto.getOldPassword(), mockUser.getPassword()))
                 .thenReturn(false);
 
-        assertThrows(UserUpdateException.class, () -> userService.updatePassword(id, mockUpdateUserPasswordDto));
+        assertThrows(UserUpdateException.class, () -> userService.updatePassword(id, mockUserPasswordUpdateDto));
 
         verify(userRepository).findById(id);
-        verify(passwordEncoder).matches(mockUpdateUserPasswordDto.getOldPassword(), mockUser.getPassword());
+        verify(passwordEncoder).matches(mockUserPasswordUpdateDto.getOldPassword(), mockUser.getPassword());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void updateEmail_WhenEmailIsFree_ThenReturnUser() {
+    void verifyEmail_WhenEmailIsFree_ThenReturnUser() {
         mockUser.setEmailVerified(false);
         String pendingEmail = mockUser.getPendingEmail();
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(mockUser));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.updateEmail(mockUser);
+        User user = userService.verifyEmail(mockUser);
 
         assertNull(user.getPendingEmail());
         assertTrue(user.isEmailVerified());
@@ -324,7 +322,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateEmail_WhenUserWithSuchEmailIsPresentButNotVerified_ThenReturnUser() {
+    void verifyEmail_WhenUserWithSuchEmailIsPresentButNotVerified_ThenReturnUser() {
         String pendingEmail = mockUser.getPendingEmail();
         User existingUser = new User()
                 .setEmail("test1@gmail.com")
@@ -335,7 +333,7 @@ class UserServiceTest {
         doNothing().when(userRepository).flush();
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.updateEmail(mockUser);
+        User user = userService.verifyEmail(mockUser);
 
         assertNull(user.getPendingEmail());
         assertTrue(user.isEmailVerified());
@@ -348,14 +346,14 @@ class UserServiceTest {
     }
 
     @Test
-    void updateEmail_WhenUserWithSuchEmailIsPresentAndVerified_ThenThrowException() {
+    void verifyEmail_WhenUserWithSuchEmailIsPresentAndVerified_ThenThrowException() {
         User existingUser = new User()
                 .setEmail("test1@gmail.com")
                 .setEmailVerified(true);
 
         when(userRepository.findByEmail(mockUser.getPendingEmail())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(EmailIsAlreadyTakenException.class, () -> userService.updateEmail(mockUser));
+        assertThrows(EmailIsAlreadyTakenException.class, () -> userService.verifyEmail(mockUser));
 
         verify(userRepository).findByEmail(anyString());
         verify(userRepository, never()).delete(existingUser);

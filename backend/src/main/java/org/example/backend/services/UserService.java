@@ -2,9 +2,9 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.dtos.UpdateUserDto;
-import org.example.backend.dtos.UpdateUserPasswordDto;
 import org.example.backend.dtos.UserDto;
+import org.example.backend.dtos.UserPasswordUpdateDto;
+import org.example.backend.dtos.UserUpdateDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.exceptions.UserUpdateException;
@@ -109,24 +109,29 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(String id, UpdateUserDto updateUserDto) {
-        User user = this.getUserById(id);
+    public User updateUser(UserUpdateDto userUpdateDto) {
+        User user = this.getCurrentUser();
 
-        user.setNickname(updateUserDto.getNickname());
-        user.setGivenName(updateUserDto.getGivenName());
-        user.setFamilyName(updateUserDto.getFamilyName());
+        user.setNickname(userUpdateDto.getNickname());
+        user.setGivenName(userUpdateDto.getGivenName());
+        user.setFamilyName(userUpdateDto.getFamilyName());
+        user.setBirthday(userUpdateDto.getBirthday());
 
         return userRepository.save(user);
     }
 
-    public User updatePassword(String userId, UpdateUserPasswordDto updateUserPasswordDto) {
-        User user = this.getUserById(userId);
+    public User updatePassword(UserPasswordUpdateDto userPasswordUpdateDto) {
+        User user = this.getCurrentUser();
 
-        String oldPassword = updateUserPasswordDto.getOldPassword();
-        String newPassword = updateUserPasswordDto.getNewPassword();
+        String oldPassword = userPasswordUpdateDto.getOldPassword();
+        String newPassword = userPasswordUpdateDto.getNewPassword();
 
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        if (user.getPassword() != null && !passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new UserUpdateException("Passwords don't match");
+        }
+
+        if (oldPassword.equals(newPassword)) {
+            throw new UserUpdateException("Passwords must be different");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -134,15 +139,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateEmail(User user) {
+    public User verifyEmail(User user) {
         String newEmail = user.getPendingEmail();
 
         userRepository.findByEmail(newEmail).ifPresent(existingUser -> {
             if (existingUser.isEmailVerified()) {
                 throw new EmailIsAlreadyTakenException();
-            } else if (user != existingUser) {
-                userRepository.delete(existingUser);
-                userRepository.flush();
             }
         });
 

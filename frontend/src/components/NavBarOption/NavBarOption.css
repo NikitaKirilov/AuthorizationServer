@@ -1,0 +1,22 @@
+.nav-bar-option {
+    color: #FFFFFF;
+    max-height: fit-content;
+    display: flex;
+    flex: 1;
+    justify-content: left;
+    align-items: center;
+    text-decoration: transparent;
+    gap: 5px;
+    padding-left: 10px;
+    padding-right: 7px;
+}
+
+
+.nav-bar-option-current {
+    background-color: #6a11cb;
+}
+
+
+.nav-bar-option:hover {
+    background-color: #7b2be0;
+}

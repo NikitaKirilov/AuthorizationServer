@@ -1,0 +1,46 @@
+.text-input-wrapper {
+    display: flex;
+    position: relative;
+}
+
+
+.text-input {
+    color: white;
+    caret-color: white;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+
+    padding: 0 16px;
+
+    font-size: 15px;
+
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+
+.text-input:hover {
+    outline: none;
+
+    border-color: #e6e2e2;
+
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+
+.text-input:focus {
+    outline: none;
+
+    border-color: #8b5cf6;
+
+    background: rgba(255, 255, 255, 0.06);
+
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+
+.text-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
