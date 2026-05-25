@@ -69,4 +69,8 @@ public class User {
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    public boolean isNew() {
+        return this.id == null;
+    }
 }

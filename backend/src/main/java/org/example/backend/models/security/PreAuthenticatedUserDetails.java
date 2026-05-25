@@ -1,4 +1,4 @@
-package org.example.backend.models;
+package org.example.backend.models.security;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -11,6 +11,10 @@ const authApi = {
         });
     },
 
+    logout: async () => {
+        return await axiosInstance.post("/logout", {});
+    },
+
     register: async (data: RegistrationData) => {
         return await axiosInstance.post("/registrations", data, {
             headers: {

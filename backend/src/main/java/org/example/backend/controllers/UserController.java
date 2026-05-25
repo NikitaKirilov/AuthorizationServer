@@ -21,11 +21,11 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers(User user, Pageable pageable) {
-        return userService.getAllUsers(user, pageable);
+        return userService.getAllUsers(user, pageable); //TODO to AdminUserContoller
     }
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable String id) {
-        return userService.getUserDtoById(id);
+        return userService.getUserDtoById(id); //TODO to AdminUserContoller
     }
 }

@@ -1,4 +1,4 @@
-package org.example.backend.mappers;
+package org.example.backend.mappers.mapstruct;
 
 import org.example.backend.dtos.UserDto;
 import org.example.backend.models.entities.User;
@@ -11,7 +11,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    User mergeUsers(User src, @MappingTarget User trg);
+    void mergeUsers(User src, @MappingTarget User trg);
 
-    UserDto mapToUserDto(User user);
+    UserDto mapEntityToDto(User user);
 }

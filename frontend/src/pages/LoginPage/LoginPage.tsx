@@ -49,11 +49,6 @@ export default function LoginPage() {
         }
 
         await authApi.login(formData)
-            .then(res => {
-                if (res.status === 200) {
-                    globalThis.location.href = res.headers["redirect"];
-                }
-            })
             .catch(
                 (error) => {
                     if (isAxiosError(error) && error.response) {

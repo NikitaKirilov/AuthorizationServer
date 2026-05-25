@@ -25,7 +25,7 @@ public class EmailVerificationCodeService {
 
     public void sendCode(User user) {
         emailVerificationCodeRepository.deactivateActiveCodeForUser(user);
-        String code = this.createCode(user);
+        String code = createCode(user);
         emailService.sendEmailVerificationCode(user, code);
     }
 
@@ -59,7 +59,6 @@ public class EmailVerificationCodeService {
     private String createCode(User user) {
         String sourceCode = RandomStringUtils.secure().nextAlphanumeric(codeProperties.getCodeLength());
         EmailVerificationCode code = new EmailVerificationCode();
-
         code.setId(UUID.randomUUID().toString());
         code.setUser(user);
         code.setCodeHash(passwordEncoder.encode(sourceCode));

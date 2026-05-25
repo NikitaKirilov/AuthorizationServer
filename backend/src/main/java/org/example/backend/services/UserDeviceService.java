@@ -6,10 +6,13 @@ import com.maxmind.geoip2.model.CityResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.backend.dtos.UserDeviceDto;
+import org.example.backend.exceptions.ForbiddenOperationException;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
 import org.example.backend.repositories.UserDeviceRepository;
 import org.example.backend.utils.RequestUtils;
+import org.example.backend.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 import ua_parser.Client;
 import ua_parser.Parser;
@@ -17,6 +20,10 @@ import ua_parser.Parser;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.HttpHeaders.USER_AGENT;
@@ -30,36 +37,77 @@ public class UserDeviceService {
     private static final String DELIMITER = ", ";
     private static final String UNKNOWN_LOCATION = "Unknown Location";
     private static final String UNKNOWN_DETAILS = "Unknown Device";
-    public static final String DEVICE_FORMAT = "%s %s - %s %s";
+    public static final String DEVICE_FORMAT = "%s - %s";
 
     private final DatabaseReader databaseReader;
     private final EmailService emailService;
     private final Parser userAgentParser;
     private final UserDeviceRepository userDeviceRepository;
+    private final UserService userService;
+    private final SessionService sessionService;
+    private final AuthorizationService authorizationService;
 
-    public void verifyDevice(User user, HttpServletRequest request) {
+    public List<UserDeviceDto> getUserDevices() {
+        User user = userService.getCurrentUser();
+        List<UserDevice> devices = userDeviceRepository.findAllByUser(user);
+        String currentDeviceId = SecurityUtils.getAuthenticatedUserToken().getUserDeviceInfo().getId();
+        Map<String, Integer> deviceSessionsCount = sessionService.countSessionsByDevice(user);
+        Map<String, Integer> deviceAuthorizationsCount = authorizationService.countAuthorizationsByDevice(user);
+
+        return devices.stream()
+                .map(device -> {
+                    String deviceId = device.getId();
+
+                    UserDeviceDto userDeviceDto = new UserDeviceDto();
+                    userDeviceDto.setId(deviceId);
+                    userDeviceDto.setLocation(device.getLocation());
+                    userDeviceDto.setDetails(device.getDetails());
+                    userDeviceDto.setCurrent(Objects.equals(currentDeviceId, deviceId));
+                    userDeviceDto.setLastLoggedAt(device.getLastLoggedAt());
+
+                    userDeviceDto.setSessionsCount(deviceSessionsCount.getOrDefault(deviceId, 0));
+                    userDeviceDto.setAuthorizationsCount(deviceAuthorizationsCount.getOrDefault(deviceId, 0));
+
+                    return userDeviceDto;
+                })
+                .toList();
+    }
+
+    public UserDevice saveAndVerifyDevice(User user, HttpServletRequest request) {
         String ip = RequestUtils.getIpAddress(request);
         String location = this.getIpLocation(ip);
         String details = this.getDeviceDetails(request.getHeader(USER_AGENT));
 
-        userDeviceRepository.findByUserAndDetailsAndLocation(user, details, location).ifPresentOrElse(
-                existingDevice -> {
-                    existingDevice.setLastLoggedAt(Instant.now());
-                    userDeviceRepository.save(existingDevice);
-                },
-                () -> {
-                    UserDevice newDevice = new UserDevice();
+        UserDevice device;
+        Optional<UserDevice> optional = userDeviceRepository.findByUserAndDetailsAndLocation(user, details, location);
+        if (optional.isPresent()) {
+            device = optional.get();
+            device.setLastLoggedAt(Instant.now());
+        } else {
+            device = new UserDevice();
+            device.setId(UUID.randomUUID().toString());
+            device.setUser(user);
+            device.setDetails(details);
+            device.setLocation(location);
+            device.setLastLoggedAt(Instant.now());
 
-                    newDevice.setId(UUID.randomUUID().toString());
-                    newDevice.setUser(user);
-                    newDevice.setDetails(details);
-                    newDevice.setLocation(location);
-                    newDevice.setLastLoggedAt(Instant.now());
+            emailService.sendNewDeviceNotification(user, device);
+        }
 
-                    userDeviceRepository.save(newDevice);
-                    emailService.sendNewDeviceNotification(user, newDevice);
-                }
-        );
+        return userDeviceRepository.save(device);
+    }
+
+    public void logoutDevice(String deviceId) {
+        User user = userService.getCurrentUser();
+        UserDevice device = userDeviceRepository.findById(deviceId)
+                .orElseThrow();
+
+        if (!Objects.equals(user, device.getUser())) {
+            throw new ForbiddenOperationException("You are not allowed to manage this device");
+        }
+
+        sessionService.deleteSessionsByUserAndDevice(user, device);
+        authorizationService.deleteAuthorizationsByUserAndDevice(user, device);
     }
 
     private String getIpLocation(String ip) {
@@ -88,8 +136,7 @@ public class UserDeviceService {
 
         if (client != null) {
             details = DEVICE_FORMAT.formatted(
-                    client.userAgent.family, client.userAgent.major,
-                    client.os.family, client.os.major
+                    client.userAgent.family, client.os.family
             );
         }
 

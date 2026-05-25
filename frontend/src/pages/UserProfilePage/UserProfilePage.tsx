@@ -11,8 +11,8 @@ import {Eye, Info, LockKeyhole, LogOut, User} from "lucide-react";
 import PasswordUpdateDto from "../../types/PasswordUpdateDto.ts";
 import {ApiError} from "../../types/ApiError.ts";
 import {UserUpdateDto} from "../../types/UserUpdateDto.ts";
-import {useNavigate} from "react-router-dom";
 import {toast, Toaster} from "react-hot-toast";
+import authApi from "../../api/authApi.ts";
 
 
 type HidePasswordState = {
@@ -44,8 +44,6 @@ type FormErrorState = {
 const TITLE = "Profile";
 
 export function UserProfilePage() {
-    const navigate = useNavigate();
-
     const [user, setUser] = useState<UserUpdateDto>({
             nickname: "",
             givenName: "",
@@ -105,6 +103,10 @@ export function UserProfilePage() {
 
     const handleShowPasswordClicked = (name: keyof typeof showPassword) => {
         setShowPassword(prev => ({...prev, [name]: !prev[name]}));
+    };
+
+    const handleLogout = () => {
+        authApi.logout().then(r => console.log(r));
     };
 
     const saveUserButtonOnClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -294,7 +296,7 @@ export function UserProfilePage() {
                         </div>
                     </div>
                     <div className={"logout-button-wrapper"}>
-                        <button onClick={() => navigate("/logout")} className={"logout-button"}>
+                        <button onClick={handleLogout} className={"logout-button"}>
                             Выйти из аккаунта
                         </button>
                     </div>

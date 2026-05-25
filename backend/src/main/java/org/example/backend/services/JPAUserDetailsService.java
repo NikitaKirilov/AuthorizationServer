@@ -2,8 +2,8 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
-import org.example.backend.models.PreAuthenticatedUserDetails;
 import org.example.backend.models.entities.User;
+import org.example.backend.models.security.PreAuthenticatedUserDetails;
 import org.example.backend.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

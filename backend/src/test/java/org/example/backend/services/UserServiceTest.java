@@ -6,8 +6,8 @@ import org.example.backend.dtos.UserPasswordUpdateDto;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
-import org.example.backend.exceptions.UserUpdateException;
-import org.example.backend.mappers.UserMapper;
+import org.example.backend.exceptions.UserPasswordUpdateException;
+import org.example.backend.mappers.mapstruct.UserMapper;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,14 +130,14 @@ class UserServiceTest {
     @Test
     void getUserDtoById_WhenUserIdIsPresent_ThenReturnUserDto() {
         when(userRepository.findById(id)).thenReturn(Optional.of(mockUser));
-        when(userMapper.mapToUserDto(mockUser)).thenReturn(mockUserDto);
+        when(userMapper.mapEntityToDto(mockUser)).thenReturn(mockUserDto);
 
         UserDto userDto = userService.getUserDtoById(id);
 
         assertEquals(mockUserDto, userDto);
 
         verify(userRepository).findById(id);
-        verify(userMapper).mapToUserDto(mockUser);
+        verify(userMapper).mapEntityToDto(mockUser);
     }
 
     @Test
@@ -154,14 +154,14 @@ class UserServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(userRepository.findAll(any(Example.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(mockUser)));
-        when(userMapper.mapToUserDto(mockUser)).thenReturn(mockUserDto);
+        when(userMapper.mapEntityToDto(mockUser)).thenReturn(mockUserDto);
 
         List<UserDto> list = userService.getAllUsers(mockUser, pageable);
 
         assertEquals(list, List.of(mockUserDto));
 
         verify(userRepository).findAll(any(Example.class), eq(pageable));
-        verify(userMapper).mapToUserDto(mockUser);
+        verify(userMapper).mapEntityToDto(mockUser);
     }
 
     @Test
@@ -175,7 +175,7 @@ class UserServiceTest {
         assertEquals(list, List.of());
 
         verify(userRepository).findAll(any(Example.class), eq(pageable));
-        verify(userMapper, never()).mapToUserDto(mockUser);
+        verify(userMapper, never()).mapEntityToDto(mockUser);
     }
 
     @Test
@@ -293,7 +293,7 @@ class UserServiceTest {
         when(passwordEncoder.matches(mockUserPasswordUpdateDto.getOldPassword(), mockUser.getPassword()))
                 .thenReturn(false);
 
-        assertThrows(UserUpdateException.class, () -> userService.updatePassword(id, mockUserPasswordUpdateDto));
+        assertThrows(UserPasswordUpdateException.class, () -> userService.updatePassword(id, mockUserPasswordUpdateDto));
 
         verify(userRepository).findById(id);
         verify(passwordEncoder).matches(mockUserPasswordUpdateDto.getOldPassword(), mockUser.getPassword());

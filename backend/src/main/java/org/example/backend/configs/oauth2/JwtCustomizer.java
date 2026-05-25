@@ -2,8 +2,8 @@ package org.example.backend.configs.oauth2;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.AuthException;
-import org.example.backend.models.ResourceBasedGrantedAuthority;
-import org.example.backend.models.UserPrincipal;
+import org.example.backend.models.security.ResourceBasedGrantedAuthority;
+import org.example.backend.models.security.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;

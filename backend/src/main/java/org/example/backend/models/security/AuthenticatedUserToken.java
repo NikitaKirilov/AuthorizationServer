@@ -1,26 +1,31 @@
-package org.example.backend.models;
+package org.example.backend.models.security;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 import java.util.stream.Collectors;
 
+@Getter
 @EqualsAndHashCode(callSuper = true)
-public class AuthenticatedUserAuthenticationToken extends AbstractAuthenticationToken {
+public class AuthenticatedUserToken extends AbstractAuthenticationToken {
 
     private static final String AUTHORIZATION_SERVER = "AS";
     private final UserPrincipal principal;
+    private final UserDeviceInfo userDeviceInfo;
 
-    public AuthenticatedUserAuthenticationToken(
-            UserPrincipal principal
+    public AuthenticatedUserToken(
+            UserPrincipal principal, UserDeviceInfo userDeviceInfo
     ) {
         super(principal.getAuthorities().stream()
                 .filter(authority -> authority.getResource().equals(AUTHORIZATION_SERVER))
                 .collect(Collectors.toSet())
         );
-        this.principal = principal;
         super.setAuthenticated(true);
+
+        this.principal = principal;
+        this.userDeviceInfo = userDeviceInfo;
     }
 
     @Override
@@ -31,6 +36,6 @@ public class AuthenticatedUserAuthenticationToken extends AbstractAuthentication
 
     @Override
     public @Nullable UserPrincipal getPrincipal() {
-        return principal;
+        return this.principal;
     }
 }

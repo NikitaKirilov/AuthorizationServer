@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.models.ApiError;
-import org.example.backend.models.AttemptAction;
+import org.example.backend.models.enums.AttemptAction;
 import org.example.backend.services.AttemptService;
 import org.example.backend.utils.RequestUtils;
 import org.springframework.http.HttpStatus;

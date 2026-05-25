@@ -13,21 +13,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2AccessTokenGenerator;
@@ -38,9 +30,6 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.example.backend.configs.SecurityConfig.LOGIN_PAGE;
-import static org.springframework.security.oauth2.core.oidc.OidcScopes.EMAIL;
-import static org.springframework.security.oauth2.core.oidc.OidcScopes.OPENID;
-import static org.springframework.security.oauth2.core.oidc.OidcScopes.PROFILE;
 
 @Configuration
 @RequiredArgsConstructor
@@ -57,12 +46,15 @@ public class OAuth2Config {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
 
-        authorizationServerConfigurer.authorizationEndpoint(auth -> {
-            auth.consentPage(CONSENT_PAGE);
-        });
+        authorizationServerConfigurer.authorizationEndpoint(auth ->
+                auth.consentPage(CONSENT_PAGE)
+        );
 
         return http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                .authorizeHttpRequests(authorize -> {
+                    authorize.requestMatchers("/oauth2/device_authorization").permitAll();
+                    authorize.anyRequest().authenticated();
+                })
                 .with(authorizationServerConfigurer, authorizationServer ->
                         authorizationServer.oidc(Customizer.withDefaults())
                 )
@@ -74,39 +66,6 @@ public class OAuth2Config {
                         )
                 )
                 .build();
-    }
-
-    @Bean
-    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
-        RegisteredClient devPublicClient = RegisteredClient
-                .withId("id")
-                .clientId("client_id")
-                .clientSecret(passwordEncoder.encode("secret"))
-                .clientName("public_client")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .authorizationGrantTypes(consumer -> {
-                    consumer.add(AuthorizationGrantType.AUTHORIZATION_CODE);
-                    consumer.add(AuthorizationGrantType.REFRESH_TOKEN);
-                    consumer.add(AuthorizationGrantType.TOKEN_EXCHANGE);
-                })
-                .scopes(consumer -> {
-                    consumer.add(OPENID);
-                    consumer.add(EMAIL);
-                    consumer.add(PROFILE);
-                })
-                .clientSettings(ClientSettings.builder()
-                        .requireAuthorizationConsent(true)
-                        .build())
-                .tokenSettings(TokenSettings.builder()
-                        .reuseRefreshTokens(false)
-                        .build()
-                )
-                .redirectUri("http://localhost:3030/app/code")
-                .build();
-
-        RegisteredClientRepository repository = new JdbcRegisteredClientRepository(jdbcTemplate);
-        repository.save(devPublicClient);
-        return repository;
     }
 
     @Bean

@@ -7,8 +7,8 @@ import org.example.backend.dtos.UserPasswordUpdateDto;
 import org.example.backend.dtos.UserUpdateDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
-import org.example.backend.exceptions.UserUpdateException;
-import org.example.backend.mappers.UserMapper;
+import org.example.backend.exceptions.UserPasswordUpdateException;
+import org.example.backend.mappers.mapstruct.UserMapper;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.RoleRepository;
 import org.example.backend.repositories.UserRepository;
@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -49,34 +50,34 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        return this.getUserById(SecurityUtils.getCurrentUserId());
+        return getUserById(SecurityUtils.getCurrentUserId());
     }
 
     public UserDto getUserDtoById(String id) {
         User user = this.getUserById(id);
-        return userMapper.mapToUserDto(user);
+        return userMapper.mapEntityToDto(user);
     }
 
     public List<UserDto> getAllUsers(User user, Pageable pageable) {
         Page<User> users = userRepository.findAll(Example.of(user, EXAMPLE_MATCHER), pageable);
-        return users.stream().map(userMapper::mapToUserDto).toList();
+        return users.stream().map(userMapper::mapEntityToDto).toList();
     }
 
     public User createUser(RegistrationDto registrationDto) {
-        User user = userRepository.findByEmail(registrationDto.getEmail()).orElseGet(User::new);
+        User user = userRepository.findByEmail(registrationDto.getEmail())
+                .orElseGet(User::new);
 
         if (user.isEmailVerified()) {
             throw new EmailIsAlreadyTakenException();
         }
 
-        if (user.getId() == null) {
+        if (user.isNew()) {
             user.setId(UUID.randomUUID().toString());
         }
 
         user.setEmail(registrationDto.getEmail());
         user.setPendingEmail(registrationDto.getEmail());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-
         user.setNickname(registrationDto.getNickname());
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
@@ -86,32 +87,28 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User createOAuth2User(User newUser, String registrationId) {
-        User user = userRepository.findByEmail(newUser.getEmail())
-                .map(existing -> {
-                            if (!existing.isEmailVerified()) {
-                                return userMapper.mergeUsers(newUser, existing);
-                            }
-                            return existing;
-                        }
-                )
-                .orElse(newUser);
+    public User saveFederatedIdpUser(User federatedIdpUser, String registrationId) {
+        User user = userRepository.findByEmail(federatedIdpUser.getEmail()).orElseGet(User::new);
 
-        if (user.getId() == null) {
+        if (user.isNew()) {
             user.setId(UUID.randomUUID().toString());
+            user.getRoles().add(roleRepository.getDefaultASUserRole());
         }
 
-        user.setEmailVerified(true);
-        user.setClientRegistrationId(registrationId);
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            userMapper.mergeUsers(federatedIdpUser, user);
+        }
 
-        user.getRoles().add(roleRepository.getDefaultASUserRole());
+        if (!Objects.equals(user.getClientRegistrationId(), registrationId)) {
+            user.setClientRegistrationId(registrationId);
+        }
 
         return userRepository.save(user);
     }
 
     public User updateUser(UserUpdateDto userUpdateDto) {
-        User user = this.getCurrentUser();
-
+        User user = getCurrentUser();
         user.setNickname(userUpdateDto.getNickname());
         user.setGivenName(userUpdateDto.getGivenName());
         user.setFamilyName(userUpdateDto.getFamilyName());
@@ -121,17 +118,16 @@ public class UserService {
     }
 
     public User updatePassword(UserPasswordUpdateDto userPasswordUpdateDto) {
-        User user = this.getCurrentUser();
-
+        User user = getCurrentUser();
         String oldPassword = userPasswordUpdateDto.getOldPassword();
         String newPassword = userPasswordUpdateDto.getNewPassword();
 
-        if (user.getPassword() != null && !passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new UserUpdateException("Passwords don't match");
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new UserPasswordUpdateException("Passwords must be different");
         }
 
-        if (oldPassword.equals(newPassword)) {
-            throw new UserUpdateException("Passwords must be different");
+        if (user.getPassword() != null && !passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new UserPasswordUpdateException("Passwords don't match");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -140,18 +136,16 @@ public class UserService {
     }
 
     public User verifyEmail(User user) {
-        String newEmail = user.getPendingEmail();
+        if (user.isEmailVerified()) {
+            throw new EmailIsAlreadyTakenException();
+        }
 
-        userRepository.findByEmail(newEmail).ifPresent(existingUser -> {
-            if (existingUser.isEmailVerified()) {
-                throw new EmailIsAlreadyTakenException();
-            }
-        });
-
-        user.setEmail(newEmail);
         user.setEmailVerified(true);
-        user.setPendingEmail(null);
 
         return userRepository.save(user);
+    }
+
+    public void deleteUser(User user) {
+        userRepository.delete(user);
     }
 }

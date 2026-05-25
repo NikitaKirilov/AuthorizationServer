@@ -24,7 +24,13 @@ axiosInstance.interceptors.request.use(async (request) => {
 
 
 axiosInstance.interceptors.response.use(
-    async (response) => response,
+    async (response) => {
+        const redirect = response.headers["redirect"];
+        if (redirect) {
+            globalThis.location.href = redirect;
+        }
+        return response;
+    },
     async (error) => {
         const data = error.response.data;
         if (data.message === "EMAIL_NOT_VERIFIED") {

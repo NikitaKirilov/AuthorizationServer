@@ -21,7 +21,7 @@ public class FederatedIdentityAuthenticationSuccessHandler extends SavedRequestA
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (authentication instanceof OAuth2AuthenticationToken token) {
-            authentication = userAuthService.loginUserWithOAuth2(
+            authentication = userAuthService.loginUserWithFederatedIdentity(
                     request, response, token.getPrincipal(), token.getAuthorizedClientRegistrationId()
             );
         }

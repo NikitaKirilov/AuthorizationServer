@@ -8,9 +8,10 @@ import org.example.backend.dtos.RegistrationDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.EmailVerificationCodeValidationException;
 import org.example.backend.exceptions.ServerError;
-import org.example.backend.models.CooldownAction;
 import org.example.backend.models.entities.EmailVerificationCode;
 import org.example.backend.models.entities.User;
+import org.example.backend.models.entities.UserDevice;
+import org.example.backend.models.enums.CooldownAction;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.resilience.annotation.Retryable;
@@ -41,7 +42,7 @@ public class RegistrationService {
             RegistrationDto registrationDto
     ) {
         User user = userService.createUser(registrationDto);
-        securityContextService.createAuthorizedUserContext(request, response, user);
+        securityContextService.createRegisteredUserContext(request, response, user);
         if (!cooldownService.isBlocked(CooldownAction.NEW_CODE_REQUEST, user.getId())) {
             cooldownService.acquire(CooldownAction.NEW_CODE_REQUEST, user.getId());
             emailVerificationCodeService.sendCode(user);
@@ -68,11 +69,14 @@ public class RegistrationService {
 
         emailVerificationCodeService.validateCode(sourceCode, code);
         userService.verifyEmail(user);
-        userDeviceService.verifyDevice(user, request);
         sessionService.closeUserSessionsExceptCurrent(user);
 
+        UserDevice device = userDeviceService.saveAndVerifyDevice(user, request);
+        Authentication authentication = securityContextService.createAuthenticatedUserContext(
+                request, response, user, device
+        );
+
         try {
-            Authentication authentication = securityContextService.createAuthorizedUserContext(request, response, user);
             authenticationSuccessHandler.onAuthenticationSuccess(request, response, authentication);
         } catch (ServletException | IOException e) {
             throw new ServerError(e);

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
 import org.example.backend.configs.security.DefaultAuthenticationEntryPoint;
+import org.example.backend.configs.security.DefaultLogoutSuccessHandler;
 import org.example.backend.configs.security.EmailVerifiedFilter;
 import org.example.backend.configs.security.FederatedIdentityAuthenticationSuccessHandler;
 import org.example.backend.configs.security.LoginAttemptFilter;
@@ -55,6 +56,7 @@ public class SecurityConfig {
     private final CorsConfigurationSource defaultCorsConfigurationSource;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final DefaultAuthenticationEntryPoint authenticationEntryPoint;
+    private final DefaultLogoutSuccessHandler logoutSuccessHandler;
     private final EmailVerifiedFilter emailVerifiedFilter;
     private final FederatedIdentityAuthenticationSuccessHandler federatedIdentityAuthenticationSuccessHandler;
     private final LoginAttemptFilter loginAttemptFilter;
@@ -94,8 +96,10 @@ public class SecurityConfig {
                     configurer.loginPage(LOGIN_PAGE);
                     configurer.withObjectPostProcessor(this.getRequestRedirectFilterObjectPostProcessor());
                 })
-                .logout(configurer ->
-                        configurer.logoutUrl(LOGOUT_URL)
+                .logout(configurer -> {
+                            configurer.logoutSuccessHandler(logoutSuccessHandler);
+                            configurer.logoutUrl(LOGOUT_URL);
+                        }
                 )
                 .addFilterBefore(loginAttemptFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(emailVerifiedFilter, UsernamePasswordAuthenticationFilter.class)

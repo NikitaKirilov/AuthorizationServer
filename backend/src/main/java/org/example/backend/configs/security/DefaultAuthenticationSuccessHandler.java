@@ -4,7 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.example.backend.models.UserPrincipal;
+import org.example.backend.models.security.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -21,7 +21,7 @@ public class DefaultAuthenticationSuccessHandler implements AuthenticationSucces
     private final RequestCache requestCache = new HttpSessionRequestCache();
 
     private static final String REDIRECT_URL_HEADER = "redirect";
-    private static final String DEFAULT_TARGET_URL = "/app";
+    private static final String DEFAULT_TARGET_URL = "/app/user/profile";
     private static final String VERIFICATION_PAGE_URL = "/app/registrations/verify";
 
     @Override

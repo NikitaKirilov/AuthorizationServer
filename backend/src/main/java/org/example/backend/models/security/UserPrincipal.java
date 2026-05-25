@@ -1,4 +1,4 @@
-package org.example.backend.models;
+package org.example.backend.models.security;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;

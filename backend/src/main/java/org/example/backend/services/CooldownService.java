@@ -2,7 +2,7 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.exceptions.ActionCooldownException;
-import org.example.backend.models.CooldownAction;
+import org.example.backend.models.enums.CooldownAction;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ public class CooldownService {
     private final RedisOperations<Object, Object> redisTemplate;
 
     public void acquire(CooldownAction cooldownAction, String userId) {
-        String key = this.buildKey(cooldownAction, userId);
+        String key = buildKey(cooldownAction, userId);
 
         long cooldown = cooldownAction.getCooldown();
         long expiresAt = Instant.now().plusSeconds(cooldown).getEpochSecond();
@@ -32,7 +32,7 @@ public class CooldownService {
     }
 
     public boolean isBlocked(CooldownAction cooldownAction, String userId) {
-        String key = this.buildKey(cooldownAction, userId);
+        String key = buildKey(cooldownAction, userId);
         long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
         return ttl > 0;
     }

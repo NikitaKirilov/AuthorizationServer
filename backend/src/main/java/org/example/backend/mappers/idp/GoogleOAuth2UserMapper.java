@@ -1,7 +1,7 @@
 package org.example.backend.mappers.idp;
 
-import org.example.backend.models.DefaultClaimNames;
 import org.example.backend.models.entities.User;
+import org.example.backend.models.enums.DefaultClaimNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
