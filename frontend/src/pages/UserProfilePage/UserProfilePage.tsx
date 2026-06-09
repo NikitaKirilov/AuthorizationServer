@@ -1,13 +1,13 @@
 import React, {ChangeEvent, MouseEvent, useEffect, useState} from "react";
 import userProfileApi from "../../api/userProfileApi.ts";
 import {UserDto} from "../../types/UserDto.ts";
-import "./UserProfilePage.css";
+import styles from "./UserProfilePage.module.css";
 import "react-datepicker/dist/react-datepicker.css";
 import FormField from "../../components/FormField/FormField.tsx";
-import BirthdayPicker from "../../components/BirthdayPicker/BirthdayPicker.tsx";
-import TextInput from "../../components/TextInput/TextInput.tsx";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton.tsx";
-import {Eye, Info, LockKeyhole, LogOut, User} from "lucide-react";
+import BirthdayPicker from "../../components/Inputs/BirthdayPicker.tsx";
+import {TextInput} from "../../components/Inputs/TextInput.tsx";
+import {Button} from "../../components/Button/Button.tsx";
+import {CalendarSearch, Eye, Info, LockKeyhole, LogOut, MonitorCog, User} from "lucide-react";
 import PasswordUpdateDto from "../../types/PasswordUpdateDto.ts";
 import {ApiError} from "../../types/ApiError.ts";
 import {UserUpdateDto} from "../../types/UserUpdateDto.ts";
@@ -87,7 +87,8 @@ export function UserProfilePage() {
         document.title = TITLE;
         userProfileApi.getCurrentUser()
             .then(response => {
-                setUser(response.data as UserDto);
+                console.log(response.data);
+                setUser(response.data as UserUpdateDto);
             });
     }, []);
 
@@ -162,143 +163,172 @@ export function UserProfilePage() {
     };
 
     return (
-        <div className={"profile-page"}>
+        <div className={styles.page}>
             <Toaster/>
-            <div className={"header"}>
-                <span className={"header-text-primary"}>Управление аккаунтом</span>
-                <span className={"header-text-secondary"}>Просматривайте и изменяйте информацию о своем аккаунте</span>
+            <div className={styles.header}>
+                <span className={styles.headerTextPrimary}>Управление аккаунтом</span>
+                <span
+                    className={styles.headerTextSecondary}>Просматривайте и изменяйте информацию о своем аккаунте</span>
             </div>
-            <div className={`form ${formError.updateFormError ? "error" : ""}`}>
-                <div className={"form-header"}>
-                    <div className={"form-header-icon-wrapper"}>
+            <div className={`${styles.form} ${formError.updateFormError ? styles.error : ""}`}>
+                <div className={styles.formHeader}>
+                    <div className={styles.formHeaderIconWrapper}>
                         <User height={30} width={30}/>
                     </div>
-                    <div className={"form-header-text"}>
-                        <span className={"header-text-primary"}>Личная информация</span>
-                        <span className={"header-text-secondary"}>Обновите свои персональные данные</span>
+                    <div className={styles.formHeaderText}>
+                        <span className={styles.headerTextPrimary}>Личная информация</span>
+                        <span className={styles.headerTextSecondary}>Обновите свои персональные данные</span>
                     </div>
                 </div>
-                <div className={"form-row"}>
+                <div className={styles.row}>
                     <FormField label={"Псевдоним"} htmlFor={"nickname"}
                                error={userError.nickname}>
-                        <TextInput
-                            name={"nickname"}
-                            placeholder={"Введите псевдоним"}
-                            value={user.nickname}
-                            onChange={handleUserChange}>
-                            <User className={"text-input-icon"}/>
-                        </TextInput>
+                        <div className={styles.inputWrapper}>
+                            <User className={styles.inputIcon} size={25}/>
+                            <TextInput className={styles.field}
+                                       name={"nickname"}
+                                       placeholder={"Введите псевдоним"}
+                                       value={user.nickname}
+                                       onChange={handleUserChange}>
+                            </TextInput>
+                        </div>
                     </FormField>
                     <FormField label={"Имя"} htmlFor={"givenName"} error={userError.givenName}>
-                        <TextInput
-                            name={"givenName"}
-                            placeholder={"Введите имя"}
-                            value={user.givenName}
-                            onChange={handleUserChange}>
-                            <User className={"text-input-icon"}/>
-                        </TextInput>
+                        <div className={styles.inputWrapper}>
+                            <User className={styles.inputIcon} size={25}/>
+                            <TextInput className={styles.field}
+                                       name={"givenName"}
+                                       placeholder={"Введите имя"}
+                                       value={user.givenName}
+                                       onChange={handleUserChange}>
+                            </TextInput>
+                        </div>
                     </FormField>
                 </div>
-                <div className={"form-row"}>
+                <div className={styles.row}>
                     <FormField label={"Фамилия"} htmlFor={"familyName"}
                                error={userError.familyName}>
-                        <TextInput
-                            name={"familyName"}
-                            placeholder={"Введите фамилию"}
-                            value={user.familyName}
-                            onChange={handleUserChange}>
-                            <User className={"text-input-icon"}/>
-                        </TextInput>
+                        <div className={styles.inputWrapper}>
+                            <User className={styles.inputIcon}/>
+                            <TextInput className={styles.field}
+                                       name={"familyName"}
+                                       placeholder={"Введите фамилию"}
+                                       value={user.familyName}
+                                       onChange={handleUserChange}>
+                            </TextInput>
+                        </div>
                     </FormField>
                     <FormField label={"Дата рождения"} htmlFor={"birthday"}
                                error={userError.birthday}>
-                        <BirthdayPicker
-                            selectedDate={user.birthday}
-                            onChange={(date) =>
-                                setUser(prev => ({
-                                    ...prev,
-                                    birthday: date ?? prev.birthday,
-                                }))
-                            }
-                        />
+                        <div className={styles.inputWrapper}>
+                            <CalendarSearch className={styles.inputIcon} size={25}/>
+                            <BirthdayPicker className={styles.field}
+                                            selectedDate={user.birthday}
+                                            onChange={(date) =>
+                                                setUser(prev => ({
+                                                    ...prev,
+                                                    birthday: date ?? prev.birthday,
+                                                }))
+                                            }
+                            />
+                        </div>
                     </FormField>
                 </div>
-                <PrimaryButton onClick={saveUserButtonOnClick}>
+                <Button className={styles.formButton} onClick={saveUserButtonOnClick}>
                     Сохранить
-                </PrimaryButton>
+                </Button>
                 {
                     formError.updateFormError &&
-                    <div className={"form-error"}>
+                    <div className={styles.formError}>
                         <Info/>
                         <span>{formError.updateFormError}</span>
                     </div>
                 }
             </div>
-            <div className={`form ${formError.passwordFormError ? "error" : ""}`}>
-                <div className={"form-header"}>
-                    <div className={"form-header-icon-wrapper"}>
+            <div className={`${styles.form} ${formError.passwordFormError ? styles.error : ""}`}>
+                <div className={styles.formHeader}>
+                    <div className={styles.formHeaderIconWrapper}>
                         <LockKeyhole height={30} width={30}/>
                     </div>
-                    <div className={"form-header-text"}>
-                        <span className={"header-text-primary"}>Смена пароля</span>
-                        <span className={"header-text-secondary"}>Обеспечьте безопасность вашего аккаунта</span>
+                    <div className={styles.formHeaderText}>
+                        <span className={styles.headerTextPrimary}>Смена пароля</span>
+                        <span className={styles.headerTextSecondary}>Обеспечьте безопасность вашего аккаунта</span>
                     </div>
                 </div>
-                <div className={"form-row"}>
+                <div className={styles.row}>
                     <FormField label={"Текущий пароль"} htmlFor={"oldPassword"}
                                error={passwordError.oldPassword}>
-                        <TextInput name={"oldPassword"} placeholder={"Введите пароль"}
-                                   value={passwordUpdateDto.oldPassword}
-                                   password={showPassword.oldPassword}
-                                   onChange={handlePasswordChange}>
-                            <LockKeyhole className={"text-input-icon"}/>
-                            <Eye onClick={() => handleShowPasswordClicked("oldPassword")}
-                                 className={"show-password-icon"}/>
-                        </TextInput>
-                        <div className={"password-update-hint"}>
+                        <div className={styles.inputWrapper}>
+                            <LockKeyhole className={styles.inputIcon}/>
+                            <TextInput className={styles.field}
+                                       name={"oldPassword"}
+                                       placeholder={"Введите пароль"}
+                                       value={passwordUpdateDto.oldPassword}
+                                       type={showPassword.oldPassword ? "password" : "text"}
+                                       onChange={handlePasswordChange}>
+                            </TextInput>
+                            <Eye className={styles.showPasswordIcon}
+                                 onClick={() => handleShowPasswordClicked("oldPassword")}/>
+                        </div>
+                        <div className={styles.passwordUpdateHint}>
                             <Info height={15} width={15}/>
-                            <span className={"header-text-secondary"}>Если вы входили в систему через внешнего поставщика, оставьте поле пустым</span>
+                            <span className={styles.headerTextSecondary}>Если вы входили в систему через внешнего поставщика, оставьте поле пустым</span>
                         </div>
                     </FormField>
                     <FormField label={"Новый пароль"} htmlFor={"newPassword"}
                                error={passwordError.newPassword}>
-                        <TextInput name={"newPassword"} placeholder={"Введите пароль"}
-                                   value={passwordUpdateDto.newPassword}
-                                   password={showPassword.newPassword}
-                                   onChange={handlePasswordChange}>
-                            <LockKeyhole className={"text-input-icon"}/>
-                            <Eye onClick={() => handleShowPasswordClicked("newPassword")}
-                                 className={"show-password-icon"}/>
-                        </TextInput>
+                        <div className={styles.inputWrapper}>
+                            <LockKeyhole className={styles.inputIcon}/>
+                            <TextInput className={styles.field}
+                                       name={"newPassword"}
+                                       placeholder={"Введите пароль"}
+                                       value={passwordUpdateDto.newPassword}
+                                       type={showPassword.newPassword ? "password" : "text"}
+                                       onChange={handlePasswordChange}>
+                            </TextInput>
+                            <Eye className={styles.showPasswordIcon}
+                                 onClick={() => handleShowPasswordClicked("newPassword")}/>
+                        </div>
                     </FormField>
                 </div>
-                <PrimaryButton onClick={savePasswordButtonOnClick}>
+                <Button className={styles.formButton} onClick={savePasswordButtonOnClick}>
                     Изменить пароль
-                </PrimaryButton>
+                </Button>
                 {
                     formError.passwordFormError &&
-                    <div className={"form-error"}>
+                    <div className={styles.formError}>
                         <Info height={20} width={20}/>
                         <span>{formError.passwordFormError}</span>
                     </div>
                 }
             </div>
-            <div className={"form"}>
-                <div className={"form-row"}>
-                    <div className={"form-header"}>
-                        <div className={"form-header-icon-wrapper red"}>
+            <div className={styles.form}>
+                <div className={styles.formHeader}>
+                    <div className={styles.formHeaderIconWrapper}>
+                        <MonitorCog height={30} width={30}/>
+                    </div>
+                    <div className={styles.formHeaderText}>
+                        <span className={styles.headerTextPrimary}>Активные сессии</span>
+                        <span className={styles.headerTextSecondary}>Управляйте активными сессиями и токенами на ваших устройствах</span>
+                    </div>
+                </div>
+            </div>
+            <div className={styles.form}>
+                <div className={styles.row}>
+                    <div className={styles.formHeader}>
+                        <div className={`${styles.formHeaderIconWrapper} ${styles.logoutIconWrapper}`}>
                             <LogOut height={30} width={30}/>
                         </div>
-                        <div className={"form-header-text"}>
-                            <span className={"header-text-primary"}>Выход из аккаунта</span>
+                        <div className={styles.formHeaderText}>
+                            <span className={styles.headerTextPrimary}>Выход из аккаунта</span>
                             <span
-                                className={"header-text-secondary"}>Завершить текущую сессию и выйти из аккаунта</span>
+                                className={styles.headerTextSecondary}>Завершить текущую сессию и выйти из аккаунта</span>
                         </div>
                     </div>
-                    <div className={"logout-button-wrapper"}>
-                        <button onClick={handleLogout} className={"logout-button"}>
+                    <div className={styles.logoutButtonWrapper}>
+                        <Button variant={"danger"} onClick={handleLogout} className={styles.logoutButton}>
                             Выйти из аккаунта
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

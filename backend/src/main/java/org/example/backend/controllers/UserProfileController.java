@@ -6,6 +6,7 @@ import org.example.backend.dtos.UserDto;
 import org.example.backend.dtos.UserPasswordUpdateDto;
 import org.example.backend.dtos.UserUpdateDto;
 import org.example.backend.services.UserProfileService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +21,8 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
 
     @GetMapping
-    public UserDto getCurrentUser() {
-        return userProfileService.getCurrentUserDto();
+    public Object getCurrentUser(Authentication authentication) { //TODO return dto instead of authentication principal
+        return authentication.getPrincipal();
     }
 
     @PutMapping

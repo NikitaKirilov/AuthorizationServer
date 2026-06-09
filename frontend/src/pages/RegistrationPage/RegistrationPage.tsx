@@ -7,7 +7,7 @@ import {isAxiosError} from "axios";
 import {ApiError} from "../../types/ApiError.ts";
 import FormInput from "../../components/FormInput/FormInput.tsx";
 import FormField from "../../components/FormField/FormField.tsx";
-import BirthdayPicker from "../../components/BirthdayPicker/BirthdayPicker.tsx";
+import BirthdayPicker from "../../components/Inputs/BirthdayPicker.tsx";
 
 const TITLE = "Registration";
 

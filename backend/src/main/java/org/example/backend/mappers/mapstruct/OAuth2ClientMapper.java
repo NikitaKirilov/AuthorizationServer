@@ -21,12 +21,19 @@ public interface OAuth2ClientMapper {
     @Mapping(source = "scopes", target = "scopes", qualifiedByName = "stringSetToString")
     @Mapping(source = "redirectUris", target = "redirectUris", qualifiedByName = "stringSetToString")
     @Mapping(source = "postLogoutRedirectUris", target = "postLogoutRedirectUris", qualifiedByName = "stringSetToString")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void mergeDto(OAuth2ClientDto dto, @MappingTarget OAuth2Client client);
 
     @Mapping(source = "scopes", target = "scopes", qualifiedByName = "stringToStringSet")
     @Mapping(source = "redirectUris", target = "redirectUris", qualifiedByName = "stringToStringSet")
     @Mapping(source = "postLogoutRedirectUris", target = "postLogoutRedirectUris", qualifiedByName = "stringToStringSet")
     OAuth2ClientDto mapEntityToDto(OAuth2Client oAuth2Client);
+
+    @Mapping(source = "scopes", target = "scopes", qualifiedByName = "stringSetToString")
+    @Mapping(source = "redirectUris", target = "redirectUris", qualifiedByName = "stringSetToString")
+    @Mapping(source = "postLogoutRedirectUris", target = "postLogoutRedirectUris", qualifiedByName = "stringSetToString")
+    OAuth2Client mapDtoToEntity(OAuth2ClientDto dto);
 
     @Named("stringSetToString")
     static String setToString(Set<String> set) {

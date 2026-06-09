@@ -19,7 +19,7 @@ export default function FormInput({
                                       onChange,
                                   }: Readonly<FormInputProps>) {
     return (
-        <div className="form-field">
+        <div className="formField">
             <input
                 className={"input"}
                 type={type}

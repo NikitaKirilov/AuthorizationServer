@@ -1,5 +1,6 @@
 import axios, {AxiosInstance} from "axios";
 import Cookies from "js-cookie";
+import {router} from "../App.tsx";
 
 const baseUrl: string = import.meta.env.VITE_BACKEND_URL;
 
@@ -8,7 +9,8 @@ const axiosInstance: AxiosInstance = axios.create({
     withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use(async (request) => {
+axiosInstance.interceptors.request.use(
+    async (request) => {
     try {
         const csrf = Cookies.get("XSRF-TOKEN");
 
@@ -22,26 +24,30 @@ axiosInstance.interceptors.request.use(async (request) => {
     }
 });
 
-
 axiosInstance.interceptors.response.use(
     async (response) => {
         const redirect = response.headers["redirect"];
+
         if (redirect) {
-            globalThis.location.href = redirect;
+            router.navigate(redirect, {replace: true});
         }
+
         return response;
     },
     async (error) => {
-        const data = error.response.data;
-        if (data.message === "EMAIL_NOT_VERIFIED") {
-            globalThis.location.href = "/app/registrations/verify";
-        } else if (data.message === "LOGIN_REQUIRED") {
-            globalThis.location.href = "/app/login";
+        const message = error.response?.data?.message;
+
+        switch (message) {
+            case "EMAIL_NOT_VERIFIED":
+                router.navigate("/app/registrations/verify", {replace: true});
+                break;
+
+            case "LOGIN_REQUIRED":
+                router.navigate("/app/login", {replace: true});
+                break;
         }
 
         throw error;
-    },
-);
-
+    })
 
 export default axiosInstance;

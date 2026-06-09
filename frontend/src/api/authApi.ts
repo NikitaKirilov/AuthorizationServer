@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosConfig.ts";
+import axiosInstance from "../configs/axiosConfig.ts";
 import {LoginData} from "../types/LoginData.ts";
 import {RegistrationData} from "../types/RegistrationData.ts";
 
@@ -33,6 +33,10 @@ const authApi = {
 
     csrf: async () => {
         await axiosInstance.get("/csrf");
+    },
+
+    getCurrentUser: async () => {
+        return await axiosInstance.get("/users/profile");
     },
 };
 

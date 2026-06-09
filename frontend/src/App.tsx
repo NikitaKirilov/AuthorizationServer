@@ -1,36 +1,74 @@
-import {Route, Routes} from "react-router";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
-import {BrowserRouter} from "react-router-dom";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import RegistrationPage from "./pages/RegistrationPage/RegistrationPage.tsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage/EmailVerificationPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
-import {useEffect} from "react";
-import authApi from "./api/authApi.ts";
 import ConsentPage from "./pages/ConsentPage/ConsentPage.tsx";
 import {UserProfilePage} from "./pages/UserProfilePage/UserProfilePage.tsx";
+import OAuth2ClientsPage from "./pages/OAuth2ClientsPage/OAuth2ClientsPage.tsx";
+import OAuth2ClientPage from "./pages/OAuth2ClientPage/OAuth2ClientPage.tsx";
+
+
+export const router = createBrowserRouter([
+    {
+        path: "/app",
+        children: [
+            {
+                path: "login",
+                element: <LoginPage/>,
+            },
+            {
+                path: "consent",
+                element: <ConsentPage/>,
+            },
+            {
+                path: "registrations",
+                children: [
+                    {
+                        path: "new",
+                        element: <RegistrationPage/>,
+                    },
+                    {
+                        path: "verify",
+                        element: <EmailVerificationPage/>,
+                    },
+                ],
+            },
+            {
+                path: "user",
+                children: [
+                    {
+                        path: "profile",
+                        element: (
+                            <UserProfilePage/>
+                        ),
+                    },
+                ],
+            },
+
+            {
+                path: "oauth2/clients",
+                element: (
+                    <OAuth2ClientsPage/>
+                ),
+            },
+            {
+                path: "oauth2/clients/client",
+                element: (
+                    <OAuth2ClientPage/>
+                ),
+            },
+            {
+                path: "*",
+                element: <NotFoundPage/>,
+            },
+        ],
+    },
+]);
 
 function App() {
-    useEffect(() => {
-        authApi.csrf().catch(console.error);
-    }, []);
-
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={"app"}>
-                    <Route path={"*"} element={<NotFoundPage/>}/>
-                    <Route path={"login"} element={<LoginPage/>}/>
-                    <Route path={"consent"} element={<ConsentPage/>}/>
-                    <Route path={"registrations"}>
-                        <Route path={"new"} element={<RegistrationPage/>}/>
-                        <Route path={"verify"} element={<EmailVerificationPage/>}/>
-                    </Route>
-                    <Route path={"user"}>
-                        <Route path={"profile"} element={<UserProfilePage/>}/>
-                    </Route>
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router}/>
     );
 }
 

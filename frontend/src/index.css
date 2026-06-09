@@ -1,8 +1,25 @@
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    background: #6a11cb;
-    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
-    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+
+    --page-background: #211D22;
+
+    --form-background: rgba(255, 255, 255, 0.04);
+
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-color-hover: #e6e2e2;
+    --border-color-focus: #8b5cf6;
+
+    --text-color: #FFFFFF;
+    --text-color-secondary: rgba(255, 255, 255, 0.6);
+    --text-color-hint: #969393;
+
+    --input-background: rgba(255, 255, 255, 0.04);
+    --input-background-focus: rgba(255, 255, 255, 0.06);
+
+    --button-background: #6a11cb;
+    --button-background-hover: #7b2be0;
+
+    --error-text-color: rgb(214, 93, 95);
 }
 
 

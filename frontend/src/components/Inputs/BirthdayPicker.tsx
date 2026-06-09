@@ -1,28 +1,30 @@
 import DatePicker from "react-datepicker";
 import "./BirthdayPicker.css";
-import "../TextInput/TextInput.css";
-import {CalendarSearch} from "lucide-react";
+import inputStyles from "./Input.module.css";
 
 type BirthdayPickerProps = {
+    className?: string;
     selectedDate: Date | null | undefined;
     onChange: (date: Date | null) => void;
 }
 
-export default function BirthdayPicker({selectedDate, onChange}: Readonly<BirthdayPickerProps>) {
+const MIN_DATE = new Date("01-01-1920");
+
+export default function BirthdayPicker({className, selectedDate, onChange}: Readonly<BirthdayPickerProps>) {
     return (
-        <div className={"text-input-wrapper"}>
-            <CalendarSearch className={"datepicker-icon"}/>
-            <DatePicker id={"birthday"} name={"birthday"} className={"text-input"}
+        <DatePicker id={"birthday"}
+                    name={"birthday"}
+                    className={`${inputStyles.textInput} ${className || ""}`}
                         selected={selectedDate} placeholderText={"Выберите дату рождения"}
                         dateFormat={"dd.MM.yyyy"}
                         showYearDropdown
+                    minDate={MIN_DATE}
                         scrollableYearDropdown
-                        yearDropdownItemNumber={100}
+                    yearDropdownItemNumber={120}
                         onChange={onChange}
                         maxDate={new Date()}
                         portalId={"root"}
                         onKeyDown={(e) => e.preventDefault()}
             />
-        </div>
     );
 }

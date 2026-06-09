@@ -9,18 +9,31 @@ import org.example.backend.mappers.mapstruct.OAuth2ClientMapper;
 import org.example.backend.models.entities.OAuth2Client;
 import org.example.backend.repositories.OAuth2ClientRepository;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class OAuth2ClientService implements RegisteredClientRepository {
+
+    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matchingAny()
+            .withIgnoreCase()
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+            .withIgnoreNullValues()
+            .withIgnorePaths(
+                    "scopes", "redirectUris", "postLogoutRedirectUris",
+                    "jwtSetUrl", "accessTokenTimeToLive", "refreshTokenTimeToLive",
+                    "requireProofKey", "requireAuthorizationConsent", "reuseRefreshTokens"
+            );
 
     private static final int CLIENT_SECRET_LENGTH = 30;
 
@@ -29,10 +42,16 @@ public class OAuth2ClientService implements RegisteredClientRepository {
     private final OAuth2ClientMapper oAuth2ClientMapper;
     private final OAuth2ClientRepository oAuth2ClientRepository;
 
-    public List<OAuth2ClientDto> getAllOAuth2Clients() {
-        return oAuth2ClientRepository.findAll().stream()
+    public Page<OAuth2ClientDto> getAllOAuth2Clients(OAuth2ClientDto oAuth2ClientDto, Pageable pageable) {
+        OAuth2Client probe = oAuth2ClientMapper.mapDtoToEntity(oAuth2ClientDto);
+        return oAuth2ClientRepository.findAll(Example.of(probe, EXAMPLE_MATCHER), pageable)
+                .map(oAuth2ClientMapper::mapEntityToDto);
+    }
+
+    public OAuth2ClientDto getOAuth2ClientByClientId(String clientId) {
+        return oAuth2ClientRepository.findByClientId(clientId)
                 .map(oAuth2ClientMapper::mapEntityToDto)
-                .toList();
+                .orElseThrow(() -> new OAuth2ClientNotFoundException(clientId));
     }
 
     @Override
@@ -83,7 +102,8 @@ public class OAuth2ClientService implements RegisteredClientRepository {
         return secret;
     }
 
+    @Transactional
     public void deleteOAuth2Client(String clientId) {
-        oAuth2ClientRepository.deleteById(clientId);
+        oAuth2ClientRepository.deleteByClientId(clientId);
     }
 }

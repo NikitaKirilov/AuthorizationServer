@@ -11,6 +11,10 @@ import googleImg from "../../../assets/google.png";
 
 const TITLE = "Login";
 
+/*background: #6a11cb;
+background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));*/
+
 export default function LoginPage() {
     useEffect(() => {
         document.title = TITLE;

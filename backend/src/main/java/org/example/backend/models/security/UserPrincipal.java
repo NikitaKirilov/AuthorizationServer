@@ -7,6 +7,7 @@ import org.example.backend.models.entities.User;
 import org.springframework.security.core.AuthenticatedPrincipal;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,8 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
     private String givenName;
     private String familyName;
 
+    private LocalDate birthday;
+
     @JsonCreator
     public UserPrincipal() {
     }
@@ -36,7 +39,7 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
                 .flatMap(role -> role.getAuthorities().stream())
                 .map(authority ->
                         new ResourceBasedGrantedAuthority(authority.getResource(), authority.getName()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()); //TODO убрать authorities из principal
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();
@@ -44,6 +47,8 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
         this.nickname = user.getNickname();
         this.givenName = user.getGivenName();
         this.familyName = user.getFamilyName();
+
+        this.birthday = user.getBirthday();
     }
 
     @Override

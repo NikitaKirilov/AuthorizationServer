@@ -1,24 +1,19 @@
-.profile-page {
+body {
     font-family: Inter, sans-serif;
-
     color: #FFFFFF;
     background-color: #211D22;
+}
 
-    border: 2px solid rgba(246, 242, 242, 0.25);
-    border-radius: 10px;
 
+.page {
     display: flex;
     flex-direction: column;
-    align-items: center;
 
     padding-top: 20px;
     min-height: 100vh;
     gap: 20px;
-}
 
-
-.primary-button {
-    width: 30%;
+    align-items: center;
 }
 
 
@@ -26,19 +21,21 @@
     display: flex;
     flex-direction: column;
     align-items: start;
+
     width: 70%;
+    max-width: 950px;
 
     gap: 10px
 }
 
 
-.header-text-primary {
+.headerTextPrimary {
     color: #FFFFFF;
     font-size: 18px;
 }
 
 
-.header-text-secondary {
+.headerTextSecondary {
     color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
 }
@@ -48,8 +45,8 @@
     display: flex;
     flex-direction: column;
 
-    height: fit-content;
     width: 70%;
+    max-width: 950px;
 
     background: rgba(255, 255, 255, 0.04);
 
@@ -62,10 +59,36 @@
 
     gap: 10px;
     padding-bottom: 20px;
+
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 
-.form-header-icon-wrapper.red {
+.formHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    margin-left: 10px;
+    margin-top: 20px;
+
+    gap: 10px;
+}
+
+
+.formHeaderIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #4B1D85;
+    border-radius: 100px;
+    padding: 8px;
+}
+
+
+.logoutIconWrapper {
     background: #45222D;
     color: rgb(214, 93, 95);
 }
@@ -85,60 +108,22 @@
 }
 
 
-.form-header {
-    display: flex;
-    flex-direction: row;
-    align-self: start;
-
-    margin-left: 10px;
-    margin-top: 20px;
-
-    gap: 10px;
-}
-
-
-.form-header-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: fit-content;
-
-    background-color: #4B1D85;
-    border-radius: 100px;
-    padding: 8px;
-}
-
-
-.form-header-text {
+.formHeaderText {
     display: flex;
     flex-direction: column;
 }
 
 
-.form-row {
+.row {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-
-    gap: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-
-    flex: 1;
     justify-content: center;
-}
 
-
-.form-field {
     gap: 10px;
-    margin-bottom: 20px;
-
-    flex: 1;
 }
 
 
-.form-error {
+.formError {
     display: flex;
     justify-content: center;
 
@@ -149,42 +134,44 @@
 }
 
 
-.text-input {
-    flex: 1;
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 
-    padding-left: 35px;
-    padding-right: 35px;
-
-    min-width: 0;
-
-    height: 40px;
+    width: 100%;
 }
 
 
-.text-input-icon {
+.field {
+    width: 100%;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+
+.inputIcon {
     position: absolute;
-
-    width: 20px;
-    height: 20px;
-
     margin-left: 10px;
-    top: 50%;
-
-    transform: translateY(-50%);
 }
 
 
-.show-password-icon {
+.formButton {
+    align-self: center;
+    width: 30%;
+}
+
+
+.showPasswordIcon {
     position: absolute;
 
     right: 10px;
-    top: 50%;
 
-    transform: translateY(-50%);
+    cursor: pointer;
 }
 
 
-.logout-button-wrapper {
+.logoutButtonWrapper {
     display: flex;
     flex: 1;
 
@@ -192,7 +179,7 @@
 }
 
 
-.logout-button {
+.logoutButton {
     color: rgb(214, 93, 95);
 
     margin-top: 20px;
@@ -207,7 +194,7 @@
 }
 
 
-.password-update-hint {
+.passwordUpdateHint {
     display: flex;
 
     color: rgba(255, 255, 255, 0.6);
@@ -219,37 +206,25 @@
 }
 
 
-.logout-button:hover {
-    outline: none;
-
-    color: #8b5cf6;
-    border-color: #8b5cf6;
-
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
-
-    cursor: pointer;
-}
-
-
-.show-password-icon:hover {
+.showPasswordIcon:hover {
     color: #8b5cf6;
 }
 
 
 @media (max-width: 450px) {
-    .primary-button {
-        width: 90%;
+    .formButton {
+        width: 70%;
     }
 
-    .logout-button {
-        width: 90%;
+    .logoutButton {
+        width: 70%;
     }
 
-    .form-row {
-        display: block;
+    .row {
+        flex-direction: column;
     }
 
-    .logout-button-wrapper {
+    .logoutButtonWrapper {
         justify-content: center;
     }
 }

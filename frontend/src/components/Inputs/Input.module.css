@@ -1,10 +1,4 @@
-.text-input-wrapper {
-    display: flex;
-    position: relative;
-}
-
-
-.text-input {
+.textInput {
     color: white;
     caret-color: white;
 
@@ -15,13 +9,15 @@
 
     padding: 0 16px;
 
+    height: 40px;
+
     font-size: 15px;
 
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 
-.text-input:hover {
+.textInput:hover {
     outline: none;
 
     border-color: #e6e2e2;
@@ -30,7 +26,7 @@
 }
 
 
-.text-input:focus {
+.textInput:focus {
     outline: none;
 
     border-color: #8b5cf6;
@@ -41,6 +37,6 @@
 }
 
 
-.text-input::placeholder {
+.textInput::placeholder {
     color: rgba(255, 255, 255, 0.35);
 }

@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.OAuth2ClientDto;
 import org.example.backend.services.OAuth2ClientService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/oauth2/clients")
@@ -23,8 +24,13 @@ public class OAuth2ClientController {
     private final OAuth2ClientService oAuth2ClientService;
 
     @GetMapping
-    public List<OAuth2ClientDto> getAll() {
-        return oAuth2ClientService.getAllOAuth2Clients();
+    public Page<OAuth2ClientDto> getAllOAuth2Clients(OAuth2ClientDto oAuth2ClientDto, Pageable pageable) {
+        return oAuth2ClientService.getAllOAuth2Clients(oAuth2ClientDto, pageable);
+    }
+
+    @GetMapping("/{clientId}")
+    public OAuth2ClientDto getOAuth2ClientByClientId(@PathVariable String clientId) {
+        return oAuth2ClientService.getOAuth2ClientByClientId(clientId);
     }
 
     @PostMapping

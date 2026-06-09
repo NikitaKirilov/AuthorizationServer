@@ -1,0 +1,390 @@
+.page {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    margin-top: 20px;
+    gap: 20px;
+}
+
+
+.modalWindow {
+    color: #FFFFFF;
+
+    background-color: #1B1A23;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+
+    min-height: 300px;
+
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+
+.modalHeader {
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+
+    gap: 20px;
+
+    width: 100%;
+}
+
+
+.modalHeaderIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 60px;
+    width: 60px;
+
+    background-color: #221C2D;
+    border-radius: 10px;
+}
+
+
+.modalHeaderIcon {
+    color: #8E3BEE;
+}
+
+
+.warningBlock {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 10px;
+
+    background-color: #1F1C23;
+    border: 1px solid #43362C;
+    border-radius: 10px;
+
+    padding: 15px 15px;
+}
+
+
+.warningIcon {
+    color: #EEAB4B;
+}
+
+
+.clientSecretWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    height: 40px;
+    width: 90%;
+}
+
+
+.modalWindowButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    width: 100%;
+
+    gap: 20px;
+}
+
+
+.modalWindowButtons * {
+    width: 40%;
+    height: 40px;
+}
+
+
+.modalWindow::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+}
+
+
+dialog:not([open]) {
+    display: none;
+}
+
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 70%;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+
+    gap: 30px;
+    padding-right: 10px;
+    padding-left: 10px;
+
+}
+
+
+.header {
+    width: 70%;
+
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-between;
+}
+
+
+.headerTextWrapper {
+    display: flex;
+    flex: 3;
+    flex-direction: column;
+}
+
+
+.addButton {
+    flex: 1;
+    right: 0;
+}
+
+
+.add-client-button-icon {
+    align-self: center;
+    position: absolute;
+    left: 5px;
+}
+
+
+.searchWrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.search {
+    width: 30%;
+    padding-left: 30px;
+}
+
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+}
+
+
+.blockHeader {
+    width: 100%;
+    color: rgba(255, 255, 255, 0.35);
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+
+    place-items: center;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.emptyState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+
+    height: fit-content;
+
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.clientCard {
+    width: 100%;
+
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: row;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    height: 60px;
+}
+
+
+.clientField {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 30px;
+}
+
+
+.copyableTextWrapper {
+    position: relative;
+
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+
+    padding-left: 15px;
+    padding-right: 30px;
+}
+
+
+.copyableTextWrapper * {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
+.copyableTextIcon {
+    position: absolute;
+
+    right: 5px;
+}
+
+
+.clientActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+.actionButton {
+    color: #FFFFFF;
+    background-color: var(--input-background);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+
+    width: 50px;
+    height: 34px;
+}
+
+
+.pagesBlock {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+
+    height: 60px;
+
+    margin-right: 20px;
+    margin-left: 20px;
+
+    gap: 5px;
+}
+
+
+.pageSwitcher {
+    display: flex;
+
+    gap: 5px;
+}
+
+
+.arrowIcon {
+    color: rgba(255, 255, 255, 0.35);
+
+    background-color: var(--input-background);
+
+    border-radius: 5px;
+}
+
+
+.pageNumber {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    color: var(--text-color);
+
+    background-color: var(--button-background);
+    border-radius: 5px;
+}
+
+
+.copyableTextIcon, .arrowIcon:hover {
+    cursor: pointer;
+}
+
+
+.copyableTextIcon:active, .arrowIcon:active {
+    color: rgba(255, 255, 255, 0.34);
+}
+
+
+.actionButton:hover {
+    background-color: var(--button-background-hover);
+
+    border: transparent;
+}
+
+
+@media (max-width: 1100px) {
+    .blockHeader {
+        display: none;
+    }
+
+    .clientCard {
+        padding-top: 10px;
+        display: flex;
+        flex-direction: column;
+
+        height: fit-content;
+
+        gap: 10px;
+
+        padding-bottom: 10px;
+    }
+
+    .clientField {
+        flex: 1;
+
+        white-space: wrap;
+        overflow: unset;
+    }
+
+    .searchWrapper {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .search {
+        width: 90%;
+    }
+}

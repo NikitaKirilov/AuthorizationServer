@@ -1,17 +1,23 @@
-.form-field {
+.formField {
     display: flex;
     flex-direction: column;
 
+    width: 100%;
+
     overflow-wrap: break-word;
+
+    gap: 5px;
 }
 
 
-.form-field-error {
+.formFieldError {
     display: flex;
     justify-content: flex-start;
 
-    color: rgb(214, 93, 95);
-    font-size: 18px;
+    align-items: center;
 
+    color: var(--error-text-color);
+
+    font-size: 18px;
     gap: 5px;
 }

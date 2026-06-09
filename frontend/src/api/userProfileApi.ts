@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosConfig.ts";
+import axiosInstance from "../configs/axiosConfig.ts";
 import {UserUpdateDto} from "../types/UserUpdateDto.ts";
 import PasswordUpdateDto from "../types/PasswordUpdateDto.ts";
 

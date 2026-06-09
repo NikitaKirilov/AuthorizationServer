@@ -1,0 +1,5 @@
+ALTER TABLE oauth2_client
+    ADD COLUMN created_at TIMESTAMP WITHOUT TIME ZONE;
+
+ALTER TABLE oauth2_client
+    ADD COLUMN updated_at TIMESTAMP WITHOUT TIME ZONE;
