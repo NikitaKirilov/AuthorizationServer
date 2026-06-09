@@ -9,8 +9,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -42,7 +42,7 @@ public class OAuth2Client {
     private Duration refreshTokenTimeToLive;
 
     @CreatedDate
-    private Timestamp createdAt;
+    private Instant createdAt;
     @LastModifiedDate
-    private Timestamp updatedAt;
+    private Instant updatedAt;
 }

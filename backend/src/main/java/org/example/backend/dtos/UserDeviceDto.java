@@ -18,5 +18,4 @@ public class UserDeviceDto {
     private boolean current;
 
     private Instant lastLoggedAt;
-
 }

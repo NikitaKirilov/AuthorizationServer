@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Set;
 
 @Data
@@ -35,6 +35,6 @@ public class OAuth2ClientDto {
     @NotNull(message = "Refresh Token Time To Live не должен быть пустым")
     private Duration refreshTokenTimeToLive;
 
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }
