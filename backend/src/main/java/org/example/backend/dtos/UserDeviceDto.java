@@ -12,9 +12,6 @@ public class UserDeviceDto {
     private String details;
     private String location;
 
-    private int sessionsCount;
-    private int authorizationsCount;
-
     private boolean current;
 
     private Instant lastLoggedAt;

@@ -7,6 +7,7 @@ import org.example.backend.models.security.ResourceBasedGrantedAuthority;
 import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
 import org.example.backend.services.OAuth2ClientService;
+import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -27,8 +28,10 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Component
@@ -42,15 +45,15 @@ public class OAuth2AuthorizationMapper {
     private final ObjectMapper mapper = createSecurityJsonMapper();
 
     public OAuth2Authorization toObject(Authorization entity) {
-        RegisteredClient registeredClient = oAuth2ClientService.findById(entity.getRegisteredClientId());
+        RegisteredClient registeredClient = oAuth2ClientService.findById(entity.getOauth2ClientId());
 
         if (registeredClient == null) {
-            throw new DataRetrievalFailureException("The RegisteredClient with id '" + entity.getRegisteredClientId() + "' was not found in the RegisteredClientRepository.");
+            throw new DataRetrievalFailureException("The OAuth2Client with id '" + entity.getOauth2ClientId() + "' was not found.");
         }
 
         OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .id(entity.getId())
-                .principalName(entity.getPrincipalName())
+                .principalName(entity.getUserId())
                 .authorizationGrantType(resolveAuthorizationGrantType(entity.getAuthorizationGrantType()))
                 .authorizedScopes(StringUtils.commaDelimitedListToSet(entity.getAuthorizedScopes()))
                 .attributes(attributes -> attributes.putAll(parseMap(entity.getAttributes())));
@@ -128,8 +131,10 @@ public class OAuth2AuthorizationMapper {
     public Authorization toEntity(OAuth2Authorization authorization) {
         Authorization entity = new Authorization();
         entity.setId(authorization.getId());
-        entity.setRegisteredClientId(authorization.getRegisteredClientId());
         entity.setPrincipalName(authorization.getPrincipalName());
+        entity.setOauth2ClientId(authorization.getRegisteredClientId());
+        entity.setUserId(extractUserId(authorization.getAttributes()));
+        entity.setDeviceId(extractUserDeviceId(authorization.getAttributes()));
         entity.setAuthorizationGrantType(authorization.getAuthorizationGrantType().getValue());
         entity.setAuthorizedScopes(StringUtils.collectionToDelimitedString(authorization.getAuthorizedScopes(), ","));
         entity.setAttributes(writeMap(authorization.getAttributes()));
@@ -244,6 +249,32 @@ public class OAuth2AuthorizationMapper {
             return AuthorizationGrantType.DEVICE_CODE;
         }
         return new AuthorizationGrantType(authorizationGrantType);
+    }
+
+    private @Nullable String extractUserDeviceId(Map<String, Object> attributes) {
+        AuthenticatedUserToken token = extractUserAuthentication(attributes);
+        return Optional.ofNullable(token)
+                .map(AuthenticatedUserToken::getUserDeviceInfo)
+                .map(UserDeviceInfo::getId)
+                .orElse(null);
+    }
+
+    private @Nullable String extractUserId(Map<String, Object> attributes) {
+        AuthenticatedUserToken token = extractUserAuthentication(attributes);
+        return Optional.ofNullable(token)
+                .map(AuthenticatedUserToken::getPrincipal)
+                .map(UserPrincipal::getId)
+                .orElse(null);
+    }
+
+    public static @Nullable AuthenticatedUserToken extractUserAuthentication(Map<String, Object> attributes) {
+        Object principal = attributes.get(Principal.class.getName());
+
+        if (principal instanceof AuthenticatedUserToken token) {
+            return token;
+        }
+
+        return null;
     }
 
     private JsonMapper createSecurityJsonMapper() {

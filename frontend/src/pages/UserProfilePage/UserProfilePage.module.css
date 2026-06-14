@@ -1,4 +1,5 @@
 body {
+    margin: 0;
     font-family: Inter, sans-serif;
     color: #FFFFFF;
     background-color: #211D22;
@@ -9,11 +10,21 @@ body {
     display: flex;
     flex-direction: column;
 
+    width: 100%;
+
+    gap: 20px;
+}
+
+
+.contentWrapper {
+    display: flex;
+    flex-direction: column;
+
     padding-top: 20px;
-    min-height: 100vh;
+
     gap: 20px;
 
-    align-items: center;
+    width: 70%;
 }
 
 
@@ -22,8 +33,7 @@ body {
     flex-direction: column;
     align-items: start;
 
-    width: 70%;
-    max-width: 950px;
+    width: 80%;
 
     gap: 10px
 }
@@ -45,9 +55,6 @@ body {
     display: flex;
     flex-direction: column;
 
-    width: 70%;
-    max-width: 950px;
-
     background: rgba(255, 255, 255, 0.04);
 
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -62,6 +69,8 @@ body {
 
     padding-left: 10px;
     padding-right: 10px;
+
+    width: 80%;
 }
 
 
@@ -211,7 +220,18 @@ body {
 }
 
 
-@media (max-width: 450px) {
+@media (max-width: 1100px) {
+    .page {
+        align-items: center;
+    }
+
+    .logoutButton {
+        width: 50%;
+    }
+}
+
+
+@media (max-width: 700px) {
     .formButton {
         width: 70%;
     }

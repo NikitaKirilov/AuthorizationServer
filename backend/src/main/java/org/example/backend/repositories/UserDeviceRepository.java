@@ -2,6 +2,7 @@ package org.example.backend.repositories;
 
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +14,5 @@ public interface UserDeviceRepository extends JpaRepository<UserDevice, String> 
 
     Optional<UserDevice> findByUserAndDetailsAndLocation(User user, String deviceDetails, String location);
 
-    List<UserDevice> findAllByUser(User user);
+    List<UserDevice> findAllByUser(User user, Pageable pageable);
 }

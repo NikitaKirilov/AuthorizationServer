@@ -54,7 +54,7 @@ public class UserService {
     }
 
     public UserDto getUserDtoById(String id) {
-        User user = this.getUserById(id);
+        User user = getUserById(id);
         return userMapper.mapEntityToDto(user);
     }
 

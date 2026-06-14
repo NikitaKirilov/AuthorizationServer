@@ -1,0 +1,128 @@
+.sidebarShowIcon {
+    display: none;
+}
+
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    width: 250px;
+
+    background-color: rgba(255, 255, 255, 0.04);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+
+    gap: 30px;
+
+    padding-top: 20px;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.sidebarDialog {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    width: fit-content;
+    max-width: 250px;
+
+    background-color: #1B1A23;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+
+    gap: 30px;
+
+    padding-top: 20px;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    margin: 0;
+
+    z-index: 2;
+    left: 5px;
+
+}
+
+
+.sidebarOptionWrapper {
+    display: flex;
+
+    width: 90%;
+
+    padding: 5px 5px;
+}
+
+
+.sidebarOptionLink {
+    color: #FFFFFF;
+
+    display: flex;
+    align-items: center;
+
+    text-decoration: transparent;
+
+    width: 100%;
+
+    gap: 10px;
+
+    padding: 10px;
+}
+
+
+.sidebarOptionLink svg {
+    flex-shrink: 0;
+}
+
+
+.sidebarOptionTextWrapper {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+    text-overflow: ellipsis;
+}
+
+
+.active {
+    background-color: #6a11cb;
+    border-radius: 5px;
+}
+
+
+.sidebarDialog::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+}
+
+
+.sidebarOptionLink:hover {
+    border-radius: 5px;
+    background-color: #7b2be0;
+}
+
+
+@media (max-width: 1100px) {
+    .sidebarShowIcon {
+        display: block;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .sidebarOptionTextWrapper {
+        display: none;
+    }
+
+}
+

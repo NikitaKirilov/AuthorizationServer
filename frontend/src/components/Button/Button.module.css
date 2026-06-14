@@ -13,8 +13,8 @@
 
 .secondary {
     color: var(--text-color);
-    border: 1px solid #43424A;
-    border-radius: 5px;
+    border: 2px solid #43424A;
+    border-radius: 10px;
     background: transparent;
 }
 

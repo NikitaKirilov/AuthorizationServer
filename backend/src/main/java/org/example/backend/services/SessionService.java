@@ -14,7 +14,6 @@ import org.springframework.session.data.redis.RedisIndexedSessionRepository.Redi
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,18 +27,6 @@ public class SessionService {
 
     public Map<String, RedisSession> getSessionsByUserId(String userId) {
         return redisIndexedSessionRepository.findByPrincipalName(userId);
-    }
-
-    public Map<String, Integer> countSessionsByDevice(User user) {
-        Map<String, Integer> sessionsCount = new HashMap<>();
-        getSessionsByUserId(user.getId())
-                .forEach((sessionId, session) -> {
-                    AuthenticatedUserToken authentication = getAuthenticatedUserToken(session);
-                    String deviceId = authentication.getUserDeviceInfo().getId();
-                    sessionsCount.merge(deviceId, 1, Integer::sum);
-                });
-
-        return sessionsCount;
     }
 
     public void updateUserSessions(User user) {

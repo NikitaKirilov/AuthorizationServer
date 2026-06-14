@@ -32,7 +32,8 @@ public class OAuth2ClientService implements RegisteredClientRepository {
             .withIgnorePaths(
                     "scopes", "redirectUris", "postLogoutRedirectUris",
                     "jwtSetUrl", "accessTokenTimeToLive", "refreshTokenTimeToLive",
-                    "requireProofKey", "requireAuthorizationConsent", "reuseRefreshTokens"
+                    "requireProofKey", "requireAuthorizationConsent", "reuseRefreshTokens",
+                    "createdAt", "updatedAt"
             );
 
     private static final int CLIENT_SECRET_LENGTH = 30;
@@ -102,6 +103,10 @@ public class OAuth2ClientService implements RegisteredClientRepository {
         return secret;
     }
 
+    /**
+     * Deletes OAuth2 client. <br>
+     * Associated authorizations are removed by database ON DELETE CASCADE constraints.
+     */
     @Transactional
     public void deleteOAuth2Client(String clientId) {
         oAuth2ClientRepository.deleteByClientId(clientId);

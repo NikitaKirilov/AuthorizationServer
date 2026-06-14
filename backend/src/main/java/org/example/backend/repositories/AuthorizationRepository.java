@@ -1,5 +1,6 @@
 package org.example.backend.repositories;
 
+import org.example.backend.dtos.AuthorizationDto;
 import org.example.backend.models.entities.Authorization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,7 +39,43 @@ public interface AuthorizationRepository extends JpaRepository<Authorization, St
             @Param("token") String token
     );
 
-    List<Authorization> findAllByPrincipalName(String principalName);
+    List<Authorization> findAllByUserId(String userId);
 
-    void deleteAllByPrincipalName(String principalName);
+    List<Authorization> findAllByUserIdAndOauth2ClientId(String userId, String oAuth2ClientId);
+
+    void deleteByUserIdAndId(String userId, String id);
+
+    void deleteAllByUserId(String userId);
+
+    void deleteAllByUserIdAndDeviceId(String userId, String deviceId);
+
+    @Query("""
+            SELECT new org.example.backend.dtos.AuthorizationDto(
+                    a.id,
+                    c.clientId,
+                    a.authorizedScopes,
+                    c.clientName,
+                    a.createdAt,
+                    a.updatedAt
+                    )
+                FROM Authorization a JOIN OAuth2Client c ON a.oauth2ClientId = c.id
+                        WHERE a.userId = :userId AND a.deviceId = :deviceId
+            """
+    )
+    List<AuthorizationDto> findAllDtosByUserIdAndDeviceId(String userId, String deviceId);
+
+    @Query("""
+            SELECT new org.example.backend.dtos.AuthorizationDto(
+                    a.id,
+                    c.clientId,
+                    a.authorizedScopes,
+                    c.clientName,
+                    a.createdAt,
+                    a.updatedAt
+                    )
+                FROM Authorization a JOIN OAuth2Client c ON a.oauth2ClientId = c.id
+                        WHERE a.userId = :userId
+            """
+    )
+    List<AuthorizationDto> findAllDtosByUserId(String userId);
 }

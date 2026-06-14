@@ -23,10 +23,6 @@ public class UserProfileService {
     private final SessionService sessionService;
     private final AuthorizationService authorizationService;
 
-    public UserDto getCurrentUserDto() {
-        return userMapper.mapEntityToDto(userService.getCurrentUser());
-    }
-
     @Transactional
     public UserDto updateUser(UserUpdateDto userUpdateDto) {
         User user = userService.updateUser(userUpdateDto);

@@ -2,6 +2,7 @@ package org.example.backend.controllers;
 
 import org.example.backend.dtos.UserDeviceDto;
 import org.example.backend.services.UserDeviceService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,11 +22,11 @@ public class UserDeviceController {
     }
 
     @GetMapping
-    public List<UserDeviceDto> getUserDevices() {
-        return userDeviceService.getUserDevices();
+    public List<UserDeviceDto> getUserDevices(Pageable pageable) {
+        return userDeviceService.getUserDevices(pageable);
     }
 
-    @DeleteMapping("/logout/{deviceId}")
+    @DeleteMapping("/{deviceId}")
     public void logoutDevice(@PathVariable String deviceId) {
         userDeviceService.logoutDevice(deviceId);
     }

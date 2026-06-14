@@ -54,7 +54,7 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
         Map<String, Set<String>> allAuthorities = userPrincipal.getAuthorities().stream()
                 .collect(Collectors.groupingBy(
                         ResourceBasedGrantedAuthority::getResource,
-                        Collectors.mapping(ResourceBasedGrantedAuthority::getAuthority, Collectors.toSet())
+                        Collectors.mapping(ResourceBasedGrantedAuthority::getName, Collectors.toSet())
                 ));
 
         claimsBuilder.claim(AUTHORITIES, allAuthorities);

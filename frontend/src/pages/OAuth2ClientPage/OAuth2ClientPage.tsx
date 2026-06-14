@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import OAuth2Client from "../../types/OAuth2Client.ts";
-import {useSearchParams} from "react-router-dom";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import {TextInput} from "../../components/Inputs/TextInput.tsx";
 import Select, {MultiValue, SingleValue} from "react-select";
 import CreatableSelect from "react-select/creatable";
@@ -14,37 +14,38 @@ import {Button} from "../../components/Button/Button.tsx";
 import {ApiError} from "../../types/ApiError.ts";
 import {isAxiosError} from "axios";
 import {toast, Toaster} from "react-hot-toast";
+import {ArrowLeft} from "lucide-react";
+
+
+const scopeOptions: SelectOption[] = [
+    {value: "openid", label: "openid"},
+    {value: "profile", label: "profile"},
+    {value: "email", label: "email"},
+    {value: "authorities", label: "authorities"},
+];
+
+const durationOptions: SelectOption[] = Object.values(DurationUnit).map(value => ({
+    value: value, label: value,
+}));
+
+const defaultFormErrorState = {
+    clientId: "",
+    clientName: "",
+    scopes: "",
+    accessTokenTimeToLive: "",
+    refreshTokenTimeToLive: "",
+    formError: "",
+};
+
+const requiredTextFields = new Set(["clientId", "clientName"]);
 
 
 export default function OAuth2ClientPage() {
-    const scopeOptions: SelectOption[] = [
-        {value: "openid", label: "openid"},
-        {value: "profile", label: "profile"},
-        {value: "email", label: "email"},
-        {value: "authorities", label: "authorities"},
-    ];
-
-    const durationOptions: SelectOption[] = Object.values(DurationUnit).map(value => ({
-        value: value, label: value,
-    }));
-
-    const defaultFormErrorState = {
-        clientId: "",
-        clientName: "",
-        scopes: "",
-        accessTokenTimeToLive: "",
-        refreshTokenTimeToLive: "",
-        formError: "",
-    };
+    const navigate = useNavigate();
+    const [params] = useSearchParams();
 
     const [formErrorState, setFormErrorState] = useState(defaultFormErrorState);
-
-    const requiredTextFields = new Set(["clientId", "clientName"]);
-
-    const [params] = useSearchParams();
-    const clientId = params.get("clientId");
     const [header, setHeader] = useState("Создание клиента");
-
     const [oAuth2Client, setOAuth2Client] = useState<OAuth2Client>({
         clientId: "",
         clientName: "",
@@ -65,6 +66,8 @@ export default function OAuth2ClientPage() {
             unit: DurationUnit.DAYS,
         },
     });
+
+    const clientId = params.get("clientId");
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -201,6 +204,7 @@ export default function OAuth2ClientPage() {
         <div className={styles.page}>
             <Toaster/>
             <div className={styles.header}>
+                <ArrowLeft className={styles.headerBackIcon} size={24} onClick={() => navigate(-1)}/>
                 <span>{header}</span>
             </div>
             <div className={styles.form}>

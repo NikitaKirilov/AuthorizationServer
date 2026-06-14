@@ -13,7 +13,9 @@ import org.example.backend.models.entities.UserDevice;
 import org.example.backend.repositories.UserDeviceRepository;
 import org.example.backend.utils.RequestUtils;
 import org.example.backend.utils.SecurityUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua_parser.Client;
 import ua_parser.Parser;
 
@@ -21,7 +23,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,12 +48,10 @@ public class UserDeviceService {
     private final SessionService sessionService;
     private final AuthorizationService authorizationService;
 
-    public List<UserDeviceDto> getUserDevices() {
+    public List<UserDeviceDto> getUserDevices(Pageable pageable) {
         User user = userService.getCurrentUser();
-        List<UserDevice> devices = userDeviceRepository.findAllByUser(user);
-        String currentDeviceId = SecurityUtils.getAuthenticatedUserToken().getUserDeviceInfo().getId();
-        Map<String, Integer> deviceSessionsCount = sessionService.countSessionsByDevice(user);
-        Map<String, Integer> deviceAuthorizationsCount = authorizationService.countAuthorizationsByDevice(user);
+        List<UserDevice> devices = userDeviceRepository.findAllByUser(user, pageable);
+        String currentDeviceId = SecurityUtils.getCurrentDeviceId();
 
         return devices.stream()
                 .map(device -> {
@@ -64,9 +63,6 @@ public class UserDeviceService {
                     userDeviceDto.setDetails(device.getDetails());
                     userDeviceDto.setCurrent(Objects.equals(currentDeviceId, deviceId));
                     userDeviceDto.setLastLoggedAt(device.getLastLoggedAt());
-
-                    userDeviceDto.setSessionsCount(deviceSessionsCount.getOrDefault(deviceId, 0));
-                    userDeviceDto.setAuthorizationsCount(deviceAuthorizationsCount.getOrDefault(deviceId, 0));
 
                     return userDeviceDto;
                 })
@@ -97,6 +93,7 @@ public class UserDeviceService {
         return userDeviceRepository.save(device);
     }
 
+    @Transactional
     public void logoutDevice(String deviceId) {
         User user = userService.getCurrentUser();
         UserDevice device = userDeviceRepository.findById(deviceId)
@@ -108,6 +105,7 @@ public class UserDeviceService {
 
         sessionService.deleteSessionsByUserAndDevice(user, device);
         authorizationService.deleteAuthorizationsByUserAndDevice(user, device);
+        userDeviceRepository.delete(device);
     }
 
     private String getIpLocation(String ip) {

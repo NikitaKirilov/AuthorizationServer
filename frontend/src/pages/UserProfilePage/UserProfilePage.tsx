@@ -7,7 +7,7 @@ import FormField from "../../components/FormField/FormField.tsx";
 import BirthdayPicker from "../../components/Inputs/BirthdayPicker.tsx";
 import {TextInput} from "../../components/Inputs/TextInput.tsx";
 import {Button} from "../../components/Button/Button.tsx";
-import {CalendarSearch, Eye, Info, LockKeyhole, LogOut, MonitorCog, User} from "lucide-react";
+import {CalendarSearch, Eye, Info, LockKeyhole, LogOut, User} from "lucide-react";
 import PasswordUpdateDto from "../../types/PasswordUpdateDto.ts";
 import {ApiError} from "../../types/ApiError.ts";
 import {UserUpdateDto} from "../../types/UserUpdateDto.ts";
@@ -45,12 +45,11 @@ const TITLE = "Profile";
 
 export function UserProfilePage() {
     const [user, setUser] = useState<UserUpdateDto>({
-            nickname: "",
-            givenName: "",
-            familyName: "",
-            birthday: new Date(),
-        },
-    );
+        nickname: "",
+        givenName: "",
+        familyName: "",
+        birthday: null,
+    });
 
     const userUpdateErrorInitialState = ({
         nickname: "",
@@ -161,6 +160,8 @@ export function UserProfilePage() {
                 }
             });
     };
+
+    //TODO: decouple this component in future
 
     return (
         <div className={styles.page}>
@@ -301,17 +302,6 @@ export function UserProfilePage() {
                         <span>{formError.passwordFormError}</span>
                     </div>
                 }
-            </div>
-            <div className={styles.form}>
-                <div className={styles.formHeader}>
-                    <div className={styles.formHeaderIconWrapper}>
-                        <MonitorCog height={30} width={30}/>
-                    </div>
-                    <div className={styles.formHeaderText}>
-                        <span className={styles.headerTextPrimary}>Активные сессии</span>
-                        <span className={styles.headerTextSecondary}>Управляйте активными сессиями и токенами на ваших устройствах</span>
-                    </div>
-                </div>
             </div>
             <div className={styles.form}>
                 <div className={styles.row}>

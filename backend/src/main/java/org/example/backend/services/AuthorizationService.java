@@ -1,35 +1,50 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.exceptions.SecurityContextException;
+import org.example.backend.dtos.AuthorizationDto;
 import org.example.backend.mappers.OAuth2AuthorizationMapper;
+import org.example.backend.mappers.mapstruct.AuthorizationMapper;
 import org.example.backend.models.entities.Authorization;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
 import org.example.backend.repositories.AuthorizationRepository;
+import org.example.backend.utils.SecurityUtils;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static org.example.backend.mappers.OAuth2AuthorizationMapper.extractUserAuthentication;
 
 @Component
 @RequiredArgsConstructor
 public class AuthorizationService implements OAuth2AuthorizationService {
 
+    private final AuthorizationMapper authorizationMapper;
     private final AuthorizationRepository authorizationRepository;
     private final OAuth2AuthorizationMapper oAuth2AuthorizationMapper;
+
+    public List<AuthorizationDto> getAllUserAuthorizations() {
+        return authorizationRepository.findAllDtosByUserId(SecurityUtils.getCurrentUserId());
+    }
+
+    public List<AuthorizationDto> getAllUserAuthorizationsByDeviceId(String deviceId) {
+        return authorizationRepository.findAllDtosByUserIdAndDeviceId(SecurityUtils.getCurrentUserId(), deviceId);
+    }
+
+    public List<Authorization> getAuthorizationsByUserId(String userId) {
+        return authorizationRepository.findAllByUserId(userId);
+    }
 
     @Override
     public OAuth2Authorization findById(String id) {
@@ -38,25 +53,18 @@ public class AuthorizationService implements OAuth2AuthorizationService {
                 .orElse(null);
     }
 
-    public List<Authorization> getAuthorizationsByUserId(String userId) {
-        return authorizationRepository.findAllByPrincipalName(userId);
-    }
-
-    public Map<String, Integer> countAuthorizationsByDevice(User user) {
-        Map<String, Integer> authorizationsCount = new HashMap<>();
-        getAuthorizationsByUserId(user.getId())
-                .forEach(authorization -> {
-                    OAuth2Authorization oAuth2Authorization = oAuth2AuthorizationMapper.toObject(authorization);
-                    UserDeviceInfo userDeviceInfo = extractUserAuthentication(oAuth2Authorization).getUserDeviceInfo();
-                    authorizationsCount.merge(userDeviceInfo.getId(), 1, Integer::sum);
-                });
-
-        return authorizationsCount;
-    }
-
     @Override
-    public void save(OAuth2Authorization authorization) {
-        this.authorizationRepository.save(oAuth2AuthorizationMapper.toEntity(authorization));
+    @Transactional
+    public void save(OAuth2Authorization oAuth2Authorization) {
+        Authorization authorization = oAuth2AuthorizationMapper.toEntity(oAuth2Authorization);
+        Optional<Authorization> existing = authorizationRepository.findById(oAuth2Authorization.getId());
+
+        if (existing.isPresent()) {
+            authorizationMapper.mergeAuthorizations(authorization, existing.get());
+            authorizationRepository.save(existing.get());
+        } else {
+            authorizationRepository.save(authorization);
+        }
     }
 
     @Override
@@ -90,7 +98,9 @@ public class AuthorizationService implements OAuth2AuthorizationService {
         getAuthorizationsByUserId(user.getId())
                 .forEach(authorization -> {
                     OAuth2Authorization oAuth2Authorization = oAuth2AuthorizationMapper.toObject(authorization);
-                    AuthenticatedUserToken authentication = extractUserAuthentication(oAuth2Authorization);
+                    AuthenticatedUserToken authentication = extractUserAuthentication(oAuth2Authorization.getAttributes());
+
+                    Objects.requireNonNull(authentication);
 
                     AuthenticatedUserToken newAuthentication = new AuthenticatedUserToken(
                             new UserPrincipal(user), authentication.getUserDeviceInfo()
@@ -104,32 +114,19 @@ public class AuthorizationService implements OAuth2AuthorizationService {
 
     @Override
     public void remove(OAuth2Authorization authorization) {
-        this.authorizationRepository.deleteById(authorization.getId());
+        authorizationRepository.deleteById(authorization.getId());
+    }
+
+    @Transactional
+    public void deleteAuthorizationByUserAndId(String id) {
+        authorizationRepository.deleteByUserIdAndId(SecurityUtils.getCurrentUserId(), id);
     }
 
     public void deleteAuthorizationsByUserAndDevice(User user, UserDevice userDevice) {
-        getAuthorizationsByUserId(user.getId())
-                .forEach(authorization -> {
-                    OAuth2Authorization oAuth2Authorization = oAuth2AuthorizationMapper.toObject(authorization);
-                    UserDeviceInfo userDeviceInfo = extractUserAuthentication(oAuth2Authorization).getUserDeviceInfo();
-                    if (Objects.equals(userDeviceInfo.getId(), userDevice.getId())) {
-                        authorizationRepository.delete(authorization);
-                    }
-                });
+        authorizationRepository.deleteAllByUserIdAndDeviceId(user.getId(), userDevice.getId());
     }
 
     public void deleteAllByUserId(String userId) {
-        this.authorizationRepository.deleteAllByPrincipalName(userId);
-    }
-
-    private AuthenticatedUserToken extractUserAuthentication(OAuth2Authorization oAuth2Authorization) {
-        Map<String, Object> attributes = oAuth2Authorization.getAttributes();
-        Principal authentication = (Principal) attributes.get(Principal.class.getName());
-
-        if (authentication instanceof AuthenticatedUserToken token) {
-            return token;
-        }
-
-        throw new SecurityContextException("Unsupported authentication token");
+        authorizationRepository.deleteAllByUserId(userId);
     }
 }

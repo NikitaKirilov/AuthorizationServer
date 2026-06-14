@@ -1,0 +1,120 @@
+.page {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    gap: 20px;
+}
+
+
+.header {
+    display: flex;
+
+    gap: 5px;
+
+    width: 80%;
+
+    align-items: center;
+}
+
+
+.headerTextWrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.form {
+    width: 80%;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px;
+
+}
+
+
+.form > * {
+    min-height: 80px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.formHeader {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+
+    place-items: center;
+}
+
+
+.emptyState {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+.authorizationsList {
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+
+.formElement {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+
+    place-items: center;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    min-height: 80px;
+}
+
+
+.formFooter {
+    display: flex;
+
+    justify-content: flex-start;
+    align-items: center;
+
+    gap: 5px;
+
+    border: none;
+
+    min-height: 50px;
+}
+
+
+.headerBackIcon:hover {
+    cursor: pointer;
+}
+
+
+.formElement:last-child {
+    border-bottom: none;
+}
+
+
+@media (max-width: 1100px) {
+    .page {
+        align-items: center;
+    }
+
+    .formHeader {
+        display: none;
+    }
+
+    .formElement {
+        display: flex;
+        flex-direction: column;
+
+        padding: 10px 0;
+
+        gap: 10px;
+    }
+}

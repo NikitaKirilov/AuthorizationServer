@@ -1,5 +1,5 @@
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
 import RegistrationPage from "./pages/RegistrationPage/RegistrationPage.tsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage/EmailVerificationPage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
@@ -7,12 +7,58 @@ import ConsentPage from "./pages/ConsentPage/ConsentPage.tsx";
 import {UserProfilePage} from "./pages/UserProfilePage/UserProfilePage.tsx";
 import OAuth2ClientsPage from "./pages/OAuth2ClientsPage/OAuth2ClientsPage.tsx";
 import OAuth2ClientPage from "./pages/OAuth2ClientPage/OAuth2ClientPage.tsx";
+import Sidebar from "./components/Sidebar/Sidebar.tsx";
+import UserDevicePage from "./pages/UserDevicePage/UserDevicePage.tsx";
+import AuthorizationPage from "./pages/AuthorizationPage/AuthorizationPage.tsx";
+
+
+const SidebarLayout = () => (
+    <div className={"sidebar-layout"}>
+        <Sidebar/>
+        <Outlet/>
+    </div>
+);
 
 
 export const router = createBrowserRouter([
     {
         path: "/app",
         children: [
+            {
+                element: <SidebarLayout/>,
+                children: [
+                    {
+                        path: "user",
+                        children: [
+                            {
+                                path: "profile",
+                                element: <UserProfilePage/>,
+                            },
+                            {
+                                path: "devices",
+                                element: <UserDevicePage/>,
+                            },
+                            {
+                                path: "authorizations",
+                                element: <AuthorizationPage/>,
+                            },
+                        ],
+                    },
+                    {
+                        path: "oauth2/clients",
+                        children: [
+                            {
+                                path: "",
+                                element: <OAuth2ClientsPage/>,
+                            },
+                            {
+                                path: "client",
+                                element: <OAuth2ClientPage/>,
+                            },
+                        ],
+                    },
+                ],
+            },
             {
                 path: "login",
                 element: <LoginPage/>,
@@ -34,37 +80,14 @@ export const router = createBrowserRouter([
                     },
                 ],
             },
-            {
-                path: "user",
-                children: [
-                    {
-                        path: "profile",
-                        element: (
-                            <UserProfilePage/>
-                        ),
-                    },
-                ],
-            },
-
-            {
-                path: "oauth2/clients",
-                element: (
-                    <OAuth2ClientsPage/>
-                ),
-            },
-            {
-                path: "oauth2/clients/client",
-                element: (
-                    <OAuth2ClientPage/>
-                ),
-            },
-            {
-                path: "*",
-                element: <NotFoundPage/>,
-            },
         ],
     },
+    {
+        path: "*",
+        element: <NotFoundPage/>,
+    },
 ]);
+
 
 function App() {
     return (

@@ -2,6 +2,7 @@ package org.example.backend.models.security;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
@@ -29,7 +30,7 @@ public class AuthenticatedUserToken extends AbstractAuthenticationToken {
     }
 
     @Override
-    public @Nullable Object getCredentials() {
+    public @NonNull Object getCredentials() {
         // Not storing credentials after user login
         return "";
     }

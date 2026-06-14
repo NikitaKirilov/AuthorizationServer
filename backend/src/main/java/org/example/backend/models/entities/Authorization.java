@@ -2,13 +2,18 @@ package org.example.backend.models.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 public class Authorization {
@@ -16,9 +21,11 @@ public class Authorization {
     @Id
     private String id;
 
-    private String registeredClientId;
-
     private String principalName;
+
+    private String oauth2ClientId;
+    private String userId;
+    private String deviceId;
 
     private String authorizationGrantType;
 
@@ -63,4 +70,10 @@ public class Authorization {
     private Instant deviceCodeIssuedAt;
     private Instant deviceCodeExpiresAt;
     private String deviceCodeMetadata;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 }
