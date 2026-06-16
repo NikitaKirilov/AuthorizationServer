@@ -29,6 +29,6 @@ public class Authority {
     private Timestamp updatedAt;
 
     public String getFullName() {
-        return resource + ":"  + name;
+        return resource + ":" + name;
     }
 }

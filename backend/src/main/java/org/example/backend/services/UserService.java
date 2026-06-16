@@ -2,8 +2,8 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.dtos.UserDto;
 import org.example.backend.dtos.UserDetailsDto;
+import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.mappers.mapstruct.UserMapper;
