@@ -150,13 +150,13 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllUsers_WhenUsersArePresent_ThenReturnListOfDtos() {
+    void getAllUsers_WhenUsersDtosArePresent_ThenReturnListOfDtos() {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(userRepository.findAll(any(Example.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(mockUser)));
         when(userMapper.mapEntityToDto(mockUser)).thenReturn(mockUserDto);
 
-        List<UserDto> list = userService.getAllUsers(mockUser, pageable);
+        List<UserDto> list = userService.getAllUsersDto(mockUser, pageable);
 
         assertEquals(list, List.of(mockUserDto));
 
@@ -165,12 +165,12 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllUsers_WhenUsersAreNotPresent_ThenReturnEmptyList() {
+    void getAllUsers_WhenUsersDtosAreNotPresent_ThenReturnEmptyList() {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(userRepository.findAll(any(Example.class), eq(pageable))).thenReturn(new PageImpl<>(List.of()));
 
-        List<UserDto> list = userService.getAllUsers(mockUser, pageable);
+        List<UserDto> list = userService.getAllUsersDto(mockUser, pageable);
 
         assertEquals(list, List.of());
 
@@ -302,14 +302,14 @@ class UserServiceTest {
     }
 
     @Test
-    void verifyEmail_WhenEmailIsFree_ThenReturnUser() {
+    void confirmEmail_WhenEmailIsFree_ThenReturnUser() {
         mockUser.setEmailVerified(false);
         String pendingEmail = mockUser.getPendingEmail();
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(mockUser));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.verifyEmail(mockUser);
+        User user = userService.confirmEmail(mockUser);
 
         assertNull(user.getPendingEmail());
         assertTrue(user.isEmailVerified());
@@ -322,7 +322,7 @@ class UserServiceTest {
     }
 
     @Test
-    void verifyEmail_WhenUserWithSuchEmailIsPresentButNotVerified_ThenReturnUser() {
+    void confirmEmail_WhenUserWithSuchEmailIsPresentButNotVerified_ThenReturnUser() {
         String pendingEmail = mockUser.getPendingEmail();
         User existingUser = new User()
                 .setEmail("test1@gmail.com")
@@ -333,7 +333,7 @@ class UserServiceTest {
         doNothing().when(userRepository).flush();
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-        User user = userService.verifyEmail(mockUser);
+        User user = userService.confirmEmail(mockUser);
 
         assertNull(user.getPendingEmail());
         assertTrue(user.isEmailVerified());
@@ -346,14 +346,14 @@ class UserServiceTest {
     }
 
     @Test
-    void verifyEmail_WhenUserWithSuchEmailIsPresentAndVerified_ThenThrowException() {
+    void confirmEmail_WhenUserWithSuchEmailIsPresentAndVerified_ThenThrowException() {
         User existingUser = new User()
                 .setEmail("test1@gmail.com")
                 .setEmailVerified(true);
 
         when(userRepository.findByEmail(mockUser.getPendingEmail())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(EmailIsAlreadyTakenException.class, () -> userService.verifyEmail(mockUser));
+        assertThrows(EmailIsAlreadyTakenException.class, () -> userService.confirmEmail(mockUser));
 
         verify(userRepository).findByEmail(anyString());
         verify(userRepository, never()).delete(existingUser);

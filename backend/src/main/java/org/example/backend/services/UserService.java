@@ -3,14 +3,13 @@ package org.example.backend.services;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
 import org.example.backend.dtos.UserDto;
-import org.example.backend.dtos.UserPasswordUpdateDto;
-import org.example.backend.dtos.UserUpdateDto;
+import org.example.backend.dtos.UserDetailsDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
-import org.example.backend.exceptions.UserPasswordUpdateException;
 import org.example.backend.mappers.mapstruct.UserMapper;
+import org.example.backend.models.entities.Authority;
+import org.example.backend.models.entities.Role;
 import org.example.backend.models.entities.User;
-import org.example.backend.repositories.RoleRepository;
 import org.example.backend.repositories.UserRepository;
 import org.example.backend.utils.SecurityUtils;
 import org.springframework.data.domain.Example;
@@ -20,22 +19,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matching()
+    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matchingAny()
             .withIgnoreCase()
             .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
             .withIgnoreNullValues()
-            .withIgnorePaths("emailVerificationCodes", "authorities", "emailVerified", "lastLogin", "createdAt", "updatedAt");
+            .withIgnorePaths("roles", "emailVerificationCodes", "userDevices");
 
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
@@ -49,18 +50,41 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found by email: " + email));
     }
 
+    public UserDetailsDto getUserDetailsDtoById(String id) {
+        User user = userRepository.findWithRolesAndAuthoritiesById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
+
+        UserDto userDto = userMapper.mapEntityToDto(user);
+
+        Set<String> roles = user.getRoles().stream()
+                .map(Role::getFullName)
+                .collect(Collectors.toSet());
+
+        Set<String> authorities = user.getRoles().stream()
+                .map(Role::getAuthorities)
+                .flatMap(Collection::stream)
+                .map(Authority::getFullName)
+                .collect(Collectors.toSet());
+
+        UserDetailsDto userDetails = new UserDetailsDto();
+        userDetails.setUserDto(userDto);
+        userDetails.setRoles(roles);
+        userDetails.setAuthorities(authorities);
+
+        return userDetails;
+    }
+
     public User getCurrentUser() {
         return getUserById(SecurityUtils.getCurrentUserId());
     }
 
-    public UserDto getUserDtoById(String id) {
-        User user = getUserById(id);
-        return userMapper.mapEntityToDto(user);
+    public UserDetailsDto getCurrentUserDetailsDto() {
+        return getUserDetailsDtoById(SecurityUtils.getCurrentUserId());
     }
 
-    public List<UserDto> getAllUsers(User user, Pageable pageable) {
-        Page<User> users = userRepository.findAll(Example.of(user, EXAMPLE_MATCHER), pageable);
-        return users.stream().map(userMapper::mapEntityToDto).toList();
+    public Page<UserDto> getAllUsersDto(User probe, Pageable pageable) {
+        return userRepository.findAll(Example.of(probe, EXAMPLE_MATCHER), pageable)
+                .map(userMapper::mapEntityToDto);
     }
 
     public User createUser(RegistrationDto registrationDto) {
@@ -81,10 +105,9 @@ public class UserService {
         user.setNickname(registrationDto.getNickname());
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
+        user.getRoles().add(roleService.getASUserRole());
 
-        user.getRoles().add(roleRepository.getDefaultASUserRole());
-
-        return userRepository.save(user);
+        return save(user);
     }
 
     public User saveFederatedIdpUser(User federatedIdpUser, String registrationId) {
@@ -92,7 +115,7 @@ public class UserService {
 
         if (user.isNew()) {
             user.setId(UUID.randomUUID().toString());
-            user.getRoles().add(roleRepository.getDefaultASUserRole());
+            user.getRoles().add(roleService.getASUserRole());
         }
 
         if (!user.isEmailVerified()) {
@@ -104,48 +127,26 @@ public class UserService {
             user.setClientRegistrationId(registrationId);
         }
 
-        return userRepository.save(user);
+        return save(user);
     }
 
-    public User updateUser(UserUpdateDto userUpdateDto) {
-        User user = getCurrentUser();
-        user.setNickname(userUpdateDto.getNickname());
-        user.setGivenName(userUpdateDto.getGivenName());
-        user.setFamilyName(userUpdateDto.getFamilyName());
-        user.setBirthday(userUpdateDto.getBirthday());
-
-        return userRepository.save(user);
-    }
-
-    public User updatePassword(UserPasswordUpdateDto userPasswordUpdateDto) {
-        User user = getCurrentUser();
-        String oldPassword = userPasswordUpdateDto.getOldPassword();
-        String newPassword = userPasswordUpdateDto.getNewPassword();
-
-        if (Objects.equals(oldPassword, newPassword)) {
-            throw new UserPasswordUpdateException("Passwords must be different");
-        }
-
-        if (user.getPassword() != null && !passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new UserPasswordUpdateException("Passwords don't match");
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-
-        return userRepository.save(user);
-    }
-
-    public User verifyEmail(User user) {
+    public User confirmEmail(User user) {
         if (user.isEmailVerified()) {
             throw new EmailIsAlreadyTakenException();
         }
 
         user.setEmailVerified(true);
 
+        return save(user);
+    }
+
+    public User save(User user) {
+        //TODO: add logging
         return userRepository.save(user);
     }
 
-    public void deleteUser(User user) {
+    public void delete(User user) {
+        //TODO: add logging
         userRepository.delete(user);
     }
 }

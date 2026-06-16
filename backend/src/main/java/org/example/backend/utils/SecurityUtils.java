@@ -23,7 +23,7 @@ public class SecurityUtils {
     public String getCurrentDeviceId() {
         return Optional.ofNullable(getAuthenticatedUserToken().getUserDeviceInfo())
                 .map(UserDeviceInfo::getId)
-                .orElseThrow(() -> new SecurityContextException("Cannot get user id from context. Try to re login"));
+                .orElseThrow(() -> new SecurityContextException("Cannot get user device id from context. Try to re login"));
     }
 
     public AuthenticatedUserToken getAuthenticatedUserToken() {

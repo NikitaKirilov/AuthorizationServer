@@ -41,4 +41,8 @@ public class Role {
 
     private Instant createdAt;
     private Instant updatedAt;
+
+    public String getFullName() {
+        return resource + ":" + name;
+    }
 }

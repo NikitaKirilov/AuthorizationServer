@@ -64,6 +64,8 @@ public class User {
 
     private LocalDate birthday;
 
+    private boolean blocked;
+
     @CreatedDate
     private Instant createdAt;
 

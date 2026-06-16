@@ -27,4 +27,8 @@ public class Authority {
 
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    public String getFullName() {
+        return resource + ":"  + name;
+    }
 }
