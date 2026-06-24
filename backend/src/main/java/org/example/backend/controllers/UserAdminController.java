@@ -1,8 +1,8 @@
 package org.example.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dtos.UserDto;
 import org.example.backend.dtos.UserDetailsDto;
+import org.example.backend.dtos.UserDto;
 import org.example.backend.models.entities.User;
 import org.example.backend.services.UserAdminService;
 import org.example.backend.services.UserService;

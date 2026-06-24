@@ -10,6 +10,7 @@ import OAuth2ClientPage from "./pages/OAuth2ClientPage/OAuth2ClientPage.tsx";
 import Sidebar from "./components/Sidebar/Sidebar.tsx";
 import UserDevicePage from "./pages/UserDevicePage/UserDevicePage.tsx";
 import AuthorizationPage from "./pages/AuthorizationPage/AuthorizationPage.tsx";
+import UserAdminPage from "./pages/UserAdminPage/UserAdminPage.tsx";
 
 
 const SidebarLayout = () => (
@@ -54,6 +55,15 @@ export const router = createBrowserRouter([
                             {
                                 path: "client",
                                 element: <OAuth2ClientPage/>,
+                            },
+                        ],
+                    },
+                    {
+                        path: "admin",
+                        children: [
+                            {
+                                path: "users",
+                                element: <UserAdminPage/>,
                             },
                         ],
                     },

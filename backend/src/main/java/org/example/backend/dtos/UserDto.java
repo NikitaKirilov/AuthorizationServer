@@ -8,6 +8,8 @@ import java.time.LocalDate;
 @Data
 public class UserDto {
 
+    private String id;
+
     private String email;
     private boolean emailVerified;
 

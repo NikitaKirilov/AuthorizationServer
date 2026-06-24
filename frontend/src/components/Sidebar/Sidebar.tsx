@@ -30,13 +30,13 @@ const sidebarConfig = [
         subtitle: "Управление клиентами",
     },
     {
-        to: "/app/users",
+        to: "/app/admin/users",
         icon: Users,
         title: "Пользователи",
         subtitle: "Управление пользователями",
     },
     {
-        to: "/app/roles",
+        to: "/app/admin/roles",
         icon: UserRoundKey,
         title: "Роли",
         subtitle: "Управление ролями и привилегиями",

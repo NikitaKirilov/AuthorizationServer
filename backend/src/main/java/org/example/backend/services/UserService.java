@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matchingAny()
+    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matching()
             .withIgnoreCase()
             .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
             .withIgnoreNullValues()
-            .withIgnorePaths("roles", "emailVerificationCodes", "userDevices");
+            .withIgnorePaths("roles", "emailVerificationCodes", "userDevices", "emailVerified", "blocked");
 
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
@@ -100,11 +100,11 @@ public class UserService {
         }
 
         user.setEmail(registrationDto.getEmail());
-        user.setPendingEmail(registrationDto.getEmail());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         user.setNickname(registrationDto.getNickname());
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
+        user.setBirthday(registrationDto.getBirthday());
         user.getRoles().add(roleService.getASUserRole());
 
         return save(user);

@@ -87,7 +87,7 @@ export function UserProfilePage() {
         userProfileApi.getCurrentUser()
             .then(response => {
                 console.log(response.data);
-                setUser(response.data as UserUpdateDto);
+                setUser(response.data["user"] as UserUpdateDto);
             });
     }, []);
 

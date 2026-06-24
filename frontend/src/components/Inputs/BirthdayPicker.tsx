@@ -25,6 +25,7 @@ export default function BirthdayPicker({className, selectedDate, onChange}: Read
                         maxDate={new Date()}
                         portalId={"root"}
                         onKeyDown={(e) => e.preventDefault()}
+                    autoComplete={"bday"}
             />
     );
 }

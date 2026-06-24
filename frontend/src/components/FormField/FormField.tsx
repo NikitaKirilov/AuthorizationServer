@@ -6,7 +6,7 @@ type FormFieldProps = {
     className?: string;
     label: string;
     htmlFor: string;
-    error?: string;
+    error?: string | null;
     children: React.ReactNode
 }
 

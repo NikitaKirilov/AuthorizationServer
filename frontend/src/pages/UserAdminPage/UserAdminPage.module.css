@@ -1,0 +1,36 @@
+.form > *:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+.searchWrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+}
+
+
+.search {
+    padding-left: 40px;
+    width: 50%;
+}
+
+
+.actions {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+
+    gap: 10px;
+}
+
+
+.actions > * {
+    width: 50px;
+}

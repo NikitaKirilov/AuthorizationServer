@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.RegistrationToken;
 import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -52,7 +51,7 @@ public class SecurityContextService {
         UserPrincipal principal = new UserPrincipal(user);
         Object details = new WebAuthenticationDetails(request);
 
-        AbstractAuthenticationToken authentication = new RegistrationToken(principal);
+        AbstractAuthenticationToken authentication = new AuthenticatedUserToken(principal, null);
         authentication.setDetails(details);
 
         SecurityContext context = SecurityContextHolder.getContext();
