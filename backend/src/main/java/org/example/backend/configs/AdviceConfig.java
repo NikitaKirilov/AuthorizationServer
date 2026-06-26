@@ -37,7 +37,7 @@ public class AdviceConfig {
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         ApiError apiError = new ApiError();
 
-        apiError.setMessage("Fields are not valid");
+        apiError.setMessage("Validation failed");
         apiError.setTimestamp(LocalDateTime.now());
         apiError.setStatus(BAD_REQUEST.value());
 

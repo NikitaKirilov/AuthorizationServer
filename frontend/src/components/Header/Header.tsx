@@ -14,7 +14,8 @@ interface HeaderProps extends ComponentPropsWithoutRef<"div"> {
 const Header = forwardRef<HTMLDivElement, HeaderProps>(
     ({icon, title, subtitle, className, width = "md", align = "left", type = "primary", ...props}, ref) => {
         return (
-            <div ref={ref} {...props} className={`${styles[type]} ${styles[width]} ${className || ""}`}>
+            <div ref={ref} {...props}
+                 className={`${styles.header} ${styles[type]} ${styles[width]} ${className || ""}`}>
                 {icon}
                 <div className={`${styles.textWrapper} ${styles[align]}`}>
                     <h1 className={styles.title}>{title}</h1>

@@ -1,5 +1,12 @@
-.primary {
+.header {
     display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.primary {
     flex-direction: row;
 }
 

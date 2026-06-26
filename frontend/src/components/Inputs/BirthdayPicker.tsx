@@ -15,17 +15,17 @@ export default function BirthdayPicker({className, selectedDate, onChange}: Read
         <DatePicker id={"birthday"}
                     name={"birthday"}
                     className={`${inputStyles.textInput} ${className || ""}`}
-                        selected={selectedDate} placeholderText={"Выберите дату рождения"}
-                        dateFormat={"dd.MM.yyyy"}
-                        showYearDropdown
+                    selected={selectedDate} placeholderText={"Выберите дату рождения"}
+                    dateFormat={"dd.MM.yyyy"}
+                    showYearDropdown
                     minDate={MIN_DATE}
-                        scrollableYearDropdown
+                    scrollableYearDropdown
                     yearDropdownItemNumber={120}
-                        onChange={onChange}
-                        maxDate={new Date()}
-                        portalId={"root"}
-                        onKeyDown={(e) => e.preventDefault()}
-                    autoComplete={"bday"}
+                    onChange={onChange}
+                    maxDate={new Date()}
+                    portalId={"root"}
+                    onKeyDown={(e) => e.preventDefault()}
+                    autoComplete={"b-day"}
             />
     );
 }

@@ -2,10 +2,12 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
+import org.example.backend.dtos.RoleDto;
 import org.example.backend.dtos.UserDetailsDto;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
+import org.example.backend.mappers.mapstruct.RoleMapper;
 import org.example.backend.mappers.mapstruct.UserMapper;
 import org.example.backend.models.entities.Authority;
 import org.example.backend.models.entities.Role;
@@ -38,6 +40,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
     private final UserRepository userRepository;
 
     public User getUserById(String id) {
@@ -56,8 +59,8 @@ public class UserService {
 
         UserDto userDto = userMapper.mapEntityToDto(user);
 
-        Set<String> roles = user.getRoles().stream()
-                .map(Role::getFullName)
+        Set<RoleDto> roles = user.getRoles().stream()
+                .map(roleMapper::mapToDto)
                 .collect(Collectors.toSet());
 
         Set<String> authorities = user.getRoles().stream()
@@ -67,7 +70,7 @@ public class UserService {
                 .collect(Collectors.toSet());
 
         UserDetailsDto userDetails = new UserDetailsDto();
-        userDetails.setUserDto(userDto);
+        userDetails.setUser(userDto);
         userDetails.setRoles(roles);
         userDetails.setAuthorities(authorities);
 

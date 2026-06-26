@@ -1,3 +1,5 @@
+import {RoleDto} from "./RoleDto.ts";
+
 export interface UserDto {
     id: string;
     email: string;
@@ -9,4 +11,9 @@ export interface UserDto {
     blocked: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface UserWithRoles {
+    user: UserDto;
+    roles: RoleDto[];
 }

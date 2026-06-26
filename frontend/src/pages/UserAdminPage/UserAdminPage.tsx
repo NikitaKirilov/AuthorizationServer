@@ -54,7 +54,8 @@ const UserAdminPage = () => {
 
     return (
         <Page>
-            <Header title={"Управление пользователями"}
+            <Header className={styles.header}
+                    title={"Управление пользователями"}
                     subtitle={"Просматривайте и управляйте пользователями приложения"}
             />
             <div className={styles.searchWrapper}>
@@ -63,8 +64,8 @@ const UserAdminPage = () => {
                            placeholder={"Введите поисковые фильтры"}
                            onChange={e => setSearch(e.target.value)}/>
             </div>
-            <Form width={"lg"} className={styles.form} error={error}>
-                <GridRow>
+            <Form width={"md"} className={styles.form} error={error}>
+                <GridRow className={styles.formHeader}>
                     <span className={"text-hint"}>Пользователь</span>
                     <span className={"text-hint"}>Email</span>
                     <span className={"text-hint"}>Email Verified</span>
@@ -74,18 +75,18 @@ const UserAdminPage = () => {
                 </GridRow>
                 {
                     users.totalElements !== 0 && users.content.map(user => (
-                        <GridRow key={user.email}>
+                        <GridRow className={styles.formRow} key={user.email}>
                             <span>{user.nickname}</span>
                             <span>{user.email}</span>
                             <span>{user.emailVerified ? "Да" : "Нет"}</span>
                             <span>{user.blocked ? "Заблокирован" : "Активен"}</span>
                             <span>{dateFormatter.format(user.createdAt)}</span>
                             <div className={styles.actions}>
-                                <Button variant={"icon"}>
-                                    <Edit size={18} onClick={() => navigate(`${user.id}`)}/>
+                                <Button variant={"icon"} onClick={() => navigate(`${user.id}`)}>
+                                    <Edit size={18}/>
                                 </Button>
-                                <Button variant={"icon"}>
-                                    <Trash size={18} onClick={() => deleteUser(user.id)}/>
+                                <Button variant={"icon"} onClick={() => deleteUser(user.id)}>
+                                    <Trash size={18}/>
                                 </Button>
                             </div>
                         </GridRow>

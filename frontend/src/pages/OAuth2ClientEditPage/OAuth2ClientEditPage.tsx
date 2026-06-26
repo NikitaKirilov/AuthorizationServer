@@ -4,7 +4,7 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 import {TextInput} from "../../components/Inputs/TextInput.tsx";
 import Select, {MultiValue, SingleValue} from "react-select";
 import CreatableSelect from "react-select/creatable";
-import styles from "./OAuth2ClientPage.module.css";
+import styles from "./OAuth2ClientEditPage.module.css";
 import {SelectOption, selectStylesConfig} from "../../configs/selectStylesConfig.ts";
 import Switch from "react-switch";
 import FormField from "../../components/FormField/FormField.tsx";
@@ -40,7 +40,7 @@ const defaultFormErrorState = {
 const requiredTextFields = new Set(["clientId", "clientName"]);
 
 
-export default function OAuth2ClientPage() {
+export default function OAuth2ClientEditPage() {
     const navigate = useNavigate();
     const [params] = useSearchParams();
 

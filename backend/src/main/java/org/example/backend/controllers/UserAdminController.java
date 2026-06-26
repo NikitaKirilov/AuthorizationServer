@@ -1,5 +1,6 @@
 package org.example.backend.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDetailsDto;
 import org.example.backend.dtos.UserDto;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/users")
@@ -35,18 +38,18 @@ public class UserAdminController {
     }
 
     @PutMapping("/{id}")
-    public UserDto updateUser(@PathVariable String id, @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable String id, @Valid @RequestBody UserDto userDto) {
         return userAdminService.updateUser(id, userDto);
     }
 
-    @PutMapping("/{userId}/roles/{roleId}")
-    public void assignRole(@PathVariable String userId, @PathVariable String roleId) {
-        userAdminService.assignRole(userId, roleId);
+    @PutMapping("/{userId}/roles")
+    public void assignRole(@PathVariable String userId, @RequestBody Set<String> roleIds) {
+        userAdminService.assignRoles(userId, roleIds);
     }
 
-    @DeleteMapping("/{userId}/roles/{roleId}")
-    public void revokeRole(@PathVariable String userId, @PathVariable String roleId) {
-        userAdminService.revokeRole(userId, roleId);
+    @DeleteMapping("/{userId}/roles")
+    public void revokeRole(@PathVariable String userId, @RequestBody Set<String> roleIds) {
+        userAdminService.revokeRoles(userId, roleIds);
     }
 
     @DeleteMapping("/{id}")

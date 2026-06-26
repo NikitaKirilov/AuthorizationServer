@@ -39,7 +39,7 @@ public class UserPrincipal implements AuthenticatedPrincipal, Serializable {
                 .flatMap(role -> role.getAuthorities().stream())
                 .map(authority ->
                         new ResourceBasedGrantedAuthority(authority.getResource(), authority.getName()))
-                .collect(Collectors.toSet()); //TODO убрать authorities из principal
+                .collect(Collectors.toSet());
 
         this.email = user.getEmail();
         this.emailVerified = user.isEmailVerified();

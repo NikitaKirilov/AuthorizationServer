@@ -34,3 +34,38 @@
 .actions > * {
     width: 50px;
 }
+
+
+@media (max-width: 1100px) {
+    .header {
+        align-self: center;
+    }
+
+    .searchWrapper {
+        align-self: center;
+
+        width: 80%;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    .form {
+        align-self: center;
+    }
+
+    .formHeader {
+        display: none;
+    }
+
+    .formRow {
+        display: flex;
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}

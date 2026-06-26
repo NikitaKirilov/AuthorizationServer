@@ -1,0 +1,37 @@
+.form {
+    gap: 20px;
+}
+
+
+.birthday {
+    width: 100%;
+}
+
+
+.submitButton {
+    width: 50%;
+
+    align-self: center;
+
+    border-radius: 15px;
+}
+
+
+.switchRow {
+    display: flex;
+    justify-content: center;
+
+    gap: 10%;
+}
+
+
+.switchRow > * {
+    width: fit-content;
+}
+
+
+@media (max-width: 1100px) {
+    .page {
+        align-items: center;
+    }
+}
