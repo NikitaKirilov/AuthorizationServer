@@ -2,15 +2,9 @@ package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.dtos.RoleDto;
-import org.example.backend.dtos.UserDetailsDto;
-import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
-import org.example.backend.mappers.mapstruct.RoleMapper;
 import org.example.backend.mappers.mapstruct.UserMapper;
-import org.example.backend.models.entities.Authority;
-import org.example.backend.models.entities.Role;
 import org.example.backend.models.entities.User;
 import org.example.backend.repositories.UserRepository;
 import org.example.backend.utils.SecurityUtils;
@@ -21,26 +15,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matching()
-            .withIgnoreCase()
-            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
-            .withIgnoreNullValues()
-            .withIgnorePaths("roles", "emailVerificationCodes", "userDevices", "emailVerified", "blocked");
-
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
-    private final RoleMapper roleMapper;
     private final UserRepository userRepository;
 
     public User getUserById(String id) {
@@ -53,41 +37,21 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found by email: " + email));
     }
 
-    public UserDetailsDto getUserDetailsDtoById(String id) {
-        User user = userRepository.findWithRolesAndAuthoritiesById(id)
+    public User getUserWithAuthoritiesById(String id) {
+        return userRepository.findWithRolesAndAuthoritiesById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
-
-        UserDto userDto = userMapper.mapEntityToDto(user);
-
-        Set<RoleDto> roles = user.getRoles().stream()
-                .map(roleMapper::mapToDto)
-                .collect(Collectors.toSet());
-
-        Set<String> authorities = user.getRoles().stream()
-                .map(Role::getAuthorities)
-                .flatMap(Collection::stream)
-                .map(Authority::getFullName)
-                .collect(Collectors.toSet());
-
-        UserDetailsDto userDetails = new UserDetailsDto();
-        userDetails.setUser(userDto);
-        userDetails.setRoles(roles);
-        userDetails.setAuthorities(authorities);
-
-        return userDetails;
     }
 
     public User getCurrentUser() {
         return getUserById(SecurityUtils.getCurrentUserId());
     }
 
-    public UserDetailsDto getCurrentUserDetailsDto() {
-        return getUserDetailsDtoById(SecurityUtils.getCurrentUserId());
+    public User getCurrentUserWithAuthorities() {
+        return getUserWithAuthoritiesById(SecurityUtils.getCurrentUserId());
     }
 
-    public Page<UserDto> getAllUsersDto(User probe, Pageable pageable) {
-        return userRepository.findAll(Example.of(probe, EXAMPLE_MATCHER), pageable)
-                .map(userMapper::mapEntityToDto);
+    public Page<User> getAllUsers(User probe, ExampleMatcher matcher, Pageable pageable) {
+        return userRepository.findAll(Example.of(probe, matcher), pageable);
     }
 
     public User createUser(RegistrationDto registrationDto) {

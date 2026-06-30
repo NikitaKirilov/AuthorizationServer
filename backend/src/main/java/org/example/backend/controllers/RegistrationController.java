@@ -2,6 +2,7 @@ package org.example.backend.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RegistrationDto;
 import org.example.backend.services.RegistrationService;
@@ -23,7 +24,7 @@ public class RegistrationController {
     public void registerUser(
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody RegistrationDto registrationDto
+            @RequestBody @Valid RegistrationDto registrationDto
     ) {
         registrationService.processRegistration(request, response, registrationDto);
     }

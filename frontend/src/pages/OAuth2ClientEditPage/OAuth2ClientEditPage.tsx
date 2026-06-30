@@ -39,7 +39,6 @@ const defaultFormErrorState = {
 
 const requiredTextFields = new Set(["clientId", "clientName"]);
 
-
 export default function OAuth2ClientEditPage() {
     const navigate = useNavigate();
     const [params] = useSearchParams();
@@ -176,8 +175,8 @@ export default function OAuth2ClientEditPage() {
 
             const data = error.response?.data as ApiError;
             if (data?.details) {
-                const details = data.details;
-                Object.entries(details).forEach(([key, value]) => {
+                const fieldErrors = data.details["fields"];
+                Object.entries(fieldErrors).forEach(([key, value]) => {
                     setFormErrorState(prev => ({...prev, [key]: value}));
                 });
             } else {

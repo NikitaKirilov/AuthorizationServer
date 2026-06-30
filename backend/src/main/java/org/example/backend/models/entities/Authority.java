@@ -15,6 +15,8 @@ import java.util.Set;
 @Setter
 public class Authority {
 
+    private static final String DELIMITER = ":";
+
     @Id
     private String id;
     private String resource;
@@ -28,7 +30,7 @@ public class Authority {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    public String getFullName() {
-        return resource + ":" + name;
-    }
+    /*public GrantedAuthority toGrantedAuthority() {
+        return new SimpleGrantedAuthority(String.join(DELIMITER, this.resource, this.name));
+    }*/
 }

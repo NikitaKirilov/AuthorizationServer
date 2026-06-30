@@ -6,15 +6,18 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
+import org.example.backend.utils.UserUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 
 @Component
 @RequiredArgsConstructor
@@ -29,10 +32,12 @@ public class SecurityContextService {
             UserDevice userDevice
     ) {
         UserPrincipal principal = new UserPrincipal(user);
-        UserDeviceInfo userDeviceInfo = new UserDeviceInfo(userDevice);
+        Collection<GrantedAuthority> authorities = UserUtils.getGrantedAuthorities(user);
         Object details = new WebAuthenticationDetails(request);
 
-        AbstractAuthenticationToken authentication = new AuthenticatedUserToken(principal, userDeviceInfo);
+        AbstractAuthenticationToken authentication = new AuthenticatedUserToken(
+                principal, userDevice.getId(), authorities
+        );
         authentication.setDetails(details);
 
         SecurityContext context = SecurityContextHolder.getContext();
@@ -51,7 +56,9 @@ public class SecurityContextService {
         UserPrincipal principal = new UserPrincipal(user);
         Object details = new WebAuthenticationDetails(request);
 
-        AbstractAuthenticationToken authentication = new AuthenticatedUserToken(principal, null);
+        AbstractAuthenticationToken authentication = new AuthenticatedUserToken(
+                principal, null, null
+        );
         authentication.setDetails(details);
 
         SecurityContext context = SecurityContextHolder.getContext();

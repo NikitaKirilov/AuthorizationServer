@@ -3,7 +3,6 @@ package org.example.backend.utils;
 import lombok.experimental.UtilityClass;
 import org.example.backend.exceptions.SecurityContextException;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -15,21 +14,22 @@ import java.util.Optional;
 public class SecurityUtils {
 
     public String getCurrentUserId() {
-        return Optional.ofNullable(getAuthenticatedUserToken().getPrincipal())
+        return Optional.ofNullable(getCurrentAuthenticatedUserToken().getPrincipal())
                 .map(UserPrincipal::getId)
                 .orElseThrow(() -> new SecurityContextException("Cannot get user id from context. Try to re login"));
     }
 
     public String getCurrentDeviceId() {
-        return Optional.ofNullable(getAuthenticatedUserToken().getUserDeviceInfo())
-                .map(UserDeviceInfo::getId)
+        return Optional.ofNullable(getCurrentAuthenticatedUserToken().getUserDeviceId())
                 .orElseThrow(() -> new SecurityContextException("Cannot get user device id from context. Try to re login"));
     }
 
-    public AuthenticatedUserToken getAuthenticatedUserToken() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
+    public AuthenticatedUserToken getCurrentAuthenticatedUserToken() {
+        return getAuthenticatedUserToken(SecurityContextHolder.getContext());
+    }
 
+    public AuthenticatedUserToken getAuthenticatedUserToken(SecurityContext context) {
+        Authentication authentication = context.getAuthentication();
         if (authentication instanceof AuthenticatedUserToken token) {
             return token;
         }

@@ -1,10 +1,7 @@
 import {ChangeEvent, MouseEvent, useEffect, useState} from "react";
 import {RegistrationData} from "../../types/RegistrationData.ts";
-import {checkFieldNotEmpty, validateEmail, validatePassword} from "../../utils/validationUtils.ts";
-import {RegistrationPageErrorState} from "../../types/RegistrationPageErrorState.ts";
 import authApi from "../../api/authApi.ts";
-import {isAxiosError} from "axios";
-import {ApiError} from "../../types/ApiError.ts";
+import {toApiError} from "../../types/ApiError.ts";
 import FormField from "../../components/FormField/FormField.tsx";
 import BirthdayPicker from "../../components/Inputs/BirthdayPicker.tsx";
 import Page from "../../components/Page/Page.tsx";
@@ -14,34 +11,69 @@ import {Button} from "../../components/Button/Button.tsx";
 import styles from "./RegistrationPage.module.css";
 import Header from "../../components/Header/Header.tsx";
 import Link from "../../components/Link/Link.tsx";
+import {useNavigate} from "react-router-dom";
+import {checkFieldNotEmpty, validateEmail, validatePassword} from "../../utils/validationUtils.ts";
 
-const TITLE = "Registration";
+const title = "Registration";
+
+const registrationDataInitialState = {
+    email: "",
+    password: "",
+    nickname: "",
+    givenName: "",
+    familyName: "",
+    birthday: null,
+};
+
+const fieldErrorsInitialState = {
+    email: null,
+    password: null,
+    nickname: null,
+    givenName: null,
+    familyName: null,
+    birthday: null,
+};
 
 export default function RegistrationPage() {
+    const navigate = useNavigate();
+    const [registrationData, setRegistrationData] = useState<RegistrationData>(registrationDataInitialState);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>(fieldErrorsInitialState);
+    const [formError, setFormError] = useState<string | null>(null);
+
     useEffect(() => {
-        document.title = TITLE;
+        document.title = title;
     }, []);
 
-    const [registrationData, setRegistrationData] = useState<RegistrationData>({
-        email: "",
-        password: "",
-        nickname: "",
-        givenName: "",
-        familyName: "",
-        birthday: null,
-    });
+    const registerUser = async () => {
+        try {
+            await authApi.register(registrationData);
+            globalThis.localStorage.setItem("email", registrationData.email);
+            navigate("/app/registrations/verify", {replace: true});
+        } catch (error) {
+            const data = toApiError(error);
 
-    const [error, setError] = useState<RegistrationPageErrorState>({
-        emailValidationError: null,
-        passwordValidationError: null,
-        nicknameValidationError: null,
-        givenNameValidationError: null,
-        familyNameValidationError: null,
-        apiError: null,
-    });
+            if (!data) {
+                throw error;
+            }
+
+            setFormError(data.message);
+
+            if (data.details) {
+                const fieldErrors = data.details["fields"] as Record<string, string | null>;
+                setFieldErrors({
+                    ...fieldErrorsInitialState,
+                    ...fieldErrors,
+                });
+            }
+
+            throw error;
+        }
+    }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
+        const fieldError = checkFieldNotEmpty(value);
+        setFieldErrors(prevState => ({...prevState, [name]: fieldError}));
         setRegistrationData(prev => ({...prev, [name]: value}));
     };
 
@@ -54,47 +86,29 @@ export default function RegistrationPage() {
         const familyNameError = checkFieldNotEmpty(registrationData.familyName);
         const givenNameError = checkFieldNotEmpty(registrationData.givenName);
 
-        setError({
-            emailValidationError: emailError,
-            passwordValidationError: passwordError,
-            nicknameValidationError: nicknameError,
-            familyNameValidationError: familyNameError,
-            givenNameValidationError: givenNameError,
-            apiError: null,
+        setFieldErrors({
+            email: emailError,
+            password: passwordError,
+            nickname: nicknameError,
+            familyName: familyNameError,
+            givenName: givenNameError,
         });
 
-        if (emailError || passwordError || nicknameError || familyNameError || givenNameError) {
+        if (Object.values(fieldErrors).some(value => value !== null)) {
             return;
         }
 
-        await authApi.register(registrationData)
-            .then(response => {
-                if (response.status === 200) {
-                    globalThis.localStorage.setItem("email", registrationData.email);
-                    globalThis.location.href = "/app/registrations/verify";
-                }
-            })
-            .catch(
-                (error) => {
-                    if (isAxiosError(error) && error.response) {
-                        const apiError = error.response.data as ApiError;
-                        setError((prev) => ({
-                            ...prev,
-                            apiError: apiError.message,
-                        }));
-                    }
-                },
-            );
+        await registerUser();
     };
 
     return (
         <Page className={styles.page}>
-            <Form className={styles.form} width={"sm"} error={error.apiError}> {/*TODO: error*/}
+            <Form className={styles.form} width={"sm"} error={formError}>
                 <Header title={"Регистрация"} subtitle={"Пожалуйста введите ваши данные"} align={"center"}/>
                 <FormField className={styles.field}
                            label={"Почта"}
                            htmlFor={"email"}
-                           error={error.emailValidationError}>
+                           error={fieldErrors.email}>
                     <TextInput id={"email"}
                                name={"email"}
                                autoComplete={"email"}
@@ -105,10 +119,9 @@ export default function RegistrationPage() {
                 <FormField className={styles.field}
                            label={"Пароль"}
                            htmlFor={"password"}
-                           error={error.passwordValidationError}>
+                           error={fieldErrors.password}>
                     <TextInput id={"password"}
                                name={"password"}
-                               type={"password"}
                                autoComplete={"new-password"}
                                placeholder={"Введите пароль"}
                                value={registrationData.password}
@@ -117,7 +130,7 @@ export default function RegistrationPage() {
                 <FormField className={styles.field}
                            label={"Псевдоним"}
                            htmlFor={"nickname"}
-                           error={error.nicknameValidationError}>
+                           error={fieldErrors.nickname}>
                     <TextInput id={"nickname"}
                                name={"nickname"}
                                autoComplete={"name"}
@@ -129,7 +142,7 @@ export default function RegistrationPage() {
                 <FormField className={styles.field}
                            label={"Имя"}
                            htmlFor={"givenName"}
-                           error={error.givenNameValidationError}>
+                           error={fieldErrors.givenName}>
                     <TextInput id={"givenName"}
                                name={"givenName"}
                                autoComplete={"given-name"}
@@ -141,7 +154,7 @@ export default function RegistrationPage() {
                 <FormField className={styles.field}
                            label={"Фамилия"}
                            htmlFor={"familyName"}
-                           error={error.familyNameValidationError}>
+                           error={fieldErrors.familyName}>
                     <TextInput id={"familyName"}
                                name={"familyName"}
                                autoComplete={"family-name"}
@@ -152,7 +165,8 @@ export default function RegistrationPage() {
                 </FormField>
                 <FormField className={styles.field}
                            label={"Дата рождения"}
-                           htmlFor={"birthday"}>
+                           htmlFor={"birthday"}
+                           error={fieldErrors.birthday}>
                     <BirthdayPicker className={styles.datepicker}
                                     selectedDate={registrationData.birthday}
                                     onChange={e => {

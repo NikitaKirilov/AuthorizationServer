@@ -1,12 +1,18 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.dtos.RoleDto;
 import org.example.backend.dtos.UserDto;
+import org.example.backend.dtos.UserWithRolesDto;
 import org.example.backend.exceptions.ForbiddenOperationException;
+import org.example.backend.mappers.mapstruct.RoleMapper;
 import org.example.backend.mappers.mapstruct.UserMapper;
 import org.example.backend.models.entities.Role;
 import org.example.backend.models.entities.User;
 import org.example.backend.utils.SecurityUtils;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,27 +25,55 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserAdminService {
 
+    private static final ExampleMatcher EXAMPLE_MATCHER = ExampleMatcher.matching()
+            .withIgnoreCase()
+            .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+            .withIgnoreNullValues()
+            .withIgnorePaths("roles", "emailVerificationCodes", "userDevices", "emailVerified", "blocked");
+
     private final AuthorizationService authorizationService;
+    private final RoleMapper roleMapper;
     private final RoleService roleService;
     private final SessionService sessionService;
     private final UserMapper userMapper;
     private final UserService userService;
+
+    public Page<UserDto> getAllUsers(User probe, Pageable pageable) {
+        return userService.getAllUsers(probe, EXAMPLE_MATCHER, pageable)
+                .map(userMapper::mapEntityToDto);
+    }
+
+    public UserWithRolesDto getUserWithRolesDtoById(String id) {
+        User user = userService.getUserById(id);
+
+        UserDto userDto = userMapper.mapEntityToDto(user);
+        Set<RoleDto> roleDtos = user.getRoles().stream()
+                .map(roleMapper::mapToDto)
+                .collect(Collectors.toSet());
+
+        UserWithRolesDto userWithRolesDto = new UserWithRolesDto();
+        userWithRolesDto.setUser(userDto);
+        userWithRolesDto.setRoles(roleDtos);
+
+        return userWithRolesDto;
+    }
 
     @Transactional
     public UserDto updateUser(String id, UserDto userDto) {
         checkAdminNotModifyingHimself(id);
 
         User user = userService.getUserById(id);
-        user.setEmailVerified(userDto.isEmailVerified());
         user.setNickname(userDto.getNickname());
         user.setGivenName(userDto.getGivenName());
         user.setFamilyName(userDto.getFamilyName());
         user.setBirthday(userDto.getBirthday());
         user.setBlocked(userDto.isBlocked());
 
-        authorizationService.updateUserAuthorizations(user);
-        sessionService.updateUserSessions(user);
         userService.save(user);
+
+        if (user.isBlocked()) {
+            sessionService.deleteUserSessions(user);
+        }
 
         return userMapper.mapEntityToDto(user);
     }
@@ -53,9 +87,8 @@ public class UserAdminService {
 
         user.getRoles().addAll(roles);
 
-        authorizationService.updateUserAuthorizations(user);
-        sessionService.updateUserSessions(user);
         userService.save(user);
+        sessionService.updateUserAuthorities(user);
     }
 
     @Transactional
@@ -71,16 +104,15 @@ public class UserAdminService {
                 .collect(Collectors.toSet())
         );
 
-        authorizationService.updateUserAuthorizations(user);
-        sessionService.updateUserSessions(user);
         userService.save(user);
+        sessionService.updateUserAuthorities(user);
     }
 
     @Transactional
     public void deleteUser(String userId) {
         checkAdminNotModifyingHimself(userId);
         User user = userService.getUserById(userId);
-        sessionService.closeUserSessions(user);
+        sessionService.deleteUserSessions(user);
         authorizationService.deleteAllByUserId(user.getId());
         userService.delete(user);
     }

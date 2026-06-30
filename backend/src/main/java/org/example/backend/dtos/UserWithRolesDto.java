@@ -5,9 +5,8 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class UserDetailsDto {
+public class UserWithRolesDto {
 
     private UserDto user;
-    private Set<UserRoleDto> roles;
-    private Set<UserAuthorityDto> authorities;
+    private Set<RoleDto> roles;
 }

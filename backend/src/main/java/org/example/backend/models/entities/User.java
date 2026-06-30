@@ -54,7 +54,7 @@ public class User {
     private String email;
     private String pendingEmail;
 
-    private boolean emailVerified;
+    private boolean emailVerified; //TODO: user wrapper instead of primitive type
 
     private String password;
 
@@ -64,7 +64,7 @@ public class User {
 
     private LocalDate birthday;
 
-    private boolean blocked;
+    private boolean blocked; //TODO: user wrapper instead of primitive type
 
     @CreatedDate
     private Instant createdAt;

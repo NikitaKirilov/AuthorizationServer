@@ -15,16 +15,21 @@ import java.io.IOException;
 import static org.example.backend.configs.SecurityConfig.PERMIT_ALL_LIST;
 
 @Component
-public class EmailVerifiedFilter extends OncePerRequestFilter {
+public class UserStatusFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal userPrincipal &&
-                !userPrincipal.isEmailVerified()
-        ) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "EMAIL_NOT_VERIFIED");
-            return;
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+            if (userPrincipal.isBlocked()) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "USER_IS_BLOCKED");
+                return;
+            }
+
+            if (!userPrincipal.isEmailVerified()) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "EMAIL_NOT_VERIFIED");
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);

@@ -23,7 +23,7 @@ public class UserAuthService {
 
     @Transactional
     public Authentication loginUser(HttpServletRequest request, HttpServletResponse response, UserDetails userDetails) {
-        User user = userService.getUserByEmail(userDetails.getUsername());
+        User user = userService.getUserByEmail(userDetails.getUsername()); //TODO: load user with AuthorizationServer authorities
         UserDevice device = userDeviceService.saveAndVerifyDevice(user, request);
         return securityContextService.createAuthenticatedUserContext(request, response, user, device);
     }

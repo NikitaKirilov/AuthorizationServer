@@ -64,12 +64,12 @@ public class RegistrationService {
 
     @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String sourceCode) {
-        User user = userService.getCurrentUser();
+        User user = userService.getCurrentUserWithAuthorities();
         EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
         emailVerificationCodeService.validateCode(sourceCode, code);
         userService.confirmEmail(user);
-        sessionService.closeUserSessionsExceptCurrent(user);
+        sessionService.deleteUserSessionsExceptCurrent(user);
 
         UserDevice device = userDeviceService.saveAndVerifyDevice(user, request);
         Authentication authentication = securityContextService.createAuthenticatedUserContext(

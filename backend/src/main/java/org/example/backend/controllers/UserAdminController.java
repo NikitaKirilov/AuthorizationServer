@@ -2,11 +2,10 @@ package org.example.backend.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dtos.UserDetailsDto;
 import org.example.backend.dtos.UserDto;
+import org.example.backend.dtos.UserWithRolesDto;
 import org.example.backend.models.entities.User;
 import org.example.backend.services.UserAdminService;
-import org.example.backend.services.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,16 +24,15 @@ import java.util.Set;
 public class UserAdminController {
 
     private final UserAdminService userAdminService;
-    private final UserService userService;
 
     @GetMapping
     public Page<UserDto> getAllUsers(User probe, Pageable pageable) {
-        return userService.getAllUsersDto(probe, pageable);
+        return userAdminService.getAllUsers(probe, pageable);
     }
 
     @GetMapping("/{id}")
-    public UserDetailsDto getUserDetailsById(@PathVariable String id) {
-        return userService.getUserDetailsDtoById(id);
+    public UserWithRolesDto getUserWithRolesDtoById(@PathVariable String id) {
+        return userAdminService.getUserWithRolesDtoById(id);
     }
 
     @PutMapping("/{id}")

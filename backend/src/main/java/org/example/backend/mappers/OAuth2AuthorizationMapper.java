@@ -3,8 +3,6 @@ package org.example.backend.mappers;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.models.entities.Authorization;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.ResourceBasedGrantedAuthority;
-import org.example.backend.models.security.UserDeviceInfo;
 import org.example.backend.models.security.UserPrincipal;
 import org.example.backend.services.OAuth2ClientService;
 import org.jspecify.annotations.Nullable;
@@ -254,8 +252,7 @@ public class OAuth2AuthorizationMapper {
     private @Nullable String extractUserDeviceId(Map<String, Object> attributes) {
         AuthenticatedUserToken token = extractUserAuthentication(attributes);
         return Optional.ofNullable(token)
-                .map(AuthenticatedUserToken::getUserDeviceInfo)
-                .map(UserDeviceInfo::getId)
+                .map(AuthenticatedUserToken::getUserDeviceId)
                 .orElse(null);
     }
 
@@ -281,9 +278,7 @@ public class OAuth2AuthorizationMapper {
         ClassLoader loader = getClass().getClassLoader();
         BasicPolymorphicTypeValidator.Builder validator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(AuthenticatedUserToken.class)
-                .allowIfSubType(UserPrincipal.class)
-                .allowIfSubType(ResourceBasedGrantedAuthority.class)
-                .allowIfSubType(UserDeviceInfo.class);
+                .allowIfSubType(UserPrincipal.class);
 
         return JsonMapper.builder()
                 .addModules(SecurityJacksonModules.getModules(loader, validator))

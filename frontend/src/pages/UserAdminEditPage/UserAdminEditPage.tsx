@@ -214,9 +214,8 @@ const UserAdminEditPage = () => {
                     >
                     </Select>
                 </FormField>
-                <div className={styles.switchRow}>
-                    <FormField label={"Аккаунт заблокирован"} htmlFor={"blocked"}>
-                        <Switch id={"blocked"}
+                <FormField label={"Аккаунт заблокирован"} htmlFor={"blocked"}>
+                    <Switch id={"blocked"}
                                 name={"blocked"}
                                 uncheckedIcon={false}
                                 checkedIcon={false}
@@ -224,20 +223,8 @@ const UserAdminEditPage = () => {
                                 className={styles.switch}
                                 checked={userDetails?.user.blocked ?? false}
                                 onChange={switchOnChange}
-                        />
-                    </FormField>
-                    <FormField label={"Email подтвержден"} htmlFor={"emailVerified"}>
-                        <Switch id={"emailVerified"}
-                                name={"emailVerified"}
-                                uncheckedIcon={false}
-                                checkedIcon={false}
-                                className={styles.switch}
-                                onColor={"#6a11cb"}
-                                checked={userDetails?.user.emailVerified ?? false}
-                                onChange={switchOnChange}
-                        />
-                    </FormField>
-                </div>
+                    />
+                </FormField>
                 <Button className={styles.submitButton} onClick={buttonOnClick}>Сохранить</Button>
             </Form>
         </Page>

@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.UserDetailsDto;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.dtos.UserPasswordUpdateDto;
-import org.example.backend.dtos.UserUpdateDto;
 import org.example.backend.services.UserProfileService;
-import org.example.backend.services.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,16 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
-    private final UserService userService;
 
     @GetMapping
-    public UserDetailsDto getCurrentUserDetails() {
-        return userService.getCurrentUserDetailsDto();
+    public UserDetailsDto getCurrentUserDetailsDto() {
+        return userProfileService.getCurrentUserDetailsDto();
     }
 
     @PutMapping
-    public UserDto updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto) {
-        return userProfileService.updateUser(userUpdateDto);
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto) {
+        return userProfileService.updateUser(userDto);
     }
 
     @PutMapping("/password")

@@ -7,8 +7,6 @@ import org.example.backend.mappers.mapstruct.AuthorizationMapper;
 import org.example.backend.models.entities.Authorization;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
-import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.UserPrincipal;
 import org.example.backend.repositories.AuthorizationRepository;
 import org.example.backend.utils.SecurityUtils;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -19,12 +17,8 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-
-import static org.example.backend.mappers.OAuth2AuthorizationMapper.extractUserAuthentication;
 
 @Component
 @RequiredArgsConstructor
@@ -40,10 +34,6 @@ public class AuthorizationService implements OAuth2AuthorizationService {
 
     public List<AuthorizationDto> getAllUserAuthorizationsByDeviceId(String deviceId) {
         return authorizationRepository.findAllDtosByUserIdAndDeviceId(SecurityUtils.getCurrentUserId(), deviceId);
-    }
-
-    public List<Authorization> getAuthorizationsByUserId(String userId) {
-        return authorizationRepository.findAllByUserId(userId);
     }
 
     @Override
@@ -92,24 +82,6 @@ public class AuthorizationService implements OAuth2AuthorizationService {
         }
 
         return result.map(oAuth2AuthorizationMapper::toObject).orElse(null);
-    }
-
-    public void updateUserAuthorizations(User user) {
-        getAuthorizationsByUserId(user.getId())
-                .forEach(authorization -> {
-                    OAuth2Authorization oAuth2Authorization = oAuth2AuthorizationMapper.toObject(authorization);
-                    AuthenticatedUserToken authentication = extractUserAuthentication(oAuth2Authorization.getAttributes());
-
-                    Objects.requireNonNull(authentication);
-
-                    AuthenticatedUserToken newAuthentication = new AuthenticatedUserToken(
-                            new UserPrincipal(user), authentication.getUserDeviceInfo()
-                    );
-                    oAuth2Authorization.getAttributes().put(Principal.class.getName(), newAuthentication);
-
-                    Authorization updatedAuthorization = oAuth2AuthorizationMapper.toEntity(oAuth2Authorization);
-                    authorizationRepository.save(updatedAuthorization);
-                });
     }
 
     @Override

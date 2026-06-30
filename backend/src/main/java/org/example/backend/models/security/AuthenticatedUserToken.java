@@ -5,28 +5,25 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class AuthenticatedUserToken extends AbstractAuthenticationToken {
 
-    private static final String AUTHORIZATION_SERVER = "AS";
     private final UserPrincipal principal;
-    private final UserDeviceInfo userDeviceInfo;
+    private final String userDeviceId;
 
     public AuthenticatedUserToken(
-            UserPrincipal principal, UserDeviceInfo userDeviceInfo
+            UserPrincipal principal, String userDeviceId, Collection<GrantedAuthority> authorities
     ) {
-        super(principal.getAuthorities().stream()
-                .filter(authority -> authority.getResource().equals(AUTHORIZATION_SERVER))
-                .collect(Collectors.toSet())
-        );
+        super(authorities);
         super.setAuthenticated(true);
 
         this.principal = principal;
-        this.userDeviceInfo = userDeviceInfo;
+        this.userDeviceId = userDeviceId;
     }
 
     @Override

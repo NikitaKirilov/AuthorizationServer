@@ -41,14 +41,13 @@ public class AdviceConfig {
         apiError.setTimestamp(LocalDateTime.now());
         apiError.setStatus(BAD_REQUEST.value());
 
-        Map<String, Object> details = exception.getBindingResult().getFieldErrors().stream()
+        Map<String, String> fieldErrors = exception.getBindingResult().getFieldErrors().stream()
                 .filter(fieldError -> Objects.nonNull(fieldError.getDefaultMessage()))
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         DefaultMessageSourceResolvable::getDefaultMessage,
                         (firstError, secondError) -> firstError));
-
-        apiError.setDetails(details);
+        apiError.addDetail("fields", fieldErrors);
 
         return new ResponseEntity<>(apiError, BAD_REQUEST);
     }

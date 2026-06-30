@@ -1,7 +1,6 @@
 package org.example.backend.services;
 
 import org.example.backend.dtos.RegistrationDto;
-import org.example.backend.dtos.UserUpdateDto;
 import org.example.backend.dtos.UserPasswordUpdateDto;
 import org.example.backend.dtos.UserDto;
 import org.example.backend.exceptions.EmailIsAlreadyTakenException;
@@ -156,7 +155,7 @@ class UserServiceTest {
         when(userRepository.findAll(any(Example.class), eq(pageable))).thenReturn(new PageImpl<>(List.of(mockUser)));
         when(userMapper.mapEntityToDto(mockUser)).thenReturn(mockUserDto);
 
-        List<UserDto> list = userService.getAllUsersDto(mockUser, pageable);
+        List<UserDto> list = userService.getAllUsers(mockUser, pageable);
 
         assertEquals(list, List.of(mockUserDto));
 
@@ -170,7 +169,7 @@ class UserServiceTest {
 
         when(userRepository.findAll(any(Example.class), eq(pageable))).thenReturn(new PageImpl<>(List.of()));
 
-        List<UserDto> list = userService.getAllUsersDto(mockUser, pageable);
+        List<UserDto> list = userService.getAllUsers(mockUser, pageable);
 
         assertEquals(list, List.of());
 

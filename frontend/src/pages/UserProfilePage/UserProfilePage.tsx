@@ -125,7 +125,7 @@ export function UserProfilePage() {
             .catch(error => {
                 const data = error.response.data as ApiError;
                 if (data?.details) {
-                    const details = data.details;
+                    const details = data.details["fields"];
                     Object.entries(details).forEach(([key, value]) => {
                         setUserError(prev => ({...prev, [key]: value}));
                     });
@@ -149,7 +149,7 @@ export function UserProfilePage() {
             .catch(error => {
                 const data = error.response.data as ApiError;
                 if (data?.details) {
-                    const details = data.details;
+                    const details = data.details["fields"];
                     Object.entries(details).forEach(([key, value]) => {
                         setPasswordError(prev => ({...prev, [key]: value}));
                     });

@@ -1,23 +1,20 @@
 package org.example.backend.configs;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.configs.oauth2.OAuth2AuthenticationFailureHandler;
 import org.example.backend.configs.security.CustomAuthenticationFailureHandler;
 import org.example.backend.configs.security.DefaultAuthenticationEntryPoint;
 import org.example.backend.configs.security.DefaultLogoutSuccessHandler;
-import org.example.backend.configs.security.EmailVerifiedFilter;
 import org.example.backend.configs.security.FederatedIdentityAuthenticationSuccessHandler;
 import org.example.backend.configs.security.LoginAttemptFilter;
 import org.example.backend.configs.security.LoginSuccessHandler;
+import org.example.backend.configs.security.UserStatusFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -59,11 +56,10 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final DefaultAuthenticationEntryPoint authenticationEntryPoint;
     private final DefaultLogoutSuccessHandler logoutSuccessHandler;
-    private final EmailVerifiedFilter emailVerifiedFilter;
+    private final UserStatusFilter userStatusFilter;
     private final FederatedIdentityAuthenticationSuccessHandler federatedIdentityAuthenticationSuccessHandler;
     private final LoginAttemptFilter loginAttemptFilter;
     private final LoginSuccessHandler loginSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Bean
     @Order(2)
@@ -96,7 +92,6 @@ public class SecurityConfig {
                 .oauth2Login(configurer -> {
                     configurer.successHandler(federatedIdentityAuthenticationSuccessHandler);
                     configurer.loginPage(LOGIN_PAGE);
-                    configurer.withObjectPostProcessor(this.getRequestRedirectFilterObjectPostProcessor());
                 })
                 .logout(configurer -> {
                             configurer.logoutSuccessHandler(logoutSuccessHandler);
@@ -104,17 +99,7 @@ public class SecurityConfig {
                         }
                 )
                 .addFilterBefore(loginAttemptFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(emailVerifiedFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(userStatusFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
-
-    private ObjectPostProcessor<OAuth2AuthorizationRequestRedirectFilter> getRequestRedirectFilterObjectPostProcessor() {
-        return new ObjectPostProcessor<>() {
-            @Override
-            public <O extends OAuth2AuthorizationRequestRedirectFilter> O postProcess(O object) {
-                object.setAuthenticationFailureHandler(oAuth2AuthenticationFailureHandler);
-                return object;
-            }
-        };
     }
 }
