@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @EntityGraph(attributePaths = {"roles", "roles.authorities"})
     Optional<User> findWithRolesAndAuthoritiesById(String id);
+
+    Optional<User> findBySuperuserTrue();
 }

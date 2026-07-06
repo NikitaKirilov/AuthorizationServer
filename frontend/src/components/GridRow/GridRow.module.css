@@ -6,13 +6,15 @@
     align-items: center;
 
     min-height: 80px;
+
+    place-items: center;
 }
 
 
-.gridRow > * {
+/*.gridRow > * {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 
     text-align: center;
-}
+}*/

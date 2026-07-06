@@ -17,6 +17,7 @@ import styles from "./UserAdminEditPage.module.css";
 import {toast, Toaster} from "react-hot-toast";
 import {toApiError} from "../../types/ApiError.ts";
 import {useParams} from "react-router-dom";
+import {PageResponse, pageResponseInitialState} from "../../types/PageResponse.ts";
 
 const fieldErrorsInitialState = {
     nickname: null,
@@ -31,7 +32,7 @@ const UserAdminEditPage = () => {
     const {id} = useParams();
     const [userDetails, setUserDetails] = useState<UserWithRoles | null>(null);
     const [selectedRoles, setSelectedRoles] = useState<SelectOption[]>([]);
-    const [roles, setRoles] = useState<RoleDto[]>([]);
+    const [roles, setRoles] = useState<PageResponse<RoleDto>>(pageResponseInitialState);
     const [formError, setFormError] = useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = useState(fieldErrorsInitialState);
 
@@ -208,7 +209,7 @@ const UserAdminEditPage = () => {
                             noOptionsMessage={() => null}
                             styles={selectStylesConfig}
                             isMulti
-                            options={roles.map(roleToOption)}
+                            options={roles.content.map(roleToOption)}
                             value={selectedRoles}
                             onChange={(value) => setSelectedRoles([...value])}
                     >

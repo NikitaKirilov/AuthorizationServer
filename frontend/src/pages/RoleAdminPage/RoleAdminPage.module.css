@@ -1,0 +1,104 @@
+.searchWrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+
+.searchIcon {
+    position: absolute;
+
+    left: 10px;
+}
+
+
+.search {
+    padding-left: 40px;
+    width: 80%;
+}
+
+
+.actions {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+
+    gap: 10px;
+}
+
+
+.form > *:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+.formHeader {
+    color: var(--text-color-hint);
+}
+
+
+.fieldHeader {
+    display: none;
+}
+
+
+.field {
+    display: flex;
+    justify-content: center;
+}
+
+
+.fieldValue {
+    min-width: 0;
+
+    overflow-wrap: anywhere;
+}
+
+
+@media (max-width: 1100px) {
+    .pageHeader, .form, .search {
+        width: 100%;
+    }
+
+
+    .formHeader {
+        display: none;
+    }
+
+
+    .role {
+        display: flex;
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+
+    .field {
+        display: flex;
+        flex-direction: column;
+
+        width: 100%;
+
+        gap: 10px;
+    }
+
+
+    .fieldHeader {
+        display: flex;
+
+        color: var(--text-color-hint);
+
+        left: 0;
+    }
+
+
+    .actions {
+        align-self: flex-start;
+    }
+}

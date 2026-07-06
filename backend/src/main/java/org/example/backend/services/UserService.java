@@ -6,6 +6,7 @@ import org.example.backend.exceptions.EmailIsAlreadyTakenException;
 import org.example.backend.exceptions.UserNotFoundException;
 import org.example.backend.mappers.mapstruct.UserMapper;
 import org.example.backend.models.entities.User;
+import org.example.backend.models.properties.AdminProperties;
 import org.example.backend.repositories.UserRepository;
 import org.example.backend.utils.SecurityUtils;
 import org.springframework.data.domain.Example;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final AdminProperties adminProperties;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final UserMapper userMapper;
@@ -64,6 +67,7 @@ public class UserService {
 
         if (user.isNew()) {
             user.setId(UUID.randomUUID().toString());
+            user.getRoles().add(roleService.getASUserRole());
         }
 
         user.setEmail(registrationDto.getEmail());
@@ -72,9 +76,25 @@ public class UserService {
         user.setGivenName(registrationDto.getGivenName());
         user.setFamilyName(registrationDto.getFamilyName());
         user.setBirthday(registrationDto.getBirthday());
-        user.getRoles().add(roleService.getASUserRole());
 
         return save(user);
+    }
+
+    @Transactional
+    public void initializeAdmin() {
+        User user = userRepository.findBySuperuserTrue().orElseGet(User::new);
+
+        if (user.isNew()) {
+            user.setId(UUID.randomUUID().toString());
+            user.setSuperuser(true);
+            user.setEmailVerified(true);
+            user.getRoles().add(roleService.getASAdminRole());
+        }
+
+        user.setEmail(adminProperties.getUsername());
+        user.setPassword(passwordEncoder.encode(adminProperties.getPassword()));
+
+        save(user);
     }
 
     public User saveFederatedIdpUser(User federatedIdpUser, String registrationId) {

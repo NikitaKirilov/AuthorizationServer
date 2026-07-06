@@ -4,7 +4,7 @@ import {LoginData} from "../../types/LoginData.ts";
 import {ApiError} from "../../types/ApiError.ts";
 import {isAxiosError} from "axios";
 import {LoginPageErrorState} from "../../types/LoginPageErrorState.ts";
-import {validateEmail, validatePassword} from "../../utils/validationUtils.ts";
+import {checkFieldNotEmpty} from "../../utils/validationUtils.ts";
 import SocialLogin from "../../components/SocialLogin/SocialLogin.tsx";
 import googleImg from "../../../assets/google.png";
 import {Button} from "../../components/Button/Button.tsx";
@@ -42,8 +42,8 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
 
-        const emailError = validateEmail(formData.username);
-        const passwordError = validatePassword(formData.password);
+        const emailError = checkFieldNotEmpty(formData.username);
+        const passwordError = checkFieldNotEmpty(formData.password);
 
         setError({
             emailValidationError: emailError,
