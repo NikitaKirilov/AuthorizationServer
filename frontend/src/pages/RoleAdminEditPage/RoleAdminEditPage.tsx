@@ -16,7 +16,7 @@ import TextArea from "../../components/Inputs/TextArea/TextArea.tsx";
 import {Button} from "../../components/Button/Button.tsx";
 import {toast, Toaster} from "react-hot-toast";
 import {toApiError} from "../../types/ApiError.ts";
-import styles from "./RoleAdminEditPage.module.css"
+import styles from "./RoleAdminEditPage.module.css";
 
 const roleDetailsInitialState = {
     role: {
@@ -27,8 +27,8 @@ const roleDetailsInitialState = {
         createdAt: new Date(),
         updatedAt: new Date(),
     },
-    authorities: []
-}
+    authorities: [],
+};
 
 const RoleAdminEditPage = () => {
     const navigate = useNavigate();
@@ -87,7 +87,6 @@ const RoleAdminEditPage = () => {
         const role = roleDetails?.role;
 
         if (!role) {
-            console.log("sdad")
             return;
         }
 
@@ -118,7 +117,7 @@ const RoleAdminEditPage = () => {
                 return;
             }
 
-            setFormError(apiError.message)
+            setFormError(apiError.message);
         }
     };
 
