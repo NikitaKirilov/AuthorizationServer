@@ -1,3 +1,5 @@
+import {AuthorityDto} from "./AuthorityDto.ts";
+
 export interface RoleDto {
     id: string;
 
@@ -7,6 +9,18 @@ export interface RoleDto {
 
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface RoleEditDto {
+    resource?: string;
+    name?: string;
+    description?: string;
+    authorityIds: string[];
+}
+
+export interface RoleWithAuthoritiesDto {
+    role: RoleDto;
+    authorities: AuthorityDto[];
 }
 
 export const roleToOption = (role: RoleDto) => {

@@ -36,7 +36,7 @@ const RoleAdminPage = () => {
             return;
         }
 
-        await deleteRole(id);
+        await roleAdminApi.deleteRole(id);
         await loadRoles();
     };
 
@@ -91,7 +91,7 @@ const RoleAdminPage = () => {
                                 <div className={styles.field}>
                                     <span className={styles.fieldHeader}>Действия</span>
                                     <div className={styles.actions}>
-                                        <Button variant={"icon"} onClick={() => navigate(role.id)}>
+                                        <Button variant={"icon"} onClick={() => navigate(`role?id=${role.id}`)}>
                                             <Eye size={18}/>
                                         </Button>
                                         <Button variant={"icon"} onClick={() => deleteRole(role.id)}>

@@ -3,6 +3,7 @@ package org.example.backend.controllers;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.RoleDto;
 import org.example.backend.dtos.RoleUpdateDto;
+import org.example.backend.dtos.RoleWithAuthoritiesDto;
 import org.example.backend.models.entities.Role;
 import org.example.backend.services.RoleService;
 import org.springframework.data.domain.Page;
@@ -29,17 +30,17 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public RoleDto getRoleById(@PathVariable String id) {
-        return roleService.getRoleDtoById(id);
+    public RoleWithAuthoritiesDto getRoleById(@PathVariable String id) {
+        return roleService.getRoleWithAuthoritiesById(id);
     }
 
     @PostMapping
-    public RoleDto createRole(@RequestBody RoleUpdateDto roleUpdateDto) {
+    public RoleWithAuthoritiesDto createRole(@RequestBody RoleUpdateDto roleUpdateDto) {
         return roleService.createRole(roleUpdateDto);
     }
 
     @PutMapping("/{id}")
-    public RoleDto updateRole(@PathVariable String id, @RequestBody RoleUpdateDto roleUpdateDto) {
+    public RoleWithAuthoritiesDto updateRole(@PathVariable String id, @RequestBody RoleUpdateDto roleUpdateDto) {
         return roleService.updateRole(id, roleUpdateDto);
     }
 

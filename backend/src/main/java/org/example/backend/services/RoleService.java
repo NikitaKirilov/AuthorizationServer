@@ -1,10 +1,13 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
+import org.example.backend.dtos.AuthorityDto;
 import org.example.backend.dtos.RoleDto;
 import org.example.backend.dtos.RoleUpdateDto;
+import org.example.backend.dtos.RoleWithAuthoritiesDto;
 import org.example.backend.exceptions.RoleAlreadyExists;
 import org.example.backend.exceptions.RoleNotFoundException;
+import org.example.backend.mappers.mapstruct.AuthorityMapper;
 import org.example.backend.mappers.mapstruct.RoleMapper;
 import org.example.backend.models.entities.Authority;
 import org.example.backend.models.entities.Role;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,7 @@ public class RoleService {
             .withIgnoreCase()
             .withIgnorePaths("createdAt", "updatedAt");
 
+    private final AuthorityMapper authorityMapper;
     private final AuthorityService authorityService;
     private final RoleMapper roleMapper;
     private final RoleRepository roleRepository;
@@ -50,8 +55,9 @@ public class RoleService {
                 .orElseThrow(() -> new RoleNotFoundException("Role not found by id: " + id));
     }
 
-    public RoleDto getRoleDtoById(String id) {
-        return roleMapper.mapToDto(getRoleById(id));
+    public RoleWithAuthoritiesDto getRoleWithAuthoritiesById(String id) {
+        Role role = getRoleById(id);
+        return mapToRoleWithAuthorities(role);
     }
 
     public List<Role> getRolesByIds(Set<String> roleIds) {
@@ -64,7 +70,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleDto createRole(RoleUpdateDto dto) {
+    public RoleWithAuthoritiesDto createRole(RoleUpdateDto dto) {
         checkRoleExists(dto.getResource(), dto.getName(), null);
 
         Role role = new Role();
@@ -74,11 +80,11 @@ public class RoleService {
 
         roleRepository.save(role);
 
-        return roleMapper.mapToDto(role);
+        return mapToRoleWithAuthorities(role);
     }
 
     @Transactional
-    public RoleDto updateRole(String id, RoleUpdateDto dto) {
+    public RoleWithAuthoritiesDto updateRole(String id, RoleUpdateDto dto) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found by id: " + id));
 
@@ -88,7 +94,7 @@ public class RoleService {
 
         roleRepository.save(role);
 
-        return roleMapper.mapToDto(role);
+        return mapToRoleWithAuthorities(role);
     }
 
     public void deleteRoleById(String id) {
@@ -110,5 +116,14 @@ public class RoleService {
                 authorityService.getAllAuthoritiesByIds(dto.getAuthorityIds())
         );
         role.setAuthorities(authorities);
+    }
+
+    private RoleWithAuthoritiesDto mapToRoleWithAuthorities(Role role) {
+        RoleDto roleDto = roleMapper.mapToDto(role);
+        Set<AuthorityDto> authorityDtos = role.getAuthorities().stream()
+                .map(authorityMapper::mapToAuthorityDto)
+                .collect(Collectors.toSet());
+
+        return new RoleWithAuthoritiesDto(roleDto, authorityDtos);
     }
 }

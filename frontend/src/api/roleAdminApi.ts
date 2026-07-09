@@ -1,6 +1,6 @@
 import axiosInstance from "../configs/axiosConfig.ts";
 import {PageResponse} from "../types/PageResponse.ts";
-import {RoleDto} from "../types/RoleDto.ts";
+import {RoleDto, RoleEditDto, RoleWithAuthoritiesDto} from "../types/RoleDto.ts";
 
 const API_URL = "/admin/roles";
 
@@ -11,7 +11,13 @@ const roleAdminApi = {
         );
 
         const response = await axiosInstance.get<PageResponse<RoleDto>>(
-            API_URL, {params: {page, ...filterParams}},
+            API_URL, {
+                params: {
+                    page,
+                    size: 5,
+                    ...filterParams,
+                },
+            },
         );
 
         const data = response.data;
@@ -24,6 +30,33 @@ const roleAdminApi = {
                 updatedAt: new Date(item.createdAt),
             })),
         };
+    },
+
+    getRoleById: async (id: string) => {
+        const response = await axiosInstance.get<RoleWithAuthoritiesDto>(
+            `${API_URL}/${id}`, {},
+        );
+
+        const data = response.data;
+
+        return {
+            ...data,
+            role: {
+                ...data.role,
+                createdAt: new Date(data.role.createdAt),
+                updatedAt: new Date(data.role.updatedAt),
+            },
+        };
+    },
+
+    createRole: async (role: RoleEditDto) => {
+        const response = await axiosInstance.post<RoleWithAuthoritiesDto>(`${API_URL}`, role);
+        return response.data;
+    },
+
+    updateRole: async (id: string, role: RoleEditDto) => {
+        const response = await axiosInstance.put<RoleWithAuthoritiesDto>(`${API_URL}/${id}`, role);
+        return response.data;
     },
 
     deleteRole: async (roleId: string) => {

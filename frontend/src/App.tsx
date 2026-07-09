@@ -13,6 +13,7 @@ import AuthorizationPage from "./pages/AuthorizationPage/AuthorizationPage.tsx";
 import UserAdminPage from "./pages/UserAdminPage/UserAdminPage.tsx";
 import UserAdminEditPage from "./pages/UserAdminEditPage/UserAdminEditPage.tsx";
 import RoleAdminPage from "./pages/RoleAdminPage/RoleAdminPage.tsx";
+import RoleAdminEditPage from "./pages/RoleAdminEditPage/RoleAdminEditPage.tsx";
 
 
 const SidebarLayout = () => (
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "roles",
                                 element: <RoleAdminPage/>,
+                            },
+                            {
+                                path: "roles/role",
+                                element: <RoleAdminEditPage/>,
                             },
                         ],
                     },

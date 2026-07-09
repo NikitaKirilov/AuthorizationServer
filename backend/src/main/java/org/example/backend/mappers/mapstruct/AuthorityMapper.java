@@ -1,5 +1,6 @@
 package org.example.backend.mappers.mapstruct;
 
+import org.example.backend.dtos.AuthorityDto;
 import org.example.backend.dtos.UserAuthorityDto;
 import org.example.backend.models.entities.Authority;
 import org.mapstruct.Mapper;
@@ -10,4 +11,6 @@ import org.mapstruct.ReportingPolicy;
 public interface AuthorityMapper {
 
     UserAuthorityDto mapToUserAuthorityDto(Authority authority);
+
+    AuthorityDto mapToAuthorityDto(Authority authority);
 }
