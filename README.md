@@ -150,4 +150,4 @@ docker/
 
 # License
 
-MIT
+Code released under the [MIT License](LICENSE)
