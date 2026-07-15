@@ -1,5 +1,5 @@
 import styles from "./Sidebar.module.css";
-import {BookUser, Menu, MonitorCog, Server, User, UserRoundKey, Users} from "lucide-react";
+import {BookUser, Gavel, Menu, MonitorCog, Server, User, UserRoundKey, Users} from "lucide-react";
 import {NavLink} from "react-router-dom";
 import {useRef} from "react";
 
@@ -39,7 +39,13 @@ const sidebarConfig = [
         to: "/app/admin/roles",
         icon: UserRoundKey,
         title: "Роли",
-        subtitle: "Управление ролями и привилегиями",
+        subtitle: "Управление ролями",
+    },
+    {
+        to: "/app/admin/authorities",
+        icon: Gavel,
+        title: "Привилегии",
+        subtitle: "Управление привилегиями",
     },
 ];
 

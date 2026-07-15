@@ -39,10 +39,6 @@ public interface AuthorizationRepository extends JpaRepository<Authorization, St
             @Param("token") String token
     );
 
-    List<Authorization> findAllByUserId(String userId);
-
-    List<Authorization> findAllByUserIdAndOauth2ClientId(String userId, String oAuth2ClientId);
-
     void deleteByUserIdAndId(String userId, String id);
 
     void deleteAllByUserId(String userId);
