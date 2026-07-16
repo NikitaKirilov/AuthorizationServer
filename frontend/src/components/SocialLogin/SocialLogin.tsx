@@ -1,4 +1,4 @@
-import "./SocialLogin.css";
+import styles from "./SocialLogin.module.css";
 
 const socialLoginUrl = import.meta.env.VITE_SOCIAL_LOGIN_URL;
 
@@ -9,11 +9,12 @@ type SocialLoginProps = {
 }
 
 export default function SocialLogin({providerName, registrationId, imageUrl}: Readonly<SocialLoginProps>) {
+    const redirect = `${socialLoginUrl + registrationId}`;
     return (
-        <button className={"idp-registration"} key={registrationId}
-                onClick={() => globalThis.location.href = socialLoginUrl + registrationId}>
-            {imageUrl && <img className={"idp-registration-img"} alt={"img"} src={imageUrl}/>}
-            <p className={"idp-registration-name"}>Continue with {providerName}</p>
+        <button className={styles.button} key={registrationId}
+                onClick={() => globalThis.location.href = redirect}>
+            {imageUrl && <img className={styles.image} alt={"img"} src={imageUrl}/>}
+            Продолжить с {providerName}
         </button>
     );
 }

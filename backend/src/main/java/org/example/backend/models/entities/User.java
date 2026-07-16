@@ -1,8 +1,6 @@
 package org.example.backend.models.entities;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -12,11 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,16 +18,12 @@ import java.util.List;
 import java.util.Set;
 
 @Entity(name = "app_user")
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Builder(builderClassName = "Builder")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-
-    @Id
-    private String id;
+public class User extends AuditingEntity {
 
     private String clientRegistrationId;
 
@@ -54,7 +44,7 @@ public class User {
     private String email;
     private String pendingEmail;
 
-    private boolean emailVerified;
+    private boolean emailVerified; //TODO: user wrapper instead of primitive type
 
     private String password;
 
@@ -64,13 +54,7 @@ public class User {
 
     private LocalDate birthday;
 
-    @CreatedDate
-    private Instant createdAt;
+    private boolean blocked; //TODO: user wrapper instead of primitive type
 
-    @LastModifiedDate
-    private Instant updatedAt;
-
-    public boolean isNew() {
-        return this.id == null;
-    }
+    private Boolean superuser;
 }

@@ -4,4 +4,5 @@ export interface RegistrationData {
     nickname: string;
     givenName: string;
     familyName: string;
+    birthday: Date | null;
 }

@@ -22,12 +22,3 @@ export const pageResponseInitialState = {
         offset: 0,
     },
 };
-
-
-/*export const getPageInfoString = (pageResponse: PageResponse<unknown>) => {
-    const totalElements = pageResponse.totalElements;
-    const offset = totalElements === 0 ? 0 : pageResponse.pageable.offset + 1;
-    const limit = pageResponse.pageable.offset + pageResponse.numberOfElements;
-
-    return `Показано ${offset}-${limit} из ${totalElements}`;
-};*/

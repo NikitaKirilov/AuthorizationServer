@@ -1,0 +1,71 @@
+.form > *:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+
+.searchWrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+}
+
+
+.search {
+    padding-left: 40px;
+    width: 50%;
+}
+
+
+.actions {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+
+    gap: 10px;
+}
+
+
+.actions > * {
+    width: 50px;
+}
+
+
+@media (max-width: 1100px) {
+    .header {
+        align-self: center;
+    }
+
+    .searchWrapper {
+        align-self: center;
+
+        width: 80%;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    .form {
+        align-self: center;
+    }
+
+    .formHeader {
+        display: none;
+    }
+
+    .formRow {
+        display: flex;
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}

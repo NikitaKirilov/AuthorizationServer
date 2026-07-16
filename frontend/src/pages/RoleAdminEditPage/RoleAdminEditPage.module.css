@@ -1,0 +1,16 @@
+.form {
+    gap: 20px;
+}
+
+
+.saveButton {
+    align-self: center;
+    width: 50%;
+}
+
+
+@media (max-width: 768px) {
+    .page {
+        align-items: center;
+    }
+}

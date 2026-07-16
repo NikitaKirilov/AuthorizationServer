@@ -4,7 +4,7 @@ import styles from "./Button.module.css";
 type ButtonProps =
     React.ButtonHTMLAttributes<HTMLButtonElement> & {
     className?: string
-    variant?: "primary" | "secondary" | "danger";
+    variant?: "primary" | "secondary" | "danger" | "icon";
 };
 
 export const Button =

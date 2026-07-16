@@ -9,5 +9,10 @@ import org.springframework.stereotype.Repository;
 public interface RoleRepository extends JpaRepository<Role, String> {
 
     @Query("SELECT r from Role r WHERE r.resource = 'AS' AND r.name = 'USER'")
-    Role getDefaultASUserRole();
+    Role getASUserRole();
+
+    @Query("SELECT r from Role r WHERE r.resource = 'AS' AND r.name = 'ADMIN'")
+    Role getASAdminRole();
+
+    boolean existsByResourceAndNameAndIdNot(String resource, String name, String id);
 }

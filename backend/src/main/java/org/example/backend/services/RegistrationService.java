@@ -30,10 +30,10 @@ public class RegistrationService {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final CooldownService cooldownService;
     private final EmailVerificationCodeService emailVerificationCodeService;
-    private final UserService userService;
     private final SecurityContextService securityContextService;
-    private final UserDeviceService userDeviceService;
     private final SessionService sessionService;
+    private final UserDeviceService userDeviceService;
+    private final UserService userService;
 
     @Transactional
     public void processRegistration(
@@ -64,12 +64,12 @@ public class RegistrationService {
 
     @Transactional(noRollbackFor = EmailVerificationCodeValidationException.class)
     public void verifyEmail(HttpServletRequest request, HttpServletResponse response, String sourceCode) {
-        User user = userService.getCurrentUser();
+        User user = userService.getCurrentUserWithAuthorities();
         EmailVerificationCode code = emailVerificationCodeService.getActiveByUser(user);
 
         emailVerificationCodeService.validateCode(sourceCode, code);
-        userService.verifyEmail(user);
-        sessionService.closeUserSessionsExceptCurrent(user);
+        userService.confirmEmail(user);
+        sessionService.deleteUserSessionsExceptCurrent(user);
 
         UserDevice device = userDeviceService.saveAndVerifyDevice(user, request);
         Authentication authentication = securityContextService.createAuthenticatedUserContext(

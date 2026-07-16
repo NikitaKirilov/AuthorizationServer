@@ -347,6 +347,8 @@ dialog:not([open]) {
 
 
 .actionButton:hover {
+    cursor: pointer;
+
     background-color: var(--button-background-hover);
 
     border: transparent;

@@ -1,13 +1,11 @@
 package org.example.backend.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.exceptions.SecurityContextException;
 import org.example.backend.models.entities.User;
 import org.example.backend.models.entities.UserDevice;
 import org.example.backend.models.security.AuthenticatedUserToken;
-import org.example.backend.models.security.UserDeviceInfo;
-import org.example.backend.models.security.UserPrincipal;
-import org.springframework.security.core.Authentication;
+import org.example.backend.utils.SecurityUtils;
+import org.example.backend.utils.UserUtils;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
@@ -29,28 +27,26 @@ public class SessionService {
         return redisIndexedSessionRepository.findByPrincipalName(userId);
     }
 
-    public void updateUserSessions(User user) {
+    public void updateUserAuthorities(User user) {
         getSessionsByUserId(user.getId())
                 .forEach((sessionId, session) -> {
                     SecurityContextImpl context = session.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-                    Authentication authentication = context.getAuthentication();
+                    AuthenticatedUserToken authentication = SecurityUtils.getAuthenticatedUserToken(context);
 
-                    if (authentication instanceof AuthenticatedUserToken prevAuthentication) {
-                        UserPrincipal userPrincipal = new UserPrincipal(user);
-                        UserDeviceInfo userDeviceInfo = prevAuthentication.getUserDeviceInfo();
-                        AuthenticatedUserToken updatedAuthentication =
-                                new AuthenticatedUserToken(userPrincipal, userDeviceInfo);
-                        updatedAuthentication.setDetails(prevAuthentication.getDetails());
+                    AuthenticatedUserToken newAuthentication = new AuthenticatedUserToken(
+                            authentication.getPrincipal(),
+                            authentication.getUserDeviceId(),
+                            UserUtils.getGrantedAuthorities(user)
+                    );
+                    newAuthentication.setDetails(authentication.getDetails());
 
-                        context.setAuthentication(updatedAuthentication);
-                        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+                    context.setAuthentication(newAuthentication);
 
-                        redisIndexedSessionRepository.save(session);
-                    }
-        });
+                    redisIndexedSessionRepository.save(session);
+                });
     }
 
-    public void closeUserSessionsExceptCurrent(User user) {
+    public void deleteUserSessionsExceptCurrent(User user) {
         String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
         getSessionsByUserId(user.getId())
                 .forEach((sessionId, session) -> {
@@ -60,7 +56,7 @@ public class SessionService {
                 });
     }
 
-    public void closeUserSessions(User user) {
+    public void deleteUserSessions(User user) {
         getSessionsByUserId(user.getId())
                 .forEach((sessionId, session) -> redisIndexedSessionRepository.deleteById(sessionId));
     }
@@ -68,23 +64,13 @@ public class SessionService {
     public void deleteSessionsByUserAndDevice(User user, UserDevice userDevice) {
         getSessionsByUserId(user.getId())
                 .forEach((sessionId, session) -> {
-                    AuthenticatedUserToken authentication = getAuthenticatedUserToken(session);
-                    String userDeviceId = authentication.getUserDeviceInfo().getId();
+                    SecurityContextImpl context = session.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+                    AuthenticatedUserToken authentication = SecurityUtils.getAuthenticatedUserToken(context);
+                    String userDeviceId = authentication.getUserDeviceId();
 
                     if (Objects.equals(userDeviceId, userDevice.getId())) {
                         redisIndexedSessionRepository.deleteById(sessionId);
                     }
                 });
-    }
-
-    private AuthenticatedUserToken getAuthenticatedUserToken(RedisSession session) {
-        SecurityContextImpl context = session.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
-        Authentication authentication = context.getAuthentication();
-
-        if (authentication instanceof AuthenticatedUserToken token) {
-            return token;
-        }
-
-        throw new SecurityContextException("Unsupported authentication type");
     }
 }

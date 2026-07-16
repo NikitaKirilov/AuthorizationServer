@@ -25,7 +25,7 @@ class EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setText(VERIFICATION_CODE_MESSAGE.formatted(code));
-        message.setTo(user.getPendingEmail());
+        message.setTo(user.getEmail());
         message.setSubject(VERIFICATION_CODE_SUBJECT);
 
         mailSender.send(message);

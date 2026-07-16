@@ -111,18 +111,18 @@
 }
 
 
-@media (max-width: 1100px) {
+@media (max-width: 768px) {
     .sidebarShowIcon {
         display: block;
     }
+
 
     .sidebar {
         display: none;
     }
 
+
     .sidebarOptionTextWrapper {
         display: none;
     }
-
 }
-

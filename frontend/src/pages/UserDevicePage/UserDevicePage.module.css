@@ -36,7 +36,8 @@
 
 .formHeader {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
 
     place-items: center;
 }
@@ -52,7 +53,8 @@
 
 .formElement {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
 
     place-items: center;
 }

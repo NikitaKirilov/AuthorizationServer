@@ -1,0 +1,42 @@
+.form {
+    display: flex;
+    flex-direction: column;
+
+    background: var(--form-background);
+
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+
+    padding: 20px 10px;
+}
+
+
+.sm {
+    min-width: 30%;
+}
+
+
+.md {
+    width: 80%;
+}
+
+
+.lg {
+    width: 100%;
+}
+
+
+.error {
+    border-color: rgb(214, 93, 95);
+}
+
+
+.errorWrapper {
+    text-align: center;
+}
+
+
+.errorMessage {
+    font-size: 20px;
+    color: var(--error-text-color);
+}

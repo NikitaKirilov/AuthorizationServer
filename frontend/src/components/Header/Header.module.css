@@ -1,0 +1,62 @@
+.header {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.primary {
+    flex-direction: row;
+}
+
+
+.textWrapper {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    gap: 5px;
+}
+
+
+.left {
+    text-align: left;
+}
+
+
+.center {
+    text-align: center;
+}
+
+
+.textWrapper h1 {
+    margin: 0;
+}
+
+
+title {
+    color: var(--text-color);
+}
+
+
+.subtitle {
+    color: var(--text-color-secondary);
+    font-size: 14px;
+}
+
+
+.lg {
+    width: 100%;
+}
+
+
+.md {
+    width: 80%;
+}
+
+
+.sm {
+    width: 50%;
+}
