@@ -16,11 +16,13 @@ const authorityAdminApi = {
             new URLSearchParams(filters),
         );
 
+        const size = page !== undefined ? 5 : undefined;
+
         const response = await axiosInstance.get<PageResponse<AuthorityDto>>(
             API_URL, {
                 params: {
                     page,
-                    size: 5,
+                    size,
                     ...filterParams,
                 },
             },
