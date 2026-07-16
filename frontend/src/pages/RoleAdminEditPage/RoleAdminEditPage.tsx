@@ -1,7 +1,7 @@
 import Page from "../../components/Page/Page.tsx";
 import Header from "../../components/Header/Header.tsx";
 import {useNavigate, useSearchParams} from "react-router-dom";
-import {ChangeEvent, useCallback, useEffect, useState} from "react";
+import {ChangeEvent, FocusEvent, useCallback, useEffect, useState} from "react";
 import Form from "../../components/Form/Form.tsx";
 import FormField from "../../components/FormField/FormField.tsx";
 import {TextInput} from "../../components/Inputs/TextInput.tsx";
@@ -17,6 +17,7 @@ import {Button} from "../../components/Button/Button.tsx";
 import {toast, Toaster} from "react-hot-toast";
 import {toApiError} from "../../types/ApiError.ts";
 import styles from "./RoleAdminEditPage.module.css";
+import {checkFieldNotEmpty} from "../../utils/validationUtils.ts";
 
 const roleDetailsInitialState = {
     role: {
@@ -30,12 +31,19 @@ const roleDetailsInitialState = {
     authorities: [],
 };
 
+type FieldErrors = {
+    name?: string;
+    description?: string;
+    resource?: string;
+}
+
 const RoleAdminEditPage = () => {
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const [authorities, setAuthorities] = useState<PageResponse<AuthorityDto>>(pageResponseInitialState);
     const [selectedAuthorities, setSelectedAuthorities] = useState<SelectOption[]>([]);
     const [roleDetails, setRoleDetails] = useState<RoleWithAuthoritiesDto>(roleDetailsInitialState);
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>();
     const [formError, setFormError] = useState<string | null>(null);
 
     const id = params.get("id");
@@ -83,6 +91,14 @@ const RoleAdminEditPage = () => {
         });
     };
 
+    const inputOnBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const error = checkFieldNotEmpty(e.target.value);
+        setFieldErrors(prevState => ({
+            ...prevState,
+            [e.target.id]: error,
+        }));
+    };
+
     const saveButtonOnClick = async () => {
         const role = roleDetails?.role;
 
@@ -128,23 +144,29 @@ const RoleAdminEditPage = () => {
                     subtitle={"Просматривайте и управляйте ролями и их разрешениями"}
             />
             <Form className={styles.form} error={formError}>
-                <FormField label={"Имя ресурса"} htmlFor={"resource"}>
+                <FormField label={"Имя ресурса"} htmlFor={"resource"} error={fieldErrors?.resource}>
                     <TextInput id={"resource"}
+                               placeholder={"Введите имя ресурса"}
                                value={roleDetails?.role.resource}
                                onChange={inputOnChange}
+                               onBlur={inputOnBlur}
                     />
                 </FormField>
-                <FormField label={"Название роли"} htmlFor={"name"}>
+                <FormField label={"Название роли"} htmlFor={"name"} error={fieldErrors?.name}>
                     <TextInput id={"name"}
+                               placeholder={"Введите название роли"}
                                value={roleDetails?.role.name}
                                onChange={inputOnChange}
+                               onBlur={inputOnBlur}
                     />
                 </FormField>
-                <FormField label={"Описание"} htmlFor={"description"}>
+                <FormField label={"Описание"} htmlFor={"description"} error={fieldErrors?.description}>
                     <TextArea id={"description"}
+                              placeholder={"Введите описание"}
                               value={roleDetails?.role.description}
                               rows={3}
                               onChange={inputOnChange}
+                              onBlur={inputOnBlur}
                     />
                 </FormField>
                 <FormField label={"Разрешения"} htmlFor={"authorities"}>

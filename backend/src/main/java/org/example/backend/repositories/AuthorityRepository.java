@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuthorityRepository extends JpaRepository<Authority, String> {
+
+    boolean existsByResourceAndNameAndIdNot(String resource, String name, String id);
 }

@@ -8,6 +8,8 @@
     background-color: var(--button-background);
 
     border: none;
+
+    border-radius: 10px;
 }
 
 

@@ -1,4 +1,6 @@
 .textarea {
+    font-family: inherit;
+
     resize: vertical;
 
     padding-top: 5px;

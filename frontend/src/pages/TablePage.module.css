@@ -1,3 +1,17 @@
+.pageActions {
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+    width: 80%;
+}
+
+
+.pageActions > * {
+    flex: 1;
+}
+
+
 .searchWrapper {
     position: relative;
 
@@ -15,7 +29,7 @@
 
 .search {
     padding-left: 40px;
-    width: 80%;
+    width: 100%;
 }
 
 
@@ -67,7 +81,7 @@
 
 
 @media (max-width: 1100px) {
-    .pageHeader, .form, .search {
+    .pageActions, .pageHeader, .form, .search {
         width: 100%;
     }
 

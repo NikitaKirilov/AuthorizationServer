@@ -1,0 +1,22 @@
+.form {
+    gap: 20px;
+}
+
+
+.buttonContainer {
+    display: flex;
+
+    gap: 20px;
+}
+
+
+.buttonContainer > * {
+    flex: 1;
+}
+
+
+@media (max-width: 768px) {
+    .page {
+        align-items: center;
+    }
+}

@@ -15,6 +15,7 @@ import UserAdminEditPage from "./pages/UserAdminEditPage/UserAdminEditPage.tsx";
 import RoleAdminPage from "./pages/RoleAdminPage/RoleAdminPage.tsx";
 import RoleAdminEditPage from "./pages/RoleAdminEditPage/RoleAdminEditPage.tsx";
 import AuthorityAdminPage from "./pages/AuthorityAdminPage/AuthorityAdminPage.tsx";
+import AuthorityAdminEditPage from "./pages/AuthorityAdminEditPage/AuthorityAdminEditPage.tsx";
 
 
 const SidebarLayout = () => (
@@ -84,6 +85,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "authorities",
                                 element: <AuthorityAdminPage/>
+                            },
+                            {
+                                path: "authorities/authority",
+                                element: <AuthorityAdminEditPage/>,
                             }
                         ],
                     },

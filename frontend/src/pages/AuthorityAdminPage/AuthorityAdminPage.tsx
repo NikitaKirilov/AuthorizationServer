@@ -48,12 +48,18 @@ const AuthorityAdminPage = () => {
         <Page>
             <Header title={"Управление привилегиями"}
                     subtitle={"Просматривайте и управляйте привилегиями в системе"}/>
-            <div className={styles.searchWrapper}>
-                <Search className={styles.searchIcon} size={18}/>
-                <TextInput className={styles.search}
-                           value={search}
-                           placeholder={"Введите поисковый запрос"}
-                           onChange={e => setSearch(e.target.value)}/>
+            <div className={styles.pageActions}>
+                <div className={styles.searchWrapper}>
+                    <Search className={styles.searchIcon} size={18}/>
+                    <TextInput className={styles.search}
+                               value={search}
+                               placeholder={"Введите поисковый запрос"}
+                               onChange={e => setSearch(e.target.value)}/>
+                </div>
+                <Button variant={"primary"}
+                        onClick={() => navigate("authority")}>
+                    Создать привилегию
+                </Button>
             </div>
             <Form className={styles.form}>
                 <GridRow className={styles.formHeader}>
@@ -85,7 +91,8 @@ const AuthorityAdminPage = () => {
                                 <div className={styles.field}>
                                     <span className={styles.fieldName}>Действия</span>
                                     <div className={styles.actions}>
-                                        <Button variant={"icon"} onClick={() => navigate(`authority?id=${authority.id}}`)}>
+                                        <Button variant={"icon"}
+                                                onClick={() => navigate(`authority?id=${authority.id}`)}>
                                             <Pencil size={18}/>
                                         </Button>
                                         <Button variant={"icon"} onClick={() => deleteAuthority(authority.id)}>

@@ -1,11 +1,17 @@
 import axiosInstance from "../configs/axiosConfig.ts";
 import {PageResponse} from "../types/PageResponse.ts";
-import {AuthorityDto} from "../types/AuthorityDto.ts";
+import {AuthorityDto, fixDates} from "../types/AuthorityDto.ts";
 
 const API_URL = "/admin/authorities";
 
 const authorityAdminApi = {
-    getAllAuthorities: async (page: number, filters?: string) => {
+    getAuthorityById: async (id: string) => {
+        const response = await axiosInstance.get(`${API_URL}/${id}`, {});
+        console.log(response);
+        return fixDates(response.data);
+    },
+
+    getAllAuthorities: async (page?: number, filters?: string) => {
         const filterParams = Object.fromEntries(
             new URLSearchParams(filters),
         );
@@ -24,12 +30,18 @@ const authorityAdminApi = {
 
         return {
             ...data,
-            content: data.content.map(authority => ({
-                ...authority,
-                createdAt: new Date(authority.createdAt),
-                updatedAt: new Date(authority.updatedAt),
-            })),
+            content: data.content.map(fixDates),
         };
+    },
+
+    createAuthority: async (dto: AuthorityDto) => {
+        const response = await axiosInstance.post<AuthorityDto>(`${API_URL}`, dto);
+        return fixDates(response.data);
+    },
+
+    updateAuthority: async (id: string, dto: AuthorityDto) => {
+        const response = await axiosInstance.put<AuthorityDto>(`${API_URL}/${id}`, dto);
+        return fixDates(response.data);
     },
 
     deleteAuthority: async (id: string) => {

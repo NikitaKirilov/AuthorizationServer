@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(
         const redirect = response.headers["redirect"];
 
         if (redirect) {
-            router.navigate(redirect, {replace: true});
+            await router.navigate(redirect, {replace: true});
         }
 
         return response;
@@ -39,11 +39,11 @@ axiosInstance.interceptors.response.use(
 
         switch (message) {
             case "EMAIL_NOT_VERIFIED":
-                router.navigate("/app/registrations/verify", {replace: true});
+                await router.navigate("/app/registrations/verify", {replace: true});
                 break;
 
             case "LOGIN_REQUIRED":
-                router.navigate("/app/login", {replace: true});
+                await router.navigate("/app/login", {replace: true});
                 break;
         }
 

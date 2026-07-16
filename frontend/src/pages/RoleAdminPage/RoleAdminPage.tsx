@@ -52,12 +52,18 @@ const RoleAdminPage = () => {
                     title={"Управление ролями"}
                     subtitle={"Просматривайте и управляйте ролями в системе"}>
             </Header>
-            <div className={styles.searchWrapper}>
-                <Search className={styles.searchIcon} size={18}/>
-                <TextInput className={styles.search}
-                           value={search}
-                           placeholder={"Введите поисковый запрос"}
-                           onChange={e => setSearch(e.target.value)}/>
+            <div className={styles.pageActions}>
+                <div className={styles.searchWrapper}>
+                    <Search className={styles.searchIcon} size={18}/>
+                    <TextInput className={styles.search}
+                               value={search}
+                               placeholder={"Введите поисковый запрос"}
+                               onChange={e => setSearch(e.target.value)}/>
+                </div>
+                <Button variant={"primary"}
+                        onClick={() => navigate("role")}>
+                    Создать роль
+                </Button>
             </div>
             <Form className={styles.form}>
                 <GridRow className={styles.formHeader}>
